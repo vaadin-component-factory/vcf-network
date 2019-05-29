@@ -7,9 +7,18 @@
       }
     </style>
 
-    <vaadin-demo-snippet id="element-basic-demos-sample-example" when-defined="vcf-hierarchical-network">
+    <vaadin-demo-snippet id="sample-example" when-defined="vcf-hierarchical-network">
       <template preserve-content>
         <vcf-hierarchical-network></vcf-hierarchical-network>
+        <script>
+            window.addDemoReadyListener('#sample-example', function(document) {
+              const element = document.querySelector('vcf-hierarchical-network');
+              element.data = {
+                nodes: [{ id: 1, label: 'Node 1' }, { id: 2, label: 'Node 2' }],
+                edges: [{ from: 1, to: 2 }]
+              };
+            });
+        </script>
       </template>
     </vaadin-demo-snippet>
 
