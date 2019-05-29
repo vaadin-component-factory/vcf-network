@@ -1,0 +1,15 @@
+{
+  "name": "VCF Hierarchical Network",
+  "pages": [
+    {
+      "name": "Basics",
+      "url": "element-basic-demos",
+      "src": "element-basic-demos.html",
+      "meta": {
+        "title": "VCF Hierarchical Network Basics",
+        "description": "",
+        "image": ""
+      }
+    }
+  ]
+}

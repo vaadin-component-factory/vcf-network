@@ -1,0 +1,25 @@
+<dom-module id="element-basic-demos">
+  <template>
+    <style include="vaadin-component-demo-shared-styles">
+      :host {
+        display: block;
+        padding-top: var(--lumo-space-l);
+      }
+    </style>
+
+    <vaadin-demo-snippet id="element-basic-demos-sample-example" when-defined="vcf-hierarchical-network">
+      <template preserve-content>
+        <vcf-hierarchical-network></vcf-hierarchical-network>
+      </template>
+    </vaadin-demo-snippet>
+
+  </template>
+  <script>
+    class ElementBasicDemos extends DemoReadyEventEmitter(ElementDemo(Polymer.Element)) {
+      static get is() {
+        return 'element-basic-demos';
+      }
+    }
+    customElements.define(ElementBasicDemos.is, ElementBasicDemos);
+  </script>
+</dom-module>

@@ -1,0 +1,157 @@
+<!--
+@license
+Copyright (c) 2018 Vaadin Ltd.
+This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+-->
+
+<link rel="import" href="../../polymer/polymer-element.html">
+<link rel="import" href="../../vaadin-themable-mixin/vaadin-themable-mixin.html">
+<link rel="import" href="../../vaadin-element-mixin/vaadin-element-mixin.html">
+<script type="module" src="./vis-styles.js"></script>
+<script src="../../vis/dist/vis.js"></script>
+
+<link rel="import" href="./vcf-hierarchical-network-toolbar.html">
+
+<dom-module id="vcf-hierarchical-network">
+  <template>
+    <style include="vis-styles">
+      :host {
+        display: flex;
+        border: 1px solid var(--lumo-primary-color-50pct);
+      }
+
+      :host([hidden]) {
+        display: none !important;
+      }
+
+      .canvas-container {
+        background: #fafafa;
+      }
+    </style>
+    <vcf-hierarchical-network-toolbar id="toolbar"></vcf-hierarchical-network-toolbar>
+    <div id="main" class="canvas-container"></div>
+  </template>
+
+  <script>
+    (function() {
+      /**
+       * @memberof Vaadin
+       * @mixes Vaadin.ElementMixin
+       * @mixes Vaadin.ThemableMixin
+       * @demo demo/index.html
+       */
+      class VcfHierarchicalNetwork extends Vaadin.ElementMixin(Vaadin.ThemableMixin(Polymer.Element)) {
+        static get is() {
+          return 'vcf-hierarchical-network';
+        }
+        static get version() {
+          return '0.1.0';
+        }
+
+        static get properties() {
+          return {
+            width: {
+              type: Number,
+              value: 800
+            },
+            height: {
+              type: Number,
+              value: 600
+            },
+            addingEdge: {
+              type: Boolean,
+              observer: '_addingEdge'
+            },
+            addingNode: {
+              type: Boolean,
+              observer: '_addingNode'
+            },
+            addingGroupNode: {
+              type: Boolean,
+              observer: '_addingGroupNode'
+            },
+            _parent: {
+              type: Object,
+              observer: '_setDimensions'
+            },
+            _network: {
+              type: Object
+            }
+          };
+        }
+
+        connectedCallback() {
+          super.connectedCallback();
+          this._parent = this.parentNode.host;
+          this._network = new vis.Network(this.$.main, {}, {});
+          this._network.moveTo({
+            scale: 2
+          });
+          this._canvas = this.shadowRoot.querySelector('canvas');
+          this._initEventListeners();
+        }
+
+        _setDimensions() {
+          const parentBoundingRect = this._parent.getBoundingClientRect();
+          const parentStyles = window.getComputedStyle(this._parent);
+          let toolbarWidth = 0;
+          if (this.$.toolbar) {
+            toolbarWidth = this.$.toolbar.clientWidth;
+          }
+          if (!this._parent.style.width) {
+            this.$.main.style.width = `${parseInt(parentStyles.width) - toolbarWidth}px`;
+          } else {
+            this.$.main.style.width = `${this._parent.style.width - toolbarWidth}px`;
+          }
+          if (!this._parent.style.height) {
+            this.$.main.style.height = `calc(80vh - ${parentBoundingRect.top}px)`;
+          } else {
+            this.$.main.style.height = `${this._parent.style.height}px`;
+          }
+        }
+
+        _initNetwork() {
+
+        }
+
+        _initEventListeners() {
+          this.$.toolbar.addEventListener('adding-node', e => {
+            this.addingNode = true;
+            this._canvas.style.cursor = 'crosshair';
+          });
+          this.$.toolbar.addEventListener('adding-edge', e => {
+            this.addingEdge = true;
+            this._canvas.style.cursor = 'default';
+          });
+          this._canvas.addEventListener('click', () => {
+            this.addingNode = false;
+            this.addingEdge = false;
+            this.$.toolbar.clear();
+            this._canvas.style.cursor = 'default';
+          });
+        }
+
+        _addingNode() {
+          if (this.addingNode) {
+            this._network.addNodeMode();
+            this.addingEdge = false;
+          }
+        }
+
+        _addingEdge() {
+          if (this.addingEdge) {
+            this._network.addEdgeMode();
+            this.addingNode = false;
+          }
+        }
+      }
+
+      customElements.define(VcfHierarchicalNetwork.is, VcfHierarchicalNetwork);
+
+      /**
+       * @namespace Vaadin
+       */
+      window.Vaadin.VcfHierarchicalNetwork = VcfHierarchicalNetwork;
+    })();
+  </script>
+</dom-module>

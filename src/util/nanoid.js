@@ -1,0 +1,1 @@
+window.nanoid = require('nanoid');
