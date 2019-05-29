@@ -97,10 +97,6 @@ This program is available under Apache License Version 2.0, available at https:/
             <iron-icon icon="editor:format-shapes"></iron-icon>
             <span class="section-item-label">Node</span>
           </div>
-          <div id="add-edge" class="section-item" >
-            <iron-icon icon="social:share"></iron-icon>
-            <span class="section-item-label">Edge</span>
-          </div>
           <div id="add-group-node" class="section-item">
             <iron-icon icon="icons:group-work"></iron-icon>
             <span class="section-item-label">Group Node</span>
@@ -140,8 +136,12 @@ This program is available under Apache License Version 2.0, available at https:/
 
         connectedCallback() {
           super.connectedCallback();
+          this._initToolbar();
           this._initEventListeners();
-          this._sectionItems = this.shadowRoot.querySelectorAll('.section-item');
+        }
+
+        clear() {
+          this._sectionItems.forEach(item => item.classList.remove('active'));
         }
 
         _initEventListeners() {
@@ -149,8 +149,6 @@ This program is available under Apache License Version 2.0, available at https:/
           const sectionHeaders = this.shadowRoot.querySelectorAll('.section-header');
           sectionHeaders.forEach(header => {
             const section = header.parentElement;
-            const sectionItems = section.querySelector('.section-items');
-            sectionItems.style.maxHeight = `${sectionItems.clientHeight}px`;
             header.addEventListener('click', () => {
               if (section.classList.contains('collapsed')) {
                 section.classList.remove('collapsed');
@@ -159,32 +157,26 @@ This program is available under Apache License Version 2.0, available at https:/
               }
             });
           });
-          /* Add Node */
-          const addNodeBtn = this.$['add-node'];
-          addNodeBtn.addEventListener('click', () => {
-            this.clear();
-            if (addNodeBtn.classList.contains('active')) {
-              addNodeBtn.classList.remove('active');
-            } else {
-              addNodeBtn.classList.add('active');
-              this.dispatchEvent(new CustomEvent('adding-node'));
-            }
-          });
-          /* Add Edge */
-          const addEdgeBtn = this.$['add-edge'];
-          addEdgeBtn.addEventListener('click', () => {
-            this.clear();
-            if (addEdgeBtn.classList.contains('active')) {
-              addEdgeBtn.classList.remove('active');
-            } else {
-              addEdgeBtn.classList.add('active');
-              this.dispatchEvent(new CustomEvent('adding-edge'));
-            }
-          });
+          /* buttons */
+          this.$['add-node'].addEventListener('click', this._addNodeHandler.bind(this));
         }
 
-        clear() {
-          this._sectionItems.forEach(item => item.classList.remove('active'));
+        _initToolbar() {
+          this._sectionItems = this.shadowRoot.querySelectorAll('.section-item');
+          // Set max-height of section-items for collapse animation
+          const sectionItems = this.shadowRoot.querySelector('.section-items');
+          sectionItems.style.maxHeight = `${sectionItems.clientHeight}px`;
+        }
+
+        _addNodeHandler() {
+          const addNodeBtn = this.$['add-node'];
+          this.clear();
+          if (addNodeBtn.classList.contains('active')) {
+            addNodeBtn.classList.remove('active');
+          } else {
+            addNodeBtn.classList.add('active');
+            this.dispatchEvent(new CustomEvent('adding-node'));
+          }
         }
       }
       customElements.define(VcfHierarchicalNetworkToolbar.is, VcfHierarchicalNetworkToolbar);
