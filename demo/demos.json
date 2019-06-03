@@ -4,7 +4,7 @@
     {
       "name": "Basics",
       "url": "element-basic-demos",
-      "src": "element-basic-demos.html",
+      "src": "element-basic-demos.js",
       "meta": {
         "title": "VCF Hierarchical Network Basics",
         "description": "",

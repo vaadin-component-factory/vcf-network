@@ -7,7 +7,8 @@
   "description": "vcf-hierarchical-network",
   "main": [
     "vcf-hierarchical-network.html",
-    "theme/material/vcf-hierarchical-network.html"
+    "theme/material/vcf-hierarchical-network.html",
+    "demo/element-basic-demos.html"
   ],
   "keywords": [
     "Vaadin",
@@ -25,7 +26,7 @@
     "wct.conf.js"
   ],
   "dependencies": {
-    "polymer": "^2.0.0",
+    "polymer": "Polymer/polymer#5f5d2c2",
     "vaadin-themable-mixin": "vaadin/vaadin-themable-mixin#^1.2.0",
     "vaadin-element-mixin": "vaadin/vaadin-element-mixin#^2.0.0",
     "vaadin-lumo-styles": "vaadin/vaadin-lumo-styles#^1.4.1",
@@ -38,6 +39,7 @@
     "vaadin-demo-helpers": "vaadin/vaadin-demo-helpers#^2.2.0"
   },
   "resolutions": {
-    "vaadin-element-mixin": "^2.0.0"
+    "vaadin-element-mixin": "^2.0.0",
+    "polymer": "5f5d2c2"
   }
 }
