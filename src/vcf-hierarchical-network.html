@@ -64,15 +64,15 @@ This program is available under Apache License Version 2.0, available at https:/
             },
             addingEdge: {
               type: Boolean,
-              observer: '_addingEdge'
+              observer: '_addingEdgeChanged'
             },
             addingNode: {
               type: Boolean,
-              observer: '_addingNode'
+              observer: '_addingNodeChanged'
             },
-            addingGroupNode: {
+            addingComponent: {
               type: Boolean,
-              observer: '_addingGroupNode'
+              observer: '_addingComponentChanged'
             },
             _parent: {
               type: Object,
@@ -187,7 +187,7 @@ This program is available under Apache License Version 2.0, available at https:/
           });
         }
 
-        _addingNode() {
+        _addingNodeChanged() {
           if (this.addingNode) {
             this._network.addNodeMode();
             this.addingEdge = false;
@@ -197,7 +197,7 @@ This program is available under Apache License Version 2.0, available at https:/
           }
         }
 
-        _addingEdge() {
+        _addingEdgeChanged() {
           if (this.addingEdge) {
             this._network.addEdgeMode();
             this.addingNode = false;
@@ -222,6 +222,10 @@ This program is available under Apache License Version 2.0, available at https:/
         }
 
         _addingNodeCallback(data, callback) {
+          this.data.nodes.push({
+            id: data.id,
+            label: data.label
+          });
           this.addingNode = false;
           this.$.toolbar.clear();
           this._canvas.style.cursor = 'default';
@@ -229,6 +233,10 @@ This program is available under Apache License Version 2.0, available at https:/
         }
 
         _addingEdgeCallback(data, callback) {
+          this.data.edges.push({
+            from: data.from,
+            to: data.to
+          });
           this.addingEdge = false;
           this._canvas.style.cursor = 'default';
           callback(data);
@@ -237,11 +245,11 @@ This program is available under Apache License Version 2.0, available at https:/
         _detectNode(event) {
           const pointer = this._manipulation.body.functions.getPointer(event.center);
           const pointerObj = this._manipulation.selectionHandler._pointerToPositionObject(pointer);
-          const overlappingNodeIds = this._manipulation.selectionHandler._getAllNodesOverlappingWith(pointerObj);
+          const nodeIds = this._manipulation.selectionHandler._getAllNodesOverlappingWith(pointerObj);
           let node = undefined;
-          for (let i = overlappingNodeIds.length - 1; i >= 0; i--) {
-            if (this._manipulation.temporaryIds.nodes.indexOf(overlappingNodeIds[i]) === -1) {
-              node = this._manipulation.body.nodes[overlappingNodeIds[i]];
+          for (const id of nodeIds) {
+            if (this._manipulation.temporaryIds.nodes.indexOf(id) === -1) {
+              node = this._manipulation.body.nodes[id];
               break;
             }
           }

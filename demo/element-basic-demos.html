@@ -14,8 +14,16 @@
             window.addDemoReadyListener('#sample-example', function(document) {
               const element = document.querySelector('vcf-hierarchical-network');
               element.data = {
-                nodes: [{ id: 1, label: 'Node 1' }, { id: 2, label: 'Node 2' }],
-                edges: [{ from: 1, to: 2 }]
+                nodes: [
+                  { id: 1, label: '1' },
+                  { id: 2, label: '2' },
+                  { id: 3, label: '3' }
+                ],
+                edges: [
+                  { from: 1, to: 2 },
+                  { from: 2, to: 3 },
+                  { from: 3, to: 1 }
+                ]
               };
             });
         </script>
