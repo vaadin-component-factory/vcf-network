@@ -1,0 +1,1 @@
+window.vis = require('vis');

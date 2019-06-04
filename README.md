@@ -1,14 +1,5 @@
 # &lt;vcf-hierarchical-network&gt;
 
-[![npm version](https://badgen.net/npm/v/@vaadin/vcf-hierarchical-network)](https://www.npmjs.com/package/@vaadin/vcf-hierarchical-network)
-
-```html
-<vcf-hierarchical-network>
-  ...
-</vcf-hierarchical-network>
-```
-
-
 ## Installation
 
 Install `vcf-hierarchical-network`:

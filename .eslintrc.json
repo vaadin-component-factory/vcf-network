@@ -1,19 +1,20 @@
 {
-  "extends": "vaadin",
+  "extends": ["vaadin", "prettier"],
   "env": {
     "browser": true,
     "node": true,
     "es6": true
   },
-  "plugins": [
-    "html"
-  ],
+  "parser": "babel-eslint",
+  "parserOptions": {
+    "ecmaVersion": 7,
+    "sourceType": "module",
+    "allowImportExportEverywhere": true
+  },
   "globals": {
-    "Polymer": false,
-    "Vaadin": false,
     "vis": false
   },
-  "parserOptions": {
-    "sourceType": "module"
+  "rules": {
+    "max-len": ["error", { "code": 100 }]
   }
 }
