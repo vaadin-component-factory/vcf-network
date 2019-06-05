@@ -38,8 +38,10 @@
   "dependencies": {
     "@polymer/iron-icons": "^3.0.1",
     "@polymer/polymer": "^3.0.0",
+    "@vaadin/vaadin-button": "^2.2.0",
     "@vaadin/vaadin-element-mixin": "^2.1.3",
     "@vaadin/vaadin-lumo-styles": "^1.5.0",
+    "@vaadin/vaadin-text-field": "^2.4.4",
     "@vaadin/vaadin-themable-mixin": "^1.4.4",
     "vis": "^4.21.0"
   },

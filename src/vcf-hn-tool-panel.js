@@ -5,20 +5,24 @@ import '@polymer/iron-icons/editor-icons';
 import '@polymer/iron-icons/hardware-icons';
 import '@polymer/iron-icons/social-icons';
 
-class VcfHierarchicalNetworkToolbar extends ThemableMixin(PolymerElement) {
+class VcfHNToolsPanel extends ThemableMixin(PolymerElement) {
   static get template() {
     return html`
       <style>
         :host {
           display: block;
-          color: var(--lumo-secondary-text-color);
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          font-size: var(--lumo-font-size-s);
         }
 
         :host([hidden]) {
           display: none !important;
         }
 
-        .toolbar-container {
+        .panel-container {
+          color: var(--lumo-secondary-text-color);
           background: var(--lumo-base-color);
           border-right: 1px solid var(--lumo-shade-20pct);
           width: 200px;
@@ -39,7 +43,7 @@ class VcfHierarchicalNetworkToolbar extends ThemableMixin(PolymerElement) {
 
         .section-header {
           display: flex;
-          padding: var(--lumo-space-m);
+          padding: var(--lumo-space-s) var(--lumo-space-m);
           text-transform: uppercase;
           cursor: pointer;
         }
@@ -58,7 +62,7 @@ class VcfHierarchicalNetworkToolbar extends ThemableMixin(PolymerElement) {
 
         .section-item {
           display: flex;
-          padding: var(--lumo-space-m);
+          padding: var(--lumo-space-s) var(--lumo-space-m);
           background-color: transparent;
           transition: background-color 0.2s;
         }
@@ -66,6 +70,11 @@ class VcfHierarchicalNetworkToolbar extends ThemableMixin(PolymerElement) {
         .section-item > iron-icon {
           color: var(--lumo-primary-color);
           margin-right: var(--lumo-space-m);
+        }
+
+        .section-item > span {
+          line-height: 1;
+          margin: auto 0;
         }
 
         .section-item-label::first-letter {
@@ -80,8 +89,16 @@ class VcfHierarchicalNetworkToolbar extends ThemableMixin(PolymerElement) {
         .section-item.active {
           background-color: var(--lumo-shade-10pct);
         }
+
+        .section-item > .green {
+          color: var(--lumo-error-text-color);
+        }
+
+        .section-item > .red {
+          color: var(--lumo-success-text-color);
+        }
       </style>
-      <div id="main" class="toolbar-container">
+      <div id="main" class="panel-container">
         <div class="section">
           <div class="section-header">
             <span>Default</span>
@@ -92,9 +109,13 @@ class VcfHierarchicalNetworkToolbar extends ThemableMixin(PolymerElement) {
               <iron-icon icon="editor:format-shapes"></iron-icon>
               <span class="section-item-label">Node</span>
             </div>
-            <div id="add-group-node" class="section-item">
-              <iron-icon icon="icons:group-work"></iron-icon>
-              <span class="section-item-label">Component</span>
+            <div id="add-input-node" class="section-item">
+              <iron-icon icon="icons:exit-to-app" class="green"></iron-icon>
+              <span class="section-item-label">Input Node</span>
+            </div>
+            <div id="add-output-node" class="section-item">
+              <iron-icon icon="icons:exit-to-app" class="red"></iron-icon>
+              <span class="section-item-label">Output Node</span>
             </div>
           </div>
         </div>
@@ -110,7 +131,7 @@ class VcfHierarchicalNetworkToolbar extends ThemableMixin(PolymerElement) {
   }
 
   static get is() {
-    return 'vcf-hierarchical-network-toolbar';
+    return 'vcf-hn-tool-panel';
   }
 
   static get properties() {
@@ -168,4 +189,4 @@ class VcfHierarchicalNetworkToolbar extends ThemableMixin(PolymerElement) {
   }
 }
 
-customElements.define(VcfHierarchicalNetworkToolbar.is, VcfHierarchicalNetworkToolbar);
+customElements.define(VcfHNToolsPanel.is, VcfHNToolsPanel);
