@@ -24,6 +24,7 @@ class VcfHNInfoPanel extends ThemableMixin(PolymerElement) {
         }
 
         .selection {
+          height: 24px;
           position: relative;
           padding: var(--lumo-space-s) var(--lumo-space-m);
           border-bottom: 1px solid var(--lumo-shade-20pct);
@@ -114,8 +115,8 @@ class VcfHNInfoPanel extends ThemableMixin(PolymerElement) {
 
   _initEventListeners() {
     this.$['create-component-button'].addEventListener('click', () => {
-      this._network.clustering.cluster({
-        joinCondition: n => this._network.body.nodes[n.id].selected
+      this._parent._network.clustering.cluster({
+        joinCondition: n => this._parent._network.body.nodes[n.id].selected
       });
     });
   }
@@ -123,7 +124,7 @@ class VcfHNInfoPanel extends ThemableMixin(PolymerElement) {
   _selectionChanged(selection) {
     this._setSelectionText();
     if (selection.nodes.length === 1) {
-      const selectedNode = this._network.body.nodes[selection.nodes[0]];
+      const selectedNode = this._parent._network.body.nodes[selection.nodes[0]];
       this.$['node-name'].value = selectedNode.options.label;
       this.$['node-id'].value = selectedNode.id;
     }

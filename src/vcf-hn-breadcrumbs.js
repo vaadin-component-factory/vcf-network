@@ -7,12 +7,11 @@ class VcfHNBreadcrumbs extends ThemableMixin(PolymerElement) {
       <style>
         :host {
           position: absolute;
-          left: 201px;
-          right: 201px;
           font-size: var(--lumo-font-size-s);
         }
 
         .breadcrumbs-container {
+          height: 24px;
           padding: var(--lumo-space-s) var(--lumo-space-m);
           background-color: var(--lumo-base-color);
           border-bottom: 1px solid var(--lumo-shade-20pct);
@@ -29,11 +28,21 @@ class VcfHNBreadcrumbs extends ThemableMixin(PolymerElement) {
   }
 
   static get properties() {
-    return {};
+    return {
+      _parent: {
+        type: Object,
+        observer: '_parentChanged'
+      }
+    };
   }
 
   connectedCallback() {
     super.connectedCallback();
+  }
+
+  _parentChanged() {
+    this.style.left = `${this._parent.$.toolpanel.clientWidth}px`;
+    this.style.right = `${this._parent.$.infopanel.clientWidth}px`;
   }
 }
 

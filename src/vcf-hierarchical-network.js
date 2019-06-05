@@ -75,6 +75,7 @@ class VcfHierarchicalNetwork extends ElementMixin(ThemableMixin(PolymerElement))
   connectedCallback() {
     super.connectedCallback();
     this._initNetwork();
+    this._initComponents();
     this._initEventListeners();
     this._initMultiSelect();
     this._setMargins();
@@ -147,7 +148,12 @@ class VcfHierarchicalNetwork extends ElementMixin(ThemableMixin(PolymerElement))
     this._manipulation = this._network.manipulation;
     this._canvas = this.shadowRoot.querySelector('canvas');
     this._ctx = this._canvas.getContext('2d');
-    this.$.infopanel._network = this._network;
+  }
+
+  _initComponents() {
+    this.$.infopanel._parent = this;
+    this.$.toolpanel._parent = this;
+    this.$.breadcrumbs._parent = this;
   }
 
   _initEventListeners() {
@@ -174,83 +180,6 @@ class VcfHierarchicalNetwork extends ElementMixin(ThemableMixin(PolymerElement))
     this._network.on('select', opt => {
       this.$.infopanel.selection = opt;
     });
-  }
-
-  _addingNodeChanged() {
-    if (this.addingNode) {
-      this._network.addNodeMode();
-      this.addingEdge = false;
-      this._canvas.style.cursor = 'crosshair';
-    } else {
-      this._canvas.style.cursor = 'default';
-    }
-  }
-
-  _addingEdgeChanged() {
-    if (this.addingEdge) {
-      this._network.addEdgeMode();
-      this.addingNode = false;
-      this._canvas.style.cursor = 'crosshair';
-    } else {
-      this._canvas.style.cursor = 'default';
-    }
-  }
-
-  _dataChanged(data) {
-    if (this._network && (data.nodes.length || data.edges.length)) {
-      this._network.setData({
-        nodes: new vis.DataSet(data.nodes),
-        edges: new vis.DataSet(data.edges)
-      });
-      setTimeout(() => {
-        this._network.fit({
-          nodes: this.data.nodes.map(n => n.id)
-        });
-      });
-    }
-  }
-
-  _addingNodeCallback(data, callback) {
-    this.data.nodes.push({
-      id: data.id,
-      label: data.label
-    });
-    this.addingNode = false;
-    this.$.toolpanel.clear();
-    this._canvas.style.cursor = 'default';
-    callback(data);
-  }
-
-  _addingEdgeCallback(data, callback) {
-    this.data.edges.push({
-      from: data.from,
-      to: data.to
-    });
-    this.addingEdge = false;
-    this._canvas.style.cursor = 'default';
-    callback(data);
-  }
-
-  _detectNode(event) {
-    const pointer = this._manipulation.body.functions.getPointer(event.center);
-    const pointerObj = this._manipulation.selectionHandler._pointerToPositionObject(pointer);
-    const nodeIds = this._manipulation.selectionHandler._getAllNodesOverlappingWith(pointerObj);
-    let node = undefined;
-    for (const id of nodeIds) {
-      if (this._manipulation.temporaryIds.nodes.indexOf(id) === -1) {
-        node = this._manipulation.body.nodes[id];
-        break;
-      }
-    }
-    return node;
-  }
-
-  _reset() {
-    this.addingNode = false;
-    this.addingEdge = false;
-    this.$.toolpanel.clear();
-    this._manipulation._clean();
-    this._manipulation._restore();
   }
 
   _initMultiSelect() {
@@ -335,6 +264,83 @@ class VcfHierarchicalNetwork extends ElementMixin(ThemableMixin(PolymerElement))
       }
     });
     this.$.main.oncontextmenu = () => false;
+  }
+
+  _addingNodeChanged() {
+    if (this.addingNode) {
+      this._network.addNodeMode();
+      this.addingEdge = false;
+      this._canvas.style.cursor = 'crosshair';
+    } else {
+      this._canvas.style.cursor = 'default';
+    }
+  }
+
+  _addingEdgeChanged() {
+    if (this.addingEdge) {
+      this._network.addEdgeMode();
+      this.addingNode = false;
+      this._canvas.style.cursor = 'crosshair';
+    } else {
+      this._canvas.style.cursor = 'default';
+    }
+  }
+
+  _dataChanged(data) {
+    if (this._network && (data.nodes.length || data.edges.length)) {
+      this._network.setData({
+        nodes: new vis.DataSet(data.nodes),
+        edges: new vis.DataSet(data.edges)
+      });
+      setTimeout(() => {
+        this._network.fit({
+          nodes: this.data.nodes.map(n => n.id)
+        });
+      });
+    }
+  }
+
+  _addingNodeCallback(data, callback) {
+    this.data.nodes.push({
+      id: data.id,
+      label: data.label
+    });
+    this.addingNode = false;
+    this.$.toolpanel.clear();
+    this._canvas.style.cursor = 'default';
+    callback(data);
+  }
+
+  _addingEdgeCallback(data, callback) {
+    this.data.edges.push({
+      from: data.from,
+      to: data.to
+    });
+    this.addingEdge = false;
+    this._canvas.style.cursor = 'default';
+    callback(data);
+  }
+
+  _detectNode(event) {
+    const pointer = this._manipulation.body.functions.getPointer(event.center);
+    const pointerObj = this._manipulation.selectionHandler._pointerToPositionObject(pointer);
+    const nodeIds = this._manipulation.selectionHandler._getAllNodesOverlappingWith(pointerObj);
+    let node = undefined;
+    for (const id of nodeIds) {
+      if (this._manipulation.temporaryIds.nodes.indexOf(id) === -1) {
+        node = this._manipulation.body.nodes[id];
+        break;
+      }
+    }
+    return node;
+  }
+
+  _reset() {
+    this.addingNode = false;
+    this.addingEdge = false;
+    this.$.toolpanel.clear();
+    this._manipulation._clean();
+    this._manipulation._restore();
   }
 }
 
