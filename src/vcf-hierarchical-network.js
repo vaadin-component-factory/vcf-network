@@ -139,7 +139,8 @@ class VcfHierarchicalNetwork extends ElementMixin(ThemableMixin(PolymerElement))
       },
       interaction: {
         multiselect: true,
-        selectConnectedEdges: false
+        selectConnectedEdges: false,
+        dragNodes: true
       }
     };
     this._network = new vis.Network(this.$.main, this._visDataset, this._options);
@@ -152,12 +153,14 @@ class VcfHierarchicalNetwork extends ElementMixin(ThemableMixin(PolymerElement))
   _initEventListeners() {
     this.$.toolpanel.addEventListener('adding-node', e => (this.addingNode = true));
     this.$.toolpanel.addEventListener('adding-edge', e => (this.addingEdge = true));
-    this._network.on('hold', opt => {
-      if (opt.nodes.length) {
+    this._network.on('dragStart', opt => {
+      if (opt.nodes.length === 1) {
+        const nodeId = opt.nodes[0];
         this.addingEdge = true;
         this._manipulation._handleConnect(opt.event);
         this._manipulation._temporaryBindUI('onRelease', e => {
-          if (this._detectNode(e)) {
+          const node = this._detectNode(e);
+          if (node && node.id !== nodeId) {
             this._manipulation._finishConnect(e);
           } else {
             this._reset();
@@ -166,7 +169,7 @@ class VcfHierarchicalNetwork extends ElementMixin(ThemableMixin(PolymerElement))
       }
     });
     this._network.on('release', () => {
-      this._network.moveTo({ scale: 2 });
+      this._network.moveTo({ scale: 3 });
     });
     this._network.on('select', opt => {
       this.$.infopanel.selection = opt;
