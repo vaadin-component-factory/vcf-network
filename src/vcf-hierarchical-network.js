@@ -9,7 +9,7 @@ import './vcf-hn-info-panel';
 class VcfHierarchicalNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   static get template() {
     return html`
-      <style include="vis-styles">
+      <style>
         :host {
           display: flex;
           position: relative;
