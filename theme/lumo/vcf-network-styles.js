@@ -6,8 +6,8 @@ import '@vaadin/vaadin-lumo-styles/style';
 import '@vaadin/vaadin-lumo-styles/typography';
 
 styleModule({
-  themeFor: 'vcf-hierarchical-network',
-  themeName: 'vcf-hierarchical-network-lumo',
+  themeFor: 'vcf-network',
+  themeName: 'vcf-network-lumo',
   include: 'lumo-color lumo-typography',
   styles: `
     :host {

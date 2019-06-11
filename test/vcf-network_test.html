@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
 
-    <title>vcf-hierarchical-network test</title>
+    <title>vcf-network test</title>
 
     <script src="../node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
     <script src="../node_modules/@polymer/test-fixture/test-fixture.js"></script>
@@ -12,31 +12,31 @@
     <script src="../node_modules/chai/chai.js"></script>
     <script src="../node_modules/wct-mocha/wct-mocha.js"></script>
 
-    <script type="module" src="../vcf-hierarchical-network.js"></script>
+    <script type="module" src="../theme/lumo/vcf-network.js"></script>
   </head>
   <body>
 
     <test-fixture id="BasicTestFixture">
       <template>
-        <vcf-hierarchical-network></vcf-hierarchical-network>
+        <vcf-network></vcf-network>
       </template>
     </test-fixture>
 
     <test-fixture id="ChangedPropertyTestFixture">
       <template>
-        <vcf-hierarchical-network prop1="new-prop1"></vcf-hierarchical-network>
+        <vcf-network prop1="new-prop1"></vcf-network>
       </template>
     </test-fixture>
 
     <script type="module">
-      suite('vcf-hierarchical-network', () => {
+      suite('vcf-network', () => {
 
         test('instantiating the element with default properties works', () => {
           const element = fixture('BasicTestFixture');
-          assert.equal(element.prop1, 'vcf-hierarchical-network');
+          assert.equal(element.prop1, 'vcf-network');
           const elementShadowRoot = element.shadowRoot;
           const elementHeader = elementShadowRoot.querySelector('h2');
-          assert.equal(elementHeader.innerHTML, 'Hello vcf-hierarchical-network!');
+          assert.equal(elementHeader.innerHTML, 'Hello vcf-network!');
         });
 
         test('setting a property on the element works', () => {

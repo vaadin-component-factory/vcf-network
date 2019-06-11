@@ -1,7 +1,7 @@
 import { html, PolymerElement } from '@polymer/polymer/polymer-element';
 import { ThemableMixin } from '@vaadin/vaadin-themable-mixin/vaadin-themable-mixin';
 
-class VcfHNBreadcrumbs extends ThemableMixin(PolymerElement) {
+class VcfNetworkBreadcrumbs extends ThemableMixin(PolymerElement) {
   static get template() {
     return html`
       <style>
@@ -46,4 +46,4 @@ class VcfHNBreadcrumbs extends ThemableMixin(PolymerElement) {
   }
 }
 
-customElements.define(VcfHNBreadcrumbs.is, VcfHNBreadcrumbs);
+customElements.define(VcfNetworkBreadcrumbs.is, VcfNetworkBreadcrumbs);

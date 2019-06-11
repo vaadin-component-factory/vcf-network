@@ -1,12 +1,12 @@
 import { html, PolymerElement } from '@polymer/polymer/polymer-element';
 import { ThemableMixin } from '@vaadin/vaadin-themable-mixin/vaadin-themable-mixin';
-import { colorVars } from '../util/vcf-hn-colors';
+import { colorVars } from '../util/vcf-network-colors';
 import '@vaadin/vaadin-button';
 import '@vaadin/vaadin-text-field';
 import '@vaadin/vaadin-select';
-import './vcf-hn-color-option';
+import './vcf-network-color-option';
 
-class VcfHNInfoPanel extends ThemableMixin(PolymerElement) {
+class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
   static get template() {
     return html`
       <style>
@@ -247,4 +247,4 @@ class VcfHNInfoPanel extends ThemableMixin(PolymerElement) {
   }
 }
 
-customElements.define(VcfHNInfoPanel.is, VcfHNInfoPanel);
+customElements.define(VcfNetworkInfoPanel.is, VcfNetworkInfoPanel);

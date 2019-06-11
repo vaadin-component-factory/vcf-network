@@ -4,9 +4,9 @@ import '@polymer/iron-icons/iron-icons';
 import '@polymer/iron-icons/editor-icons';
 import '@polymer/iron-icons/hardware-icons';
 import '@polymer/iron-icons/social-icons';
-import './vcf-hn-color-option';
+import './vcf-network-color-option';
 
-class VcfHNToolsPanel extends ThemableMixin(PolymerElement) {
+class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
   static get template() {
     return html`
       <style>
@@ -218,4 +218,4 @@ class VcfHNToolsPanel extends ThemableMixin(PolymerElement) {
   }
 }
 
-customElements.define(VcfHNToolsPanel.is, VcfHNToolsPanel);
+customElements.define(VcfNetworkToolPanel.is, VcfNetworkToolPanel);

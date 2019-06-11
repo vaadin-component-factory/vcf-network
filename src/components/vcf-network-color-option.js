@@ -1,8 +1,8 @@
 import { html, PolymerElement } from '@polymer/polymer/polymer-element';
 import { ThemableMixin } from '@vaadin/vaadin-themable-mixin/vaadin-themable-mixin';
-import { colors, colorVars } from '../util/vcf-hn-colors';
+import { colors, colorVars } from '../util/vcf-network-colors';
 
-class VcfHNColorOption extends ThemableMixin(PolymerElement) {
+class VcfNetworkColorOption extends ThemableMixin(PolymerElement) {
   static get template() {
     colors();
     return html`
@@ -35,4 +35,4 @@ class VcfHNColorOption extends ThemableMixin(PolymerElement) {
   }
 }
 
-customElements.define(VcfHNColorOption.is, VcfHNColorOption);
+customElements.define(VcfNetworkColorOption.is, VcfNetworkColorOption);

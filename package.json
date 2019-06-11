@@ -1,13 +1,13 @@
 {
-  "name": "vcf-hierarchical-network",
+  "name": "vcf-network",
   "version": "0.1.0",
   "description": "Hierarchical network visualizing web component",
-  "main": "theme/lumo/vcf-hierarchical-network.js",
+  "main": "theme/lumo/vcf-network.js",
   "author": "Vaadin Ltd",
   "license": "https://raw.githubusercontent.com/vaadin/vaadin-incubator-element/master/LICENSE",
   "repository": {
     "type": "git",
-    "url": "vaadin-component-factory/vcf-hierarchical-network"
+    "url": "vaadin-component-factory/vcf-network"
   },
   "keywords": [
     "Vaadin",

@@ -2,11 +2,11 @@ import { html, PolymerElement } from '@polymer/polymer/polymer-element';
 import { ThemableMixin } from '@vaadin/vaadin-themable-mixin';
 import { ElementMixin } from '@vaadin/vaadin-element-mixin';
 import './lib/vis-network.web.js';
-import './components/vcf-hn-tool-panel';
-import './components/vcf-hn-breadcrumbs';
-import './components/vcf-hn-info-panel';
+import './components/vcf-network-tool-panel';
+import './components/vcf-network-breadcrumbs';
+import './components/vcf-network-info-panel';
 
-class VcfHierarchicalNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
+class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   static get template() {
     return html`
       <style>
@@ -34,7 +34,7 @@ class VcfHierarchicalNetwork extends ElementMixin(ThemableMixin(PolymerElement))
   }
 
   static get is() {
-    return 'vcf-hierarchical-network';
+    return 'vcf-network';
   }
 
   static get version() {
@@ -385,4 +385,4 @@ class VcfHierarchicalNetwork extends ElementMixin(ThemableMixin(PolymerElement))
   }
 }
 
-customElements.define(VcfHierarchicalNetwork.is, VcfHierarchicalNetwork);
+customElements.define(VcfNetwork.is, VcfNetwork);
