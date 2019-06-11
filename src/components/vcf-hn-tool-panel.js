@@ -4,6 +4,7 @@ import '@polymer/iron-icons/iron-icons';
 import '@polymer/iron-icons/editor-icons';
 import '@polymer/iron-icons/hardware-icons';
 import '@polymer/iron-icons/social-icons';
+import './vcf-hn-color-option';
 
 class VcfHNToolsPanel extends ThemableMixin(PolymerElement) {
   static get template() {
@@ -69,6 +70,9 @@ class VcfHNToolsPanel extends ThemableMixin(PolymerElement) {
 
         .section-item > iron-icon {
           color: var(--lumo-primary-color);
+        }
+
+        .section-item > .icon {
           margin-right: var(--lumo-space-m);
         }
 
@@ -77,7 +81,7 @@ class VcfHNToolsPanel extends ThemableMixin(PolymerElement) {
           margin: auto 0;
         }
 
-        .section-item-label::first-letter {
+        .section-item-label.first::first-letter {
           text-decoration: underline;
         }
 
@@ -106,16 +110,16 @@ class VcfHNToolsPanel extends ThemableMixin(PolymerElement) {
           </div>
           <div class="section-items">
             <div id="add-node" class="section-item">
-              <iron-icon icon="editor:format-shapes"></iron-icon>
-              <span class="section-item-label">Node</span>
+              <iron-icon icon="editor:format-shapes" class="icon"></iron-icon>
+              <span class="section-item-label first">Node</span>
             </div>
             <div id="add-input-node" class="section-item">
-              <iron-icon icon="icons:exit-to-app" class="green"></iron-icon>
-              <span class="section-item-label">Input Node</span>
+              <iron-icon icon="icons:exit-to-app" class="green icon"></iron-icon>
+              <span class="section-item-label first">Input Node</span>
             </div>
             <div id="add-output-node" class="section-item">
-              <iron-icon icon="icons:exit-to-app" class="red"></iron-icon>
-              <span class="section-item-label">Output Node</span>
+              <iron-icon icon="icons:exit-to-app" class="red icon"></iron-icon>
+              <span class="section-item-label first">Output Node</span>
             </div>
           </div>
         </div>
@@ -124,7 +128,14 @@ class VcfHNToolsPanel extends ThemableMixin(PolymerElement) {
             <span>Custom</span>
             <iron-icon icon="hardware:keyboard-arrow-down"></iron-icon>
           </div>
-          <div class="section-items"></div>
+          <div class="section-items" id="custom">
+            <template is="dom-if" if="{{components.length}}">
+              <div class="section-item">
+                <vcf-hn-color-option color="2" class="icon"></vcf-hn-color-option>
+                <span class="section-item-label">Component</span>
+              </div>
+            </template>
+          </div>
         </div>
       </div>
     `;
@@ -138,7 +149,7 @@ class VcfHNToolsPanel extends ThemableMixin(PolymerElement) {
     return {
       components: {
         type: Array,
-        value: () => []
+        observer: '_componentsChanged'
       }
     };
   }
@@ -167,7 +178,7 @@ class VcfHNToolsPanel extends ThemableMixin(PolymerElement) {
       });
     });
     /* buttons */
-    this.$['add-node'].addEventListener('click', this._addNodeHandler.bind(this));
+    this.$['add-node'].addEventListener('click', this._addNode.bind(this));
   }
 
   _initToolbar() {
@@ -177,14 +188,32 @@ class VcfHNToolsPanel extends ThemableMixin(PolymerElement) {
     sectionItems.style.maxHeight = `${sectionItems.clientHeight}px`;
   }
 
-  _addNodeHandler() {
-    const addNodeBtn = this.$['add-node'];
+  _addNode() {
+    this._setMode(this.$['add-node'], 'addingNode', true);
+  }
+
+  _addComponent(item) {
+    this._setMode(item, 'addingComponent', this.components[0]);
+  }
+
+  _setMode(item, mode, value) {
     this.clear();
-    if (addNodeBtn.classList.contains('active')) {
-      addNodeBtn.classList.remove('active');
+    if (item.classList.contains('active')) {
+      item.classList.remove('active');
     } else {
-      addNodeBtn.classList.add('active');
-      this.dispatchEvent(new CustomEvent('adding-node'));
+      item.classList.add('active');
+      this._parent[mode] = value;
+    }
+  }
+
+  _componentsChanged(components) {
+    if (components.length) {
+      this.$.custom.addEventListener('click', e => {
+        if (e.target.matches('.section-item') || e.target.parentElement.matches('.section-item')) {
+          const item = e.target.matches('.section-item') ? e.target : e.target.parentElement;
+          this._addComponent(item);
+        }
+      });
     }
   }
 }

@@ -2,9 +2,9 @@ import { html, PolymerElement } from '@polymer/polymer/polymer-element';
 import { ThemableMixin } from '@vaadin/vaadin-themable-mixin';
 import { ElementMixin } from '@vaadin/vaadin-element-mixin';
 import './lib/vis-network.web.js';
-import './vcf-hn-tool-panel';
-import './vcf-hn-breadcrumbs';
-import './vcf-hn-info-panel';
+import './components/vcf-hn-tool-panel';
+import './components/vcf-hn-breadcrumbs';
+import './components/vcf-hn-info-panel';
 
 class VcfHierarchicalNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   static get template() {
@@ -46,10 +46,13 @@ class VcfHierarchicalNetwork extends ElementMixin(ThemableMixin(PolymerElement))
       data: {
         type: Object,
         value: () => ({
-          nodes: [],
-          edges: []
-        }),
-        observer: '_dataChanged'
+          nodes: new vis.DataSet(),
+          edges: new vis.DataSet()
+        })
+      },
+      import: {
+        type: String,
+        observer: '_importChanged'
       },
       addingEdge: {
         type: Boolean,
@@ -60,7 +63,7 @@ class VcfHierarchicalNetwork extends ElementMixin(ThemableMixin(PolymerElement))
         observer: '_addingNodeChanged'
       },
       addingComponent: {
-        type: Boolean,
+        type: Object,
         observer: '_addingComponentChanged'
       },
       _options: {
@@ -68,6 +71,10 @@ class VcfHierarchicalNetwork extends ElementMixin(ThemableMixin(PolymerElement))
       },
       _network: {
         type: Object
+      },
+      _addNodeCount: {
+        type: Number,
+        value: 0
       }
     };
   }
@@ -89,7 +96,7 @@ class VcfHierarchicalNetwork extends ElementMixin(ThemableMixin(PolymerElement))
 
   _initNetwork() {
     this._options = {
-      physics: false,
+      physics: true,
       layout: {
         randomSeed: 42
       },
@@ -118,7 +125,7 @@ class VcfHierarchicalNetwork extends ElementMixin(ThemableMixin(PolymerElement))
       },
       edges: {
         arrows: 'to',
-        length: 400,
+        length: 200,
         color: {
           color: '#dadfe5',
           highlight: '#90bbf9'
@@ -144,7 +151,7 @@ class VcfHierarchicalNetwork extends ElementMixin(ThemableMixin(PolymerElement))
         dragNodes: true
       }
     };
-    this._network = new vis.Network(this.$.main, this._visDataset, this._options);
+    this._network = new vis.Network(this.$.main, this.data, this._options);
     this._manipulation = this._network.manipulation;
     this._canvas = this.shadowRoot.querySelector('canvas');
     this._ctx = this._canvas.getContext('2d');
@@ -157,8 +164,6 @@ class VcfHierarchicalNetwork extends ElementMixin(ThemableMixin(PolymerElement))
   }
 
   _initEventListeners() {
-    this.$.toolpanel.addEventListener('adding-node', e => (this.addingNode = true));
-    this.$.toolpanel.addEventListener('adding-edge', e => (this.addingEdge = true));
     this._network.on('dragStart', opt => {
       if (opt.nodes.length === 1) {
         const nodeId = opt.nodes[0];
@@ -175,10 +180,38 @@ class VcfHierarchicalNetwork extends ElementMixin(ThemableMixin(PolymerElement))
       }
     });
     this._network.on('release', () => {
-      this._network.moveTo({ scale: 3 });
+      this._network.moveTo({ scale: 2 });
     });
     this._network.on('select', opt => {
       this.$.infopanel.selection = opt;
+    });
+    this._network.on('click', opt => {
+      if (this.addingComponent && !opt.nodes.length) {
+        const idMap = {};
+        const component = this.addingComponent;
+        const nodes = component.nodes.map(node => {
+          idMap[node.id] = vis.util.randomUUID();
+          const coords = this._network.DOMtoCanvas(opt.event.center);
+          return {
+            ...node,
+            id: idMap[node.id],
+            x: node.x + coords.x,
+            y: node.y + coords.y
+          };
+        });
+        const edges = component.edges.map(edge => {
+          idMap[edge.id] = vis.util.randomUUID();
+          return {
+            ...edge,
+            from: idMap[edge.from],
+            to: idMap[edge.to],
+            id: idMap[edge.id]
+          };
+        });
+        this.data.nodes.add(nodes);
+        this.data.edges.add(edges);
+        this.addingComponent = null;
+      }
     });
   }
 
@@ -270,6 +303,7 @@ class VcfHierarchicalNetwork extends ElementMixin(ThemableMixin(PolymerElement))
     if (this.addingNode) {
       this._network.addNodeMode();
       this.addingEdge = false;
+      this.addingComponent = null;
       this._canvas.style.cursor = 'crosshair';
     } else {
       this._canvas.style.cursor = 'default';
@@ -280,45 +314,44 @@ class VcfHierarchicalNetwork extends ElementMixin(ThemableMixin(PolymerElement))
     if (this.addingEdge) {
       this._network.addEdgeMode();
       this.addingNode = false;
+      this.addingComponent = null;
       this._canvas.style.cursor = 'crosshair';
     } else {
       this._canvas.style.cursor = 'default';
     }
   }
 
-  _dataChanged(data) {
-    if (this._network && (data.nodes.length || data.edges.length)) {
-      this._network.setData({
-        nodes: new vis.DataSet(data.nodes),
-        edges: new vis.DataSet(data.edges)
-      });
-      setTimeout(() => {
-        this._network.fit({
-          nodes: this.data.nodes.map(n => n.id)
-        });
-      });
+  _addingComponentChanged() {
+    if (this.addingComponent) {
+      this.addingEdge = false;
+      this.addingNode = false;
+      this._canvas.style.cursor = 'crosshair';
+    } else {
+      this._canvas.style.cursor = 'default';
     }
   }
 
+  _dataChanged() {}
+
   _addingNodeCallback(data, callback) {
-    this.data.nodes.push({
+    this.data.nodes.add({
       id: data.id,
-      label: data.label
+      label: `Node ${++this._addNodeCount}`,
+      x: data.x,
+      y: data.y
     });
     this.addingNode = false;
     this.$.toolpanel.clear();
     this._canvas.style.cursor = 'default';
-    callback(data);
   }
 
   _addingEdgeCallback(data, callback) {
-    this.data.edges.push({
+    this.data.edges.add({
       from: data.from,
       to: data.to
     });
     this.addingEdge = false;
     this._canvas.style.cursor = 'default';
-    callback(data);
   }
 
   _detectNode(event) {
@@ -341,6 +374,14 @@ class VcfHierarchicalNetwork extends ElementMixin(ThemableMixin(PolymerElement))
     this.$.toolpanel.clear();
     this._manipulation._clean();
     this._manipulation._restore();
+  }
+
+  _importChanged(src) {
+    fetch(src)
+      .then(res => res.json())
+      .then(json => {
+        this.$.toolpanel.set('components', [json]);
+      });
   }
 }
 

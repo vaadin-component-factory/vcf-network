@@ -1,4 +1,4 @@
-export const styleModule = ({ themeName, themeFor, include, styles }) => {
+export default ({ themeName, themeFor, include, styles }) => {
   const theme = document.createElement('dom-module');
   theme.id = themeName;
   if (themeFor) {
