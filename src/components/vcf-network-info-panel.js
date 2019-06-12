@@ -123,7 +123,7 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
                 <vaadin-list-box>
                   <template is="dom-repeat" items="[[_colors]]">
                     <vaadin-item>
-                      <vcf-hn-color-option color="[[index]]"></vcf-hn-color-option>
+                      <vcf-network-color-option color="[[index]]"></vcf-network-color-option>
                     </vaadin-item>
                   </template>
                 </vaadin-list-box>
@@ -162,13 +162,19 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
   }
 
   _initEventListeners() {
-    this.$['create-component-button'].addEventListener('click', () => {
-      this._parent._network.clustering.cluster({
-        joinCondition: n => this._parent._network.body.nodes[n.id].selected
+    this.$['node-name'].addEventListener('change', this._updateNode('label'));
+    this.$['create-component-button'].addEventListener('click', () => this._addComponent());
+    this.$['export-button'].addEventListener('click', () => this._exportComponent());
+  }
+
+  _getConnectedEdgesFromNodeArray(nodes) {
+    const edgeSet = new Set();
+    nodes.forEach(node => {
+      this._parent._network.getConnectedEdges(node).forEach(edge => {
+        edgeSet.add(edge);
       });
     });
-    this.$['node-name'].addEventListener('change', this._updateNode('label'));
-    this.$['export-button'].addEventListener('click', () => this._exportComponent());
+    return Array.from(edgeSet);
   }
 
   _selectionChanged(selection) {
@@ -235,6 +241,19 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
     download.setAttribute('href', dataStr);
     download.setAttribute('download', 'component.json');
     download.click();
+  }
+
+  _addComponent() {
+    const component = {
+      cid: vis.util.randomUUID(),
+      nodes: this.selection.nodes,
+      edges: this._getConnectedEdgesFromNodeArray(this.selection.nodes)
+    };
+    component.externalEdges = component.edges.filter(id => {
+      const edge = this._parent.data.edges.get(id);
+      return !component.nodes.includes(edge.to) || !component.nodes.includes(edge.from);
+    });
+    this._parent.data.components.push(component);
   }
 
   _updateNode(property) {

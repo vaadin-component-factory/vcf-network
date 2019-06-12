@@ -47,7 +47,8 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
         type: Object,
         value: () => ({
           nodes: new vis.DataSet(),
-          edges: new vis.DataSet()
+          edges: new vis.DataSet(),
+          components: []
         })
       },
       import: {

@@ -6,7 +6,7 @@ class VcfNetworkColorOption extends ThemableMixin(PolymerElement) {
   static get template() {
     colors();
     return html`
-      <style include="vcf-hn-colors">
+      <style include="vcf-network-colors">
         :host {
           display: block;
           width: calc(var(--lumo-space-s) * 2);

@@ -60,6 +60,7 @@
     "husky": "^2.3.0",
     "lint-staged": "^8.1.7",
     "mocha": "^5.2.0",
+    "polymer-cli": "^1.9.10",
     "prettier": "^1.17.1",
     "wct-mocha": "^1.0.0"
   }

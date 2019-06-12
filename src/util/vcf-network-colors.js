@@ -26,7 +26,7 @@ export const colorValues = [
 
 export const colors = () => {
   styleModule({
-    themeName: 'vcf-hn-colors',
+    themeName: 'vcf-network-colors',
     styles: `
       :host {
       ${colorVars.map((c, i) => `  ${c}: ${colorValues[i]};\n`).join('')}
