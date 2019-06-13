@@ -50,7 +50,7 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
 
         .section-header iron-icon {
           color: var(--lumo-secondary-text-color);
-          transition: transform 0.2s;
+          transition: all 0.2s;
         }
 
         .section.collapsed .section-header iron-icon {
@@ -61,7 +61,7 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
         .section-items {
           overflow: hidden;
           transform-origin: top;
-          transition: max-height 0.2s;
+          transition: all 0.2s;
         }
 
         .section-item {
@@ -70,7 +70,7 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
           display: flex;
           height: var(--lumo-size-l);
           padding: 0 var(--lumo-space-m);
-          transition: background-color 0.2s;
+          transition: all 0.2s;
         }
 
         .section-item iron-icon {
@@ -85,6 +85,7 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
         .section-item span {
           color: var(--lumo-body-text-color);
           font-size: var(--lumo-font-size-s);
+          transition: all 0.2s;
         }
 
         .section:first-child .section-item span::first-letter {
@@ -96,7 +97,12 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
         }
 
         .section-item.active {
-          background-color: var(--lumo-contrast-10pct);
+          background-color: var(--lumo-primary-color-10pct);
+        }
+
+        .section-item.active span {
+          color: var(--lumo-primary-text-color);
+          font-weight: 500;
         }
 
         iron-icon.green {

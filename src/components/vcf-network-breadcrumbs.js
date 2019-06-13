@@ -11,7 +11,7 @@ class VcfNetworkBreadcrumbs extends ThemableMixin(PolymerElement) {
           display: flex;
           flex-shrink: 0;
           height: var(--lumo-size-l);
-          padding: 0 var(--lumo-space-l);
+          padding: 0 var(--lumo-space-m);
         }
 
         span {
