@@ -1,15 +1,15 @@
 import styleModule from './style-module';
 
 export const colorVars = [
-  '--vcf-hn-red',
-  '--vcf-hn-orange',
-  '--vcf-hn-yellow',
-  '--vcf-hn-green',
-  '--vcf-hn-dark-green',
-  '--vcf-hn-blue',
-  '--vcf-hn-purple',
-  '--vcf-hn-violet',
-  '--vcf-hn-brown'
+  '--vcf-network-red',
+  '--vcf-network-orange',
+  '--vcf-network-yellow',
+  '--vcf-network-green',
+  '--vcf-network-dark-green',
+  '--vcf-network-blue',
+  '--vcf-network-purple',
+  '--vcf-network-violet',
+  '--vcf-network-brown'
 ];
 
 export const colorValues = [

@@ -131,7 +131,7 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
           <div class="section-items" id="custom">
             <template is="dom-if" if="{{components.length}}">
               <div class="section-item">
-                <vcf-hn-color-option color="2" class="icon"></vcf-hn-color-option>
+                <vcf-network-color-option color="2" class="icon"></vcf-network-color-option>
                 <span class="section-item-label">Component</span>
               </div>
             </template>
@@ -142,7 +142,7 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
   }
 
   static get is() {
-    return 'vcf-hn-tool-panel';
+    return 'vcf-network-tool-panel';
   }
 
   static get properties() {

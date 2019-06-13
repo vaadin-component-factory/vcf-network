@@ -18,7 +18,7 @@ class VcfNetworkColorOption extends ThemableMixin(PolymerElement) {
   }
 
   static get is() {
-    return 'vcf-hn-color-option';
+    return 'vcf-network-color-option';
   }
 
   static get properties() {

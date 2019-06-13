@@ -26,10 +26,10 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
           z-index: 1;
         }
       </style>
-      <vcf-hn-tool-panel id="toolpanel"></vcf-hn-tool-panel>
-      <vcf-hn-breadcrumbs id="breadcrumbs"></vcf-hn-breadcrumbs>
+      <vcf-network-tool-panel id="toolpanel"></vcf-network-tool-panel>
+      <vcf-network-breadcrumbs id="breadcrumbs" context="[[context]]"></vcf-network-breadcrumbs>
       <div id="main" class="canvas-container"></div>
-      <vcf-hn-info-panel id="infopanel"></vcf-hn-info-panel>
+      <vcf-network-info-panel id="infopanel"></vcf-network-info-panel>
     `;
   }
 
@@ -66,6 +66,14 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       addingComponent: {
         type: Object,
         observer: '_addingComponentChanged'
+      },
+      context: {
+        type: Array,
+        value: () => []
+      },
+      scale: {
+        type: Number,
+        value: 2
       },
       _options: {
         type: Object
@@ -104,6 +112,9 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       nodes: {
         fixed: false,
         shape: 'box',
+        shapeProperties: {
+          borderRadius: 4
+        },
         borderWidth: 2,
         color: {
           background: '#ffffff',
@@ -118,9 +129,9 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
           color: 'rgba(27, 43, 65, 0.72)'
         },
         margin: {
-          top: 6,
+          top: 8,
           right: 15,
-          bottom: 6,
+          bottom: 8,
           left: 15
         }
       },
@@ -180,39 +191,29 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
         });
       }
     });
-    this._network.on('release', () => {
-      this._network.moveTo({ scale: 2 });
+    this._network.on('afterDrawing', () => {
+      this._network.moveTo({ scale: this.scale });
     });
     this._network.on('select', opt => {
       this.$.infopanel.selection = opt;
     });
     this._network.on('click', opt => {
       if (this.addingComponent && !opt.nodes.length) {
-        const idMap = {};
-        const component = this.addingComponent;
-        const nodes = component.nodes.map(node => {
-          idMap[node.id] = vis.util.randomUUID();
-          const coords = this._network.DOMtoCanvas(opt.event.center);
-          return {
-            ...node,
-            id: idMap[node.id],
-            x: node.x + coords.x,
-            y: node.y + coords.y
-          };
-        });
-        const edges = component.edges.map(edge => {
-          idMap[edge.id] = vis.util.randomUUID();
-          return {
-            ...edge,
-            from: idMap[edge.from],
-            to: idMap[edge.to],
-            id: idMap[edge.id]
-          };
-        });
-        this.data.nodes.add(nodes);
-        this.data.edges.add(edges);
-        this.addingComponent = null;
+        this._addComponent(opt);
       }
+    });
+    this._network.on('doubleClick', opt => {
+      const selectedNode = this.$.infopanel._selectedNode;
+      if (selectedNode.options.cid) {
+        this.$.breadcrumbs.context = [...this.$.breadcrumbs.context, selectedNode.options];
+        this._network.setData({
+          nodes: new vis.DataSet(selectedNode.options.nodes),
+          edges: new vis.DataSet(selectedNode.options.edges)
+        });
+      }
+    });
+    this._network.on('zoom', opt => {
+      this.scale = opt.scale;
     });
   }
 
@@ -383,6 +384,38 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       .then(json => {
         this.$.toolpanel.set('components', [json]);
       });
+  }
+
+  _addComponent(opt) {
+    const idMap = {};
+    const component = this.addingComponent;
+    const nodes = component.nodes.map(node => {
+      idMap[node.id] = vis.util.randomUUID();
+      const coords = this._network.DOMtoCanvas(opt.event.center);
+      return {
+        ...node,
+        id: idMap[node.id],
+        x: node.x + coords.x,
+        y: node.y + coords.y
+      };
+    });
+    const edges = component.edges.map(edge => {
+      idMap[edge.id] = vis.util.randomUUID();
+      return {
+        ...edge,
+        from: idMap[edge.from],
+        to: idMap[edge.to],
+        id: idMap[edge.id]
+      };
+    });
+    this.data.nodes.add(nodes);
+    this.data.edges.add(edges);
+    this.addingComponent = null;
+  }
+
+  _loadRoot() {
+    this._network.setData(this.data);
+    this.context = [];
   }
 }
 
