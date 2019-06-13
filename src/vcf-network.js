@@ -12,23 +12,30 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       <style>
         :host {
           display: flex;
-          position: relative;
+          overflow: hidden;
         }
 
         :host([hidden]) {
           display: none !important;
         }
 
+        main {
+          box-shadow: inset -1px 0 0 0 var(--lumo-shade-10pct);
+          display: flex;
+          flex-direction: column;
+          flex-grow: 1;
+        }
+
         .canvas-container {
-          background: #fafafa;
-          width: 100%;
-          height: 75vh;
-          z-index: 1;
+          background-color: var(--lumo-contrast-5pct);
+          flex-grow: 1;
         }
       </style>
       <vcf-network-tool-panel id="toolpanel"></vcf-network-tool-panel>
-      <vcf-network-breadcrumbs id="breadcrumbs" context="[[context]]"></vcf-network-breadcrumbs>
-      <div id="main" class="canvas-container"></div>
+      <main>
+        <vcf-network-breadcrumbs id="breadcrumbs" context="[[context]]"></vcf-network-breadcrumbs>
+        <div id="main" class="canvas-container"></div>
+      </main>
       <vcf-network-info-panel id="infopanel"></vcf-network-info-panel>
     `;
   }
@@ -94,13 +101,6 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     this._initComponents();
     this._initEventListeners();
     this._initMultiSelect();
-    this._setMargins();
-  }
-
-  _setMargins() {
-    this.$.main.style.marginTop = `${this.$.breadcrumbs.clientHeight}px`;
-    this.$.main.style.marginRight = `${this.$.infopanel.clientWidth}px`;
-    this.$.main.style.marginLeft = `${this.$.toolpanel.clientWidth}px`;
   }
 
   _initNetwork() {

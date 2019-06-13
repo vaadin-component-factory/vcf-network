@@ -8,10 +8,11 @@ class VcfNetworkColorOption extends ThemableMixin(PolymerElement) {
     return html`
       <style include="vcf-network-colors">
         :host {
-          display: block;
-          width: calc(var(--lumo-space-s) * 2);
-          height: calc(var(--lumo-space-s) * 2);
           border-radius: 50%;
+          box-shadow: inset 0 0 0 1px var(--lumo-contrast-20pct);
+          display: block;
+          height: var(--lumo-icon-size-m);
+          width: var(--lumo-icon-size-m);
         }
       </style>
     `;

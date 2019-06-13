@@ -9,130 +9,135 @@ import './vcf-network-color-option';
 class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
   static get template() {
     return html`
-      <style>
+      <style include="lumo-typography">
         :host {
+          box-shadow: inset -1px 0 0 0 var(--lumo-shade-10pct);
           display: block;
-          position: absolute;
-          top: 0;
-          bottom: 0;
-          font-size: var(--lumo-font-size-s);
+          overflow: auto;
+          width: 240px;
         }
 
         :host([hidden]) {
           display: none !important;
         }
 
-        .panel-container {
-          color: var(--lumo-secondary-text-color);
-          background: var(--lumo-base-color);
-          border-right: 1px solid var(--lumo-shade-20pct);
-          width: 200px;
-          height: 100%;
+        /* Section */
+        .section:not(.collapsed) {
+          padding-bottom: var(--lumo-space-s);
         }
 
-        .section:first-child {
-          border-bottom: 1px solid var(--lumo-shade-20pct);
+        .section:not(:last-child) {
+          box-shadow: inset 0 -1px 0 0 var(--lumo-shade-10pct);
         }
 
-        .section.collapsed > .section-items {
+        .section.collapsed .section-items {
           max-height: 0 !important;
         }
 
-        .section.collapsed > .section-header > iron-icon {
-          transform: rotate(90deg);
-        }
-
+        /* Section header */
         .section-header {
-          display: flex;
-          padding: var(--lumo-space-s) var(--lumo-space-m);
-          text-transform: uppercase;
+          align-items: center;
           cursor: pointer;
+          display: flex;
+          height: var(--lumo-size-l);
+          padding: 0 var(--lumo-space-m);
         }
 
-        .section-header > iron-icon {
-          margin-left: auto;
-          transform: rotate(0);
+        .section-header h6 {
+          color: var(--lumo-secondary-text-color);
+          margin: 0 auto 0 0;
+        }
+
+        .section-header iron-icon {
+          color: var(--lumo-secondary-text-color);
           transition: transform 0.2s;
         }
 
+        .section.collapsed .section-header iron-icon {
+          transform: rotate(180deg);
+        }
+
+        /* Section items */
         .section-items {
+          overflow: hidden;
           transform-origin: top;
           transition: max-height 0.2s;
-          overflow: hidden;
         }
 
         .section-item {
+          align-items: center;
+          cursor: pointer;
           display: flex;
-          padding: var(--lumo-space-s) var(--lumo-space-m);
-          background-color: transparent;
+          height: var(--lumo-size-l);
+          padding: 0 var(--lumo-space-m);
           transition: background-color 0.2s;
         }
 
-        .section-item > iron-icon {
+        .section-item iron-icon {
           color: var(--lumo-primary-color);
-        }
-
-        .section-item > .icon {
           margin-right: var(--lumo-space-m);
         }
 
-        .section-item > span {
-          line-height: 1;
-          margin: auto 0;
+        .section-item vcf-network-color-option {
+          margin-right: var(--lumo-space-m);
         }
 
-        .section-item-label.first::first-letter {
+        .section-item span {
+          color: var(--lumo-body-text-color);
+          font-size: var(--lumo-font-size-s);
+        }
+
+        .section:first-child .section-item span::first-letter {
           text-decoration: underline;
         }
 
         .section-item:hover {
-          cursor: pointer;
           background-color: var(--lumo-shade-5pct);
         }
 
         .section-item.active {
-          background-color: var(--lumo-shade-10pct);
+          background-color: var(--lumo-contrast-10pct);
         }
 
-        .section-item > .green {
-          color: var(--lumo-error-text-color);
-        }
-
-        .section-item > .red {
+        iron-icon.green {
           color: var(--lumo-success-text-color);
+        }
+
+        iron-icon.red {
+          color: var(--lumo-error-text-color);
         }
       </style>
       <div id="main" class="panel-container">
         <div class="section">
           <div class="section-header">
-            <span>Default</span>
+            <h6>Default</h6>
             <iron-icon icon="hardware:keyboard-arrow-down"></iron-icon>
           </div>
           <div class="section-items">
             <div id="add-node" class="section-item">
-              <iron-icon icon="editor:format-shapes" class="icon"></iron-icon>
-              <span class="section-item-label first">Node</span>
+              <iron-icon icon="editor:format-shapes"></iron-icon>
+              <span>Node</span>
             </div>
             <div id="add-input-node" class="section-item">
-              <iron-icon icon="icons:exit-to-app" class="green icon"></iron-icon>
-              <span class="section-item-label first">Input Node</span>
+              <iron-icon icon="icons:exit-to-app" class="green"></iron-icon>
+              <span>Input Node</span>
             </div>
             <div id="add-output-node" class="section-item">
-              <iron-icon icon="icons:exit-to-app" class="red icon"></iron-icon>
-              <span class="section-item-label first">Output Node</span>
+              <iron-icon icon="icons:exit-to-app" class="red"></iron-icon>
+              <span>Output Node</span>
             </div>
           </div>
         </div>
         <div class="section">
           <div class="section-header">
-            <span>Custom</span>
+            <h6>Custom</h6>
             <iron-icon icon="hardware:keyboard-arrow-down"></iron-icon>
           </div>
           <div class="section-items" id="custom">
             <template is="dom-if" if="{{components.length}}">
               <div class="section-item">
                 <vcf-network-color-option color="2" class="icon"></vcf-network-color-option>
-                <span class="section-item-label">Component</span>
+                <span>Component</span>
               </div>
             </template>
           </div>

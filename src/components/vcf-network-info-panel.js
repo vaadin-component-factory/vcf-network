@@ -12,113 +12,122 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
       <style>
         :host {
           display: block;
-          position: absolute;
-          top: 0;
-          bottom: 0;
-          right: 0;
-          font-size: var(--lumo-font-size-s);
+          width: 240px;
         }
 
         .panel-container {
-          background: var(--lumo-base-color);
-          border-left: 1px solid var(--lumo-shade-20pct);
-          width: 200px;
+          display: flex;
+          flex-direction: column;
           height: 100%;
         }
 
-        .selection {
-          height: 24px;
-          position: relative;
-          padding: var(--lumo-space-s) var(--lumo-space-m);
-          border-bottom: 1px solid var(--lumo-shade-20pct);
-          color: var(--lumo-primary-text-color);
-          text-overflow: ellipsis;
-          overflow: hidden;
-          white-space: nowrap;
+        span.selection {
+          align-items: center;
+          box-shadow: inset 0 -1px 0 0 var(--lumo-shade-10pct);
+          color: var(--lumo-tertiary-text-color);
+          display: flex;
+          flex-shrink: 0;
+          font-size: var(--lumo-font-size-s);
+          font-weight: 500;
+          height: var(--lumo-size-l);
+          padding: 0 var(--lumo-space-m);
         }
 
-        .selectionText::before,
-        .selectionText::after {
-          content: '';
-          position: absolute;
-          top: 0;
-          right: 0;
-          bottom: 0;
-          left: 0;
-          background-color: var(--lumo-primary-color-50pct);
-          opacity: 0.05;
+        span.selection.active {
+          background-color: var(--lumo-primary-color-10pct);
+          color: var(--lumo-primary-text-color);
         }
 
         .button-container {
+          align-items: center;
+          box-shadow: inset 0 -1px 0 0 var(--lumo-shade-10pct);
           display: flex;
-          border-bottom: 1px solid var(--lumo-shade-20pct);
+          flex-shrink: 0;
+          height: var(--lumo-size-xl);
         }
 
-        .button-container > vaadin-button {
-          width: 50px;
-          height: 50px;
-          border-radius: 0;
-          background-color: var(--lumo-base-color);
-          padding: 8px calc((var(--lumo-button-size) / 4) + 4px);
-          margin: 0;
-          cursor: pointer;
+        .button-container vaadin-button {
+          width: calc(100% / 4);
         }
 
         .details-container {
-          padding: var(--lumo-space-s) var(--lumo-space-m);
-        }
-
-        .details-container vaadin-text-field {
-          width: 100%;
-          font-size: var(--lumo-font-size-xs);
-        }
-
-        .details-container vaadin-select {
-          width: 50%;
+          flex-grow: 1;
+          overflow: auto;
+          padding: 0 var(--lumo-space-m) var(--lumo-space-m) var(--lumo-space-m);
         }
 
         .details {
-          transition: display 0.2s, opacity 0.2s;
+          display: flex;
+          flex-direction: column;
           opacity: 1;
+          transition: all 0.2s;
         }
 
         .details.hidden {
-          transition: display 0.2s, opacity 0.2s;
-          opacity: 0;
           display: none;
+          opacity: 0;
+          transition: all 0.2s;
         }
       </style>
       <div id="main" class="panel-container">
-        <div class="selection">
-          <div class="selectionText">[[selectionText]]</div>
-        </div>
+        <span id="selection" class="selection">[[selectionText]]</span>
         <div class="button-container">
-          <vaadin-button id="create-component-button" theme="icon" title="Create component">
+          <vaadin-button id="create-component-button" theme="tertiary" title="Create component">
             <iron-icon icon="icons:cached"></iron-icon>
           </vaadin-button>
-          <vaadin-button id="export-button" theme="icon" title="Export component">
+          <vaadin-button id="export-button" theme="tertiary" title="Export component">
             <iron-icon icon="icons:swap-vert"></iron-icon>
           </vaadin-button>
-          <vaadin-button id="copy-button" theme="icon" title="Copy">
+          <vaadin-button id="copy-button" theme="tertiary" title="Copy">
             <iron-icon icon="icons:content-copy"></iron-icon>
           </vaadin-button>
-          <vaadin-button id="delete-button" theme="icon error" title="Delete">
+          <vaadin-button id="delete-button" theme="tertiary error" title="Delete">
             <iron-icon icon="icons:delete"></iron-icon>
           </vaadin-button>
         </div>
         <div class="details-container">
           <div class="details hidden" id="node-details">
-            <vaadin-text-field id="node-name" label="Name"></vaadin-text-field>
-            <vaadin-text-field id="node-id" label="Id" readonly autoselect></vaadin-text-field>
+            <vaadin-text-field id="node-name" label="Name" theme="small"></vaadin-text-field>
+            <vaadin-text-field
+              id="node-id"
+              label="ID"
+              readonly
+              autoselect
+              theme="small"
+            ></vaadin-text-field>
           </div>
           <div class="details hidden" id="edge-details">
-            <vaadin-text-field id="edge-id" label="Id" readonly autoselect></vaadin-text-field>
-            <vaadin-text-field id="edge-from" label="From" readonly autoselect></vaadin-text-field>
-            <vaadin-text-field id="edge-to" label="To" readonly autoselect></vaadin-text-field>
+            <vaadin-text-field
+              id="edge-id"
+              label="Id"
+              readonly
+              autoselect
+              theme="small"
+            ></vaadin-text-field>
+            <vaadin-text-field
+              id="edge-from"
+              label="From"
+              readonly
+              autoselect
+              theme="small"
+            ></vaadin-text-field>
+            <vaadin-text-field
+              id="edge-to"
+              label="To"
+              readonly
+              autoselect
+              theme="small"
+            ></vaadin-text-field>
           </div>
           <div class="details hidden" id="component-details">
-            <vaadin-text-field id="component-name" label="Name"></vaadin-text-field>
-            <vaadin-text-field id="component-id" label="Id" readonly autoselect></vaadin-text-field>
+            <vaadin-text-field id="component-name" label="Name" theme="small"></vaadin-text-field>
+            <vaadin-text-field
+              id="component-id"
+              label="ID"
+              readonly
+              autoselect
+              theme="small"
+            ></vaadin-text-field>
             <vaadin-select id="component-color" label="Color">
               <template>
                 <vaadin-list-box>
@@ -177,6 +186,14 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
 
   _selectionChanged(selection) {
     this._setSelectionText();
+
+    // @nii please do your magic here :)
+    if (this.selectionText === 'No selection') {
+      this.$['selection'].classList.remove('active');
+    } else {
+      this.$['selection'].classList.add('active');
+    }
+
     this.$['node-details'].classList.add('hidden');
     this.$['edge-details'].classList.add('hidden');
     this.$['component-details'].classList.add('hidden');
