@@ -73,7 +73,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       },
       scale: {
         type: Number,
-        value: 2
+        value: 3
       },
       _options: {
         type: Object
@@ -105,7 +105,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
 
   _initNetwork() {
     this._options = {
-      physics: true,
+      physics: false,
       layout: {
         randomSeed: 42
       },
@@ -113,7 +113,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
         fixed: false,
         shape: 'box',
         shapeProperties: {
-          borderRadius: 4
+          borderRadius: 50
         },
         borderWidth: 2,
         color: {
@@ -125,7 +125,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
           }
         },
         font: {
-          size: 10,
+          size: 8,
           color: 'rgba(27, 43, 65, 0.72)'
         },
         margin: {
@@ -158,7 +158,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
         }
       },
       interaction: {
-        multiselect: true,
+        multiselect: false,
         selectConnectedEdges: false,
         dragNodes: true
       }
@@ -167,6 +167,9 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     this._manipulation = this._network.manipulation;
     this._canvas = this.shadowRoot.querySelector('canvas');
     this._ctx = this._canvas.getContext('2d');
+    if (!this.data.nodes.length) {
+      this._restoreZoom();
+    }
   }
 
   _initComponents() {
@@ -176,7 +179,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   _initEventListeners() {
-    this._network.on('dragStart', opt => {
+    this._network.on('hold', opt => {
       if (opt.nodes.length === 1) {
         const nodeId = opt.nodes[0];
         this.addingEdge = true;
@@ -190,9 +193,6 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
           }
         });
       }
-    });
-    this._network.on('afterDrawing', () => {
-      this._network.moveTo({ scale: this.scale });
     });
     this._network.on('select', opt => {
       this.$.infopanel.selection = opt;
@@ -211,6 +211,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
           edges: new vis.DataSet(selectedNode.options.edges)
         });
       }
+      this._restoreZoom();
     });
     this._network.on('zoom', opt => {
       this.scale = opt.scale;
@@ -239,9 +240,9 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       const nodesIdInDrawing = [];
       const xRange = getStartToEnd(this._selectionRect.startX, this._selectionRect.w);
       const yRange = getStartToEnd(this._selectionRect.startY, this._selectionRect.h);
-      const allNodes = this._network.body.nodes;
-      for (let i = 0; i < allNodes.length; i++) {
-        const curNode = allNodes[i];
+      const nodeIndices = this._network.body.nodeIndices;
+      for (let i = 0; i < nodeIndices.length; i++) {
+        const curNode = this.data.nodes.get(nodeIndices[i]);
         const nodePosition = this._network.getPositions([curNode.id]);
         const nodeXY = this._network.canvasToDOM({
           x: nodePosition[curNode.id].x,
@@ -256,15 +257,18 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
           nodesIdInDrawing.push(curNode.id);
         }
       }
-      this._network.selectNodes(nodesIdInDrawing);
+      this._network.selectNodes(nodesIdInDrawing, false);
+      this.$.infopanel.selection = { nodes: nodesIdInDrawing, edges: [] };
     };
     this.$.main.addEventListener('mousemove', e => {
       if (this._selectionDrag) {
         restoreDrawingSurface();
-        this._selectionRect.w = e.pageX - this.offsetLeft - this._selectionRect.startX;
-        this._selectionRect.h = e.pageY - this.offsetTop - this._selectionRect.startY;
-        this._ctx.setLineDash([5]);
-        this._ctx.strokeStyle = 'rgb(0, 102, 0)';
+        const rect = this.getBoundingClientRect();
+        const offsetX = this.$.main.offsetLeft + rect.x;
+        const offsetY = this.$.main.offsetTop + rect.y;
+        this._selectionRect.w = e.pageX - offsetX - this._selectionRect.startX;
+        this._selectionRect.h = e.pageY - offsetY - this._selectionRect.startY;
+        this._ctx.strokeStyle = 'rgb(121, 173, 249)';
         this._ctx.strokeRect(
           this._selectionRect.startX,
           this._selectionRect.startY,
@@ -272,7 +276,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
           this._selectionRect.h
         );
         this._ctx.setLineDash([]);
-        this._ctx.fillStyle = 'rgba(0, 255, 0, 0.2)';
+        this._ctx.fillStyle = 'rgba(121, 173, 249, 0.2)';
         this._ctx.fillRect(
           this._selectionRect.startX,
           this._selectionRect.startY,
@@ -284,8 +288,11 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     this.$.main.addEventListener('mousedown', e => {
       if (e.button == 2) {
         saveDrawingSurface();
-        this._selectionRect.startX = e.pageX - this.offsetLeft;
-        this._selectionRect.startY = e.pageY - this.offsetTop;
+        const rect = this.getBoundingClientRect();
+        const offsetX = this.$.main.offsetLeft + rect.x;
+        const offsetY = this.$.main.offsetTop + rect.y;
+        this._selectionRect.startX = e.pageX - offsetX;
+        this._selectionRect.startY = e.pageY - offsetY;
         this._selectionDrag = true;
         this.$.main.style.cursor = 'crosshair';
       }
@@ -317,7 +324,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       this._network.addEdgeMode();
       this.addingNode = false;
       this.addingComponent = null;
-      this._canvas.style.cursor = 'crosshair';
+      this._canvas.style.cursor = 'grabbing';
     } else {
       this._canvas.style.cursor = 'default';
     }
@@ -416,6 +423,11 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   _loadRoot() {
     this._network.setData(this.data);
     this.context = [];
+    this._restoreZoom();
+  }
+
+  _restoreZoom() {
+    this._network.moveTo({ scale: this.scale });
   }
 }
 

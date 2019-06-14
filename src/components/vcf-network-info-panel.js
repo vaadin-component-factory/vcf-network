@@ -268,8 +268,7 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
     this._parent.data.nodes.add(component);
     /* Update edges */
     this._parent.data.edges.remove(component.edges);
-    externalEdges.forEach(id => {
-      const edge = this._parent.data.edges.get(id);
+    externalEdges.forEach(edge => {
       if (nodeIds.includes(edge.from)) {
         edge.from = component.id;
       }
