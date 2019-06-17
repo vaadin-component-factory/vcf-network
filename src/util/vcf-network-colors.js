@@ -1,27 +1,15 @@
 import styleModule from './style-module';
 
 export const colorVars = [
-  '--vcf-network-red',
-  '--vcf-network-orange',
-  '--vcf-network-yellow',
-  '--vcf-network-green',
-  '--vcf-network-dark-green',
-  '--vcf-network-blue',
-  '--vcf-network-purple',
-  '--vcf-network-violet',
-  '--vcf-network-brown'
-];
-
-export const colorValues = [
-  '#d0021c',
-  '#f5a623',
-  '#f8e81d',
-  '#7dd421',
-  '#417506',
-  '#8a562b',
-  '#4990e2',
-  '#9013fe',
-  '#bd10e0'
+  { name: '--vcf-network-red', value: '#d0021c' },
+  { name: '--vcf-network-orange', value: '#f5a623' },
+  { name: '--vcf-network-yellow', value: '#f8e81d' },
+  { name: '--vcf-network-green', value: '#7dd421' },
+  { name: '--vcf-network-dark-green', value: '#417506' },
+  { name: '--vcf-network-blue', value: '#8a562b' },
+  { name: '--vcf-network-purple', value: '#4990e2' },
+  { name: '--vcf-network-violet', value: '#9013fe' },
+  { name: '--vcf-network-brown', value: '#bd10e0' }
 ];
 
 export const colors = () => {
@@ -29,7 +17,7 @@ export const colors = () => {
     themeName: 'vcf-network-colors',
     styles: `
       :host {
-      ${colorVars.map((c, i) => `  ${c}: ${colorValues[i]};\n`).join('')}
+      ${colorVars.map((c, i) => `  ${c.name}: ${c.value};\n`).join('')}
       }
     `
   });
