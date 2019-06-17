@@ -6,8 +6,12 @@ class VcfNetworkBreadcrumbs extends ThemableMixin(PolymerElement) {
     return html`
       <style>
         :host {
-          position: absolute;
-          font-size: var(--lumo-font-size-s);
+          align-items: center;
+          box-shadow: inset 0 -1px 0 0 var(--lumo-shade-10pct);
+          display: flex;
+          flex-shrink: 0;
+          height: var(--lumo-size-l);
+          padding: 0 var(--lumo-space-m);
         }
 
         .breadcrumbs-container {
@@ -17,6 +21,8 @@ class VcfNetworkBreadcrumbs extends ThemableMixin(PolymerElement) {
           background-color: var(--lumo-base-color);
           border-bottom: 1px solid var(--lumo-shade-20pct);
           color: var(--lumo-primary-text-color);
+          font-size: var(--lumo-font-size-s);
+          font-weight: 500;
         }
 
         .breadcrumbs-container iron-icon {
@@ -36,7 +42,7 @@ class VcfNetworkBreadcrumbs extends ThemableMixin(PolymerElement) {
         <div id="root" class$="[[_setRootClasses(context)]]">Root</div>
         <template is="dom-repeat" items="[[context]]">
           <iron-icon icon="hardware:keyboard-arrow-right"></iron-icon>
-          <div class$="[[_setClasses(index)]]">[[item.label]]</div>
+          <span class$="[[_setClasses(index, context)]]">[[item.label]]</span>
         </template>
       </div>
     `;
@@ -64,14 +70,11 @@ class VcfNetworkBreadcrumbs extends ThemableMixin(PolymerElement) {
     });
   }
 
-  _parentChanged() {
-    this.style.left = `${this._parent.$.toolpanel.clientWidth}px`;
-    this.style.right = `${this._parent.$.infopanel.clientWidth}px`;
-  }
+  _parentChanged() {}
 
-  _setClasses(index) {
+  _setClasses(index, context) {
     let classes = 'item';
-    if (index === this.context.length - 1) {
+    if (index === context.length - 1) {
       classes += ' active';
     }
     return classes;

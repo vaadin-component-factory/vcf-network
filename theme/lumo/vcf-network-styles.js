@@ -11,7 +11,7 @@ styleModule({
   include: 'lumo-color lumo-typography',
   styles: `
     :host {
-      border: 1px solid var(--lumo-primary-color-50pct);
+      border: 1px solid var(--lumo-contrast-10pct);
     }
   `
 });
