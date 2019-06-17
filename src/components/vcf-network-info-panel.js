@@ -13,6 +13,7 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
         :host {
           display: block;
           width: 240px;
+          flex-shrink: 0;
         }
 
         .panel-container {
@@ -68,6 +69,14 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
           opacity: 0;
           transition: all 0.2s;
         }
+
+        .coords vaadin-text-field {
+          width: 45%;
+        }
+
+        .coords vaadin-text-field:first-child {
+          margin-right: var(--lumo-space-m);
+        }
       </style>
       <div id="main" class="panel-container">
         <span id="selection" class="selection">[[selectionText]]</span>
@@ -89,6 +98,10 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
           <div class="details hidden" id="node-details">
             <vaadin-text-field id="node-name" label="Name" theme="small"></vaadin-text-field>
             <vaadin-text-field id="node-id" label="ID" readonly autoselect theme="small"></vaadin-text-field>
+            <div class="coords">
+              <vaadin-text-field id="node-x" label="x" readonly autoselect theme="small"></vaadin-text-field>
+              <vaadin-text-field id="node-y" label="y" readonly autoselect theme="small"></vaadin-text-field>
+            </div>
           </div>
           <div class="details hidden" id="edge-details">
             <vaadin-text-field id="edge-id" label="Id" readonly autoselect theme="small"></vaadin-text-field>
@@ -97,18 +110,29 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
           </div>
           <div class="details hidden" id="component-details">
             <vaadin-text-field id="component-name" label="Name" theme="small"></vaadin-text-field>
-            <vaadin-text-field id="component-id" label="ID" readonly autoselect theme="small"></vaadin-text-field>
             <vaadin-select id="component-color" label="Color">
               <template>
                 <vaadin-list-box>
                   <template is="dom-repeat" items="[[_colors]]">
                     <vaadin-item>
-                      <vcf-network-color-option color="[[index]]"></vcf-network-color-option>
+                      <vcf-network-color-option color="[[index]]">[[index]]</vcf-network-color-option>
                     </vaadin-item>
                   </template>
                 </vaadin-list-box>
               </template>
             </vaadin-select>
+            <vaadin-text-field id="component-id" label="ID" readonly autoselect theme="small"></vaadin-text-field>
+            <vaadin-text-field
+              id="component-cid"
+              label="Component ID"
+              readonly
+              autoselect
+              theme="small"
+            ></vaadin-text-field>
+            <div class="coords">
+              <vaadin-text-field id="component-x" label="x" readonly autoselect theme="small"></vaadin-text-field>
+              <vaadin-text-field id="component-y" label="y" readonly autoselect theme="small"></vaadin-text-field>
+            </div>
           </div>
         </div>
       </div>
@@ -150,35 +174,52 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
 
   _initEventListeners() {
     this.$['node-name'].addEventListener('change', this._updateNode('label'));
-    this.$['create-component-button'].addEventListener('click', () => this._addComponent());
+    this.$['component-name'].addEventListener('change', this._updateNode('label'));
+    this.$['component-color'].addEventListener('change', this._updateNode('componentColor'));
+    this.$['create-component-button'].addEventListener('click', () => this._createComponent());
     this.$['export-button'].addEventListener('click', () => this._exportComponent());
   }
 
   _selectionChanged(selection) {
     this._setSelectionText();
-
-    // @nii please do your magic here :)
+    this.$['node-details'].classList.add('hidden');
+    this.$['edge-details'].classList.add('hidden');
+    this.$['component-details'].classList.add('hidden');
+    /* Set selection text class */
     if (this.selectionText === 'No selection') {
       this.$['selection'].classList.remove('active');
     } else {
       this.$['selection'].classList.add('active');
     }
-
-    this.$['node-details'].classList.add('hidden');
-    this.$['edge-details'].classList.add('hidden');
-    this.$['component-details'].classList.add('hidden');
+    /* Show component, node, or edge details */
     if (selection.nodes.length === 1 && !selection.edges.length) {
       this._selectedNode = this._parent._network.body.nodes[selection.nodes[0]];
-      this.$['node-name'].value = this._selectedNode.options.label;
-      this.$['node-id'].value = this._selectedNode.id;
-      this.$['node-id'].title = this._selectedNode.id;
-      this.$['node-details'].classList.remove('hidden');
+      if (this._selectedNode.options.cid) {
+        this.$['component-name'].value = this._selectedNode.options.label;
+        this.$['component-color'].value = this._selectedNode.options.componentColor;
+        this.$['component-id'].value = this._selectedNode.id;
+        this.$['component-id'].title = this._selectedNode.id;
+        this.$['component-cid'].value = this._selectedNode.options.cid;
+        this.$['component-cid'].title = this._selectedNode.options.cid;
+        this.$['component-x'].value = this._selectedNode.x;
+        this.$['component-y'].value = this._selectedNode.y;
+        this.$['component-details'].classList.remove('hidden');
+      } else {
+        this.$['node-name'].value = this._selectedNode.options.label;
+        this.$['node-id'].value = this._selectedNode.id;
+        this.$['node-id'].title = this._selectedNode.id;
+        this.$['node-x'].value = this._selectedNode.x;
+        this.$['node-y'].value = this._selectedNode.y;
+        this.$['node-details'].classList.remove('hidden');
+      }
     } else if (selection.edges.length === 1 && !selection.nodes.length) {
       this._selectedEdge = this._parent._network.body.edges[selection.edges[0]];
       this.$['edge-id'].value = this._selectedEdge.id;
       this.$['edge-from'].value = this._selectedEdge.options.from;
       this.$['edge-to'].value = this._selectedEdge.options.to;
       this.$['edge-details'].classList.remove('hidden');
+    } else {
+      this._selectedNode = null;
     }
   }
 
@@ -204,7 +245,7 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
     const templateIdMap = {};
     const obj = {
       nodes: this.selection.nodes.map(id => {
-        const node = this._parent.data.nodes.get(id);
+        const node = this._parent.dataContext.nodes.get(id);
         templateIdMap[id] = templateId++;
         return {
           ...node,
@@ -212,7 +253,7 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
         };
       }),
       edges: this.selection.edges.map(id => {
-        const edge = this._parent.data.edges.get(id);
+        const edge = this._parent.dataContext.edges.get(id);
         templateIdMap[id] = templateId++;
         return {
           ...edge,
@@ -229,10 +270,10 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
     download.click();
   }
 
-  _addComponent() {
+  _createComponent() {
     /* Create component node */
     const nodeIds = this.selection.nodes;
-    const posNode = this._parent.data.nodes.get(nodeIds[0]);
+    const posNode = this._parent.dataContext.nodes.get(nodeIds[0]);
     const component = {
       label: this.componentLabel,
       id: vis.util.randomUUID(),
@@ -240,7 +281,8 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
       y: posNode.y,
       cid: `component:${vis.util.randomUUID()}`,
       nodes: this._getSelectedNodes(),
-      edges: this._getConnectedEdges(nodeIds)
+      edges: this._getConnectedEdges(nodeIds),
+      componentColor: '0'
     };
     const externalEdges = component.edges.filter(edge => {
       const isExternal = !nodeIds.includes(edge.to) || !nodeIds.includes(edge.from);
@@ -249,12 +291,12 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
       }
       return isExternal;
     });
-    this._parent.data.components.push(component);
+    this._parent.dataContext.components.push(component);
     /* Update nodes */
-    this._parent.data.nodes.remove(nodeIds);
-    this._parent.data.nodes.add(component);
+    this._parent.dataContext.nodes.remove(nodeIds);
+    this._parent.dataContext.nodes.add(component);
     /* Update edges */
-    this._parent.data.edges.remove(component.edges);
+    this._parent.dataContext.edges.remove(component.edges);
     externalEdges.forEach(edge => {
       if (nodeIds.includes(edge.from)) {
         edge.from = component.id;
@@ -262,21 +304,41 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
       if (nodeIds.includes(edge.to)) {
         edge.to = component.id;
       }
-      this._parent.data.edges.update(edge);
+      this._parent.dataContext.edges.update(edge);
     });
   }
 
   _updateNode(property) {
     return e => {
-      this._parent.data.nodes.update({
+      this._parent.dataContext.nodes.update({
         id: this._selectedNode.id,
         [property]: e.target.value
       });
     };
   }
 
+  _updateCoords(opt) {
+    const node = this._parent._network.body.nodes[opt.nodes[0]];
+    if (node !== this._selectedNode) {
+      this.selection = opt;
+    }
+    const x = Number.parseInt(node.x);
+    const y = Number.parseInt(node.y);
+    clearTimeout(this._updateCoordsTimeout);
+    this._updateCoordsTimeout = setTimeout(() => {
+      this._parent.dataContext.nodes.update({ id: node.id, x, y });
+    }, 200);
+    if (node.options.cid) {
+      this.$['component-x'].value = x;
+      this.$['component-y'].value = y;
+    } else {
+      this.$['node-x'].value = x;
+      this.$['node-y'].value = y;
+    }
+  }
+
   _getSelectedNodes() {
-    return this.selection.nodes.map(id => this._parent.data.nodes.get(id));
+    return this.selection.nodes.map(id => this._parent.dataContext.nodes.get(id));
   }
 
   _getConnectedEdges(nodeIds) {
@@ -288,7 +350,7 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
       });
     });
     /* create array of edge objects from set */
-    const edges = [...edgeIdSet].map(id => this._parent.data.edges.get(id));
+    const edges = [...edgeIdSet].map(id => this._parent.dataContext.edges.get(id));
     return edges;
   }
 }

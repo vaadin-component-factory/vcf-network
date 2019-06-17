@@ -32,7 +32,7 @@ class VcfNetworkColorOption extends ThemableMixin(PolymerElement) {
   }
 
   _colorChanged(color) {
-    this.style.backgroundColor = `var(${colorVars[color]})`;
+    this.style.backgroundColor = `var(${colorVars[color].name})`;
   }
 }
 

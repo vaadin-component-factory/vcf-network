@@ -15,6 +15,7 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
           display: block;
           overflow: auto;
           width: 240px;
+          flex-shrink: 0;
         }
 
         :host([hidden]) {

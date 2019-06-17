@@ -42,7 +42,7 @@ class VcfNetworkBreadcrumbs extends ThemableMixin(PolymerElement) {
         <div id="root" class$="[[_setRootClasses(context)]]">Root</div>
         <template is="dom-repeat" items="[[context]]">
           <iron-icon icon="hardware:keyboard-arrow-right"></iron-icon>
-          <span class$="[[_setClasses(index, context)]]">[[item.label]]</span>
+          <span class$="[[_setClasses(index, context)]]">[[item.data.label]]</span>
         </template>
       </div>
     `;
@@ -54,6 +54,10 @@ class VcfNetworkBreadcrumbs extends ThemableMixin(PolymerElement) {
 
   static get properties() {
     return {
+      context: {
+        type: Array,
+        notify: true
+      },
       _parent: {
         type: Object,
         observer: '_parentChanged'
@@ -65,7 +69,7 @@ class VcfNetworkBreadcrumbs extends ThemableMixin(PolymerElement) {
     super.connectedCallback();
     this.$.root.addEventListener('click', e => {
       if (!this.$.root.classList.contains('active')) {
-        this._parent._loadRoot();
+        this.context = [];
       }
     });
   }
