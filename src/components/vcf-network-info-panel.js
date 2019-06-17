@@ -88,46 +88,16 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
         <div class="details-container">
           <div class="details hidden" id="node-details">
             <vaadin-text-field id="node-name" label="Name" theme="small"></vaadin-text-field>
-            <vaadin-text-field
-              id="node-id"
-              label="ID"
-              readonly
-              autoselect
-              theme="small"
-            ></vaadin-text-field>
+            <vaadin-text-field id="node-id" label="ID" readonly autoselect theme="small"></vaadin-text-field>
           </div>
           <div class="details hidden" id="edge-details">
-            <vaadin-text-field
-              id="edge-id"
-              label="Id"
-              readonly
-              autoselect
-              theme="small"
-            ></vaadin-text-field>
-            <vaadin-text-field
-              id="edge-from"
-              label="From"
-              readonly
-              autoselect
-              theme="small"
-            ></vaadin-text-field>
-            <vaadin-text-field
-              id="edge-to"
-              label="To"
-              readonly
-              autoselect
-              theme="small"
-            ></vaadin-text-field>
+            <vaadin-text-field id="edge-id" label="Id" readonly autoselect theme="small"></vaadin-text-field>
+            <vaadin-text-field id="edge-from" label="From" readonly autoselect theme="small"></vaadin-text-field>
+            <vaadin-text-field id="edge-to" label="To" readonly autoselect theme="small"></vaadin-text-field>
           </div>
           <div class="details hidden" id="component-details">
             <vaadin-text-field id="component-name" label="Name" theme="small"></vaadin-text-field>
-            <vaadin-text-field
-              id="component-id"
-              label="ID"
-              readonly
-              autoselect
-              theme="small"
-            ></vaadin-text-field>
+            <vaadin-text-field id="component-id" label="ID" readonly autoselect theme="small"></vaadin-text-field>
             <vaadin-select id="component-color" label="Color">
               <template>
                 <vaadin-list-box>

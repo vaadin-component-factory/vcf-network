@@ -80,7 +80,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       },
       scale: {
         type: Number,
-        value: 3
+        value: 2
       },
       _options: {
         type: Object
@@ -205,7 +205,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     this._network.on('doubleClick', opt => {
       const selectedNode = this.$.infopanel._selectedNode;
       if (selectedNode.options.cid) {
-        this.$.breadcrumbs.context = [...this.$.breadcrumbs.context, selectedNode.options];
+        this.$.breadcrumbs.set('context', [...this.$.breadcrumbs.context, selectedNode.options]);
         this._network.setData({
           nodes: new vis.DataSet(selectedNode.options.nodes),
           edges: new vis.DataSet(selectedNode.options.edges)
@@ -221,20 +221,13 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   _initMultiSelect() {
     this._selectionRect = {};
     const saveDrawingSurface = () => {
-      this._drawingSurfaceImageData = this._ctx.getImageData(
-        0,
-        0,
-        this._canvas.width,
-        this._canvas.height
-      );
+      this._drawingSurfaceImageData = this._ctx.getImageData(0, 0, this._canvas.width, this._canvas.height);
     };
     const restoreDrawingSurface = () => {
       this._ctx.putImageData(this._drawingSurfaceImageData, 0, 0);
     };
     const getStartToEnd = (start, length) => {
-      return length > 0
-        ? { start: start, end: start + length }
-        : { start: start + length, end: start };
+      return length > 0 ? { start: start, end: start + length } : { start: start + length, end: start };
     };
     const selectNodesFromHighlight = () => {
       const nodesIdInDrawing = [];
@@ -248,12 +241,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
           x: nodePosition[curNode.id].x,
           y: nodePosition[curNode.id].y
         });
-        if (
-          xRange.start <= nodeXY.x &&
-          nodeXY.x <= xRange.end &&
-          yRange.start <= nodeXY.y &&
-          nodeXY.y <= yRange.end
-        ) {
+        if (xRange.start <= nodeXY.x && nodeXY.x <= xRange.end && yRange.start <= nodeXY.y && nodeXY.y <= yRange.end) {
           nodesIdInDrawing.push(curNode.id);
         }
       }
@@ -263,11 +251,8 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     this.$.main.addEventListener('mousemove', e => {
       if (this._selectionDrag) {
         restoreDrawingSurface();
-        const rect = this.getBoundingClientRect();
-        const offsetX = this.$.main.offsetLeft + rect.x;
-        const offsetY = this.$.main.offsetTop + rect.y;
-        this._selectionRect.w = e.pageX - offsetX - this._selectionRect.startX;
-        this._selectionRect.h = e.pageY - offsetY - this._selectionRect.startY;
+        this._selectionRect.w = e.pageX - this.$.main.offsetLeft - this._selectionRect.startX;
+        this._selectionRect.h = e.pageY - this.$.main.offsetTop - this._selectionRect.startY;
         this._ctx.strokeStyle = 'rgb(121, 173, 249)';
         this._ctx.strokeRect(
           this._selectionRect.startX,
@@ -288,11 +273,8 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     this.$.main.addEventListener('mousedown', e => {
       if (e.button == 2) {
         saveDrawingSurface();
-        const rect = this.getBoundingClientRect();
-        const offsetX = this.$.main.offsetLeft + rect.x;
-        const offsetY = this.$.main.offsetTop + rect.y;
-        this._selectionRect.startX = e.pageX - offsetX;
-        this._selectionRect.startY = e.pageY - offsetY;
+        this._selectionRect.startX = e.pageX - this.$.main.offsetLeft;
+        this._selectionRect.startY = e.pageY - this.$.main.offsetTop;
         this._selectionDrag = true;
         this.$.main.style.cursor = 'crosshair';
       }
