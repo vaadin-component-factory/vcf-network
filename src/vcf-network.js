@@ -401,28 +401,36 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
 
   _addComponent(opt) {
     const idMap = {};
-    const component = this.addingComponent;
-    const nodes = component.nodes.map(node => {
-      idMap[node.id] = vis.util.randomUUID();
-      const coords = this._network.DOMtoCanvas(opt.event.center);
-      return {
-        ...node,
-        id: idMap[node.id],
-        x: node.x + coords.x,
-        y: node.y + coords.y
-      };
-    });
-    const edges = component.edges.map(edge => {
-      idMap[edge.id] = vis.util.randomUUID();
-      return {
-        ...edge,
-        from: idMap[edge.from],
-        to: idMap[edge.to],
-        id: idMap[edge.id]
-      };
-    });
-    this.dataContext.nodes.add(nodes);
-    this.dataContext.edges.add(edges);
+    const importData = this.addingComponent;
+    const setNodeUUIDs = nodes => {
+      return nodes.map(node => {
+        const coords = this._network.DOMtoCanvas(opt.event.center);
+        idMap[node.id] = vis.util.randomUUID();
+        if (node.cid) {
+          node.nodes = setNodeUUIDs(node.nodes);
+          node.edges = setEdgeUUIDs(node.edges);
+        }
+        return {
+          ...node,
+          id: idMap[node.id],
+          x: node.x + coords.x,
+          y: node.y + coords.y
+        };
+      });
+    };
+    const setEdgeUUIDs = edges => {
+      return edges.map(edge => {
+        idMap[edge.id] = vis.util.randomUUID();
+        return {
+          ...edge,
+          from: idMap[edge.from],
+          to: idMap[edge.to],
+          id: idMap[edge.id]
+        };
+      });
+    };
+    this.dataContext.nodes.add(setNodeUUIDs(importData.nodes));
+    this.dataContext.edges.add(setEdgeUUIDs(importData.edges));
     this.addingComponent = null;
   }
 

@@ -196,7 +196,7 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
       this._selectedNode = this._parent._network.body.nodes[selection.nodes[0]];
       if (this._selectedNode.options.cid) {
         this.$['component-name'].value = this._selectedNode.options.label;
-        this.$['component-color'].value = this._selectedNode.options.componentColor;
+        this.$['component-color'].value = String(this._selectedNode.options.componentColor);
         this.$['component-id'].value = this._selectedNode.id;
         this.$['component-id'].title = this._selectedNode.id;
         this.$['component-cid'].value = this._selectedNode.options.cid;
@@ -243,25 +243,33 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
   _exportComponent() {
     let templateId = 0;
     const templateIdMap = {};
-    const obj = {
-      nodes: this.selection.nodes.map(id => {
-        const node = this._parent.dataContext.nodes.get(id);
-        templateIdMap[id] = templateId++;
-        return {
+    const setNodeTemplateIds = nodes => {
+      return nodes.map(node => {
+        templateIdMap[node.id] = templateId++;
+        if (node.cid) {
+          node.nodes = setNodeTemplateIds(node.nodes);
+          node.edges = setEdgeTemplateIds(node.edges);
+        }
+        return this._removeComponentNodeStyles({
           ...node,
-          id: templateIdMap[id]
-        };
-      }),
-      edges: this.selection.edges.map(id => {
-        const edge = this._parent.dataContext.edges.get(id);
-        templateIdMap[id] = templateId++;
+          id: templateIdMap[node.id]
+        });
+      });
+    };
+    const setEdgeTemplateIds = edges => {
+      return edges.map(edge => {
+        templateIdMap[edge.id] = templateId++;
         return {
           ...edge,
           from: templateIdMap[edge.from],
           to: templateIdMap[edge.to],
-          id: templateIdMap[id]
+          id: templateIdMap[edge.id]
         };
-      })
+      });
+    };
+    const obj = {
+      nodes: setNodeTemplateIds(this._getSelectedNodes()),
+      edges: setEdgeTemplateIds(this._getConnectedEdges(this.selection.nodes))
     };
     const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(obj));
     const download = document.createElement('a');
@@ -282,7 +290,8 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
       cid: `component:${vis.util.randomUUID()}`,
       nodes: this._getSelectedNodes(),
       edges: this._getConnectedEdges(nodeIds),
-      componentColor: '0'
+      componentColor: 0,
+      ...this._getComponentNodeStyles(0)
     };
     const externalEdges = component.edges.filter(edge => {
       const isExternal = !nodeIds.includes(edge.to) || !nodeIds.includes(edge.from);
@@ -310,9 +319,14 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
 
   _updateNode(property) {
     return e => {
+      let componentStyles = {};
+      if (property === 'componentColor') {
+        componentStyles = this._getComponentNodeStyles(Number.parseInt(e.target.value));
+      }
       this._parent.dataContext.nodes.update({
         id: this._selectedNode.id,
-        [property]: e.target.value
+        [property]: e.target.value,
+        ...componentStyles
       });
     };
   }
@@ -352,6 +366,45 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
     /* create array of edge objects from set */
     const edges = [...edgeIdSet].map(id => this._parent.dataContext.edges.get(id));
     return edges;
+  }
+
+  _getComponentNodeStyles(colorId) {
+    const rgb = colorVars[colorId].value;
+    const rgba = alpha => {
+      const values = /rgb\((\d*),(\d*),(\d*)\)/.exec(rgb);
+      return `rgba(${values[1]},${values[2]},${values[3]},${alpha})`;
+    };
+    return {
+      color: {
+        background: rgba(0.1),
+        border: rgba(0.9),
+        highlight: {
+          background: rgba(0.2),
+          border: rgba(1)
+        }
+      },
+      margin: {
+        top: 10,
+        right: 15,
+        bottom: 10,
+        left: 15
+      },
+      shapeProperties: {
+        borderRadius: 4
+      },
+      font: {
+        size: 9,
+        color: 'rgba(0, 0, 0, 1)'
+      }
+    };
+  }
+
+  _removeComponentNodeStyles(node) {
+    delete node.color;
+    delete node.margin;
+    delete node.shapeProperties;
+    delete node.font;
+    return node;
   }
 }
 

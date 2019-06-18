@@ -1,15 +1,15 @@
 import styleModule from './style-module';
 
 export const colorVars = [
-  { name: '--vcf-network-red', value: '#d0021c' },
-  { name: '--vcf-network-orange', value: '#f5a623' },
-  { name: '--vcf-network-yellow', value: '#f8e81d' },
-  { name: '--vcf-network-green', value: '#7dd421' },
-  { name: '--vcf-network-dark-green', value: '#417506' },
-  { name: '--vcf-network-blue', value: '#8a562b' },
-  { name: '--vcf-network-purple', value: '#4990e2' },
-  { name: '--vcf-network-violet', value: '#9013fe' },
-  { name: '--vcf-network-brown', value: '#bd10e0' }
+  { name: '--vcf-network-red', value: 'rgb(208,2,28)' },
+  { name: '--vcf-network-orange', value: 'rgb(245,166,35)' },
+  { name: '--vcf-network-yellow', value: 'rgb(248,232,29)' },
+  { name: '--vcf-network-green', value: 'rgb(125,212,33)' },
+  { name: '--vcf-network-dark-green', value: 'rgb(65,117,6)' },
+  { name: '--vcf-network-blue', value: 'rgb(73,144,226)' },
+  { name: '--vcf-network-purple', value: 'rgb(144,19,254)' },
+  { name: '--vcf-network-violet', value: 'rgb(189,16,224)' },
+  { name: '--vcf-network-brown', value: 'rgb(138,86,43)' }
 ];
 
 export const colors = () => {
