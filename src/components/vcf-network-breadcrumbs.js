@@ -39,11 +39,13 @@ class VcfNetworkBreadcrumbs extends ThemableMixin(PolymerElement) {
         }
       </style>
       <div id="main" class="breadcrumbs-container">
-        <div id="root" class$="[[_setRootClasses(context)]]">Root</div>
-        <template is="dom-repeat" items="[[context]]">
-          <iron-icon icon="hardware:keyboard-arrow-right"></iron-icon>
-          <span class$="[[_setClasses(index, context)]]">[[item.data.label]]</span>
-        </template>
+        <div id="root" class$="[[_rootStyle(context)]]">Root</div>
+        <div id="container">
+          <template is="dom-repeat" items="[[context]]">
+            <iron-icon icon="hardware:keyboard-arrow-right"></iron-icon>
+            <span class$="[[_itemStyle(index, context)]]" data-index="[[index]]">[[item.component.label]]</span>
+          </template>
+        </div>
       </div>
     `;
   }
@@ -57,10 +59,6 @@ class VcfNetworkBreadcrumbs extends ThemableMixin(PolymerElement) {
       context: {
         type: Array,
         notify: true
-      },
-      _parent: {
-        type: Object,
-        observer: '_parentChanged'
       }
     };
   }
@@ -72,11 +70,15 @@ class VcfNetworkBreadcrumbs extends ThemableMixin(PolymerElement) {
         this.context = [];
       }
     });
+    this.$.container.addEventListener('click', e => {
+      const el = e.target;
+      if (el.tagName === 'SPAN' && !el.classList.contains('active')) {
+        this.context = this.context.slice(0, el.dataIndex + 1);
+      }
+    });
   }
 
-  _parentChanged() {}
-
-  _setClasses(index, context) {
+  _itemStyle(index, context) {
     let classes = 'item';
     if (index === context.length - 1) {
       classes += ' active';
@@ -84,7 +86,7 @@ class VcfNetworkBreadcrumbs extends ThemableMixin(PolymerElement) {
     return classes;
   }
 
-  _setRootClasses(context) {
+  _rootStyle(context) {
     let classes = 'item';
     if (!context.length) {
       classes += ' active';
