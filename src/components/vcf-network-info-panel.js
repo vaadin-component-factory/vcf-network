@@ -1,6 +1,7 @@
 import { html, PolymerElement } from '@polymer/polymer/polymer-element';
 import { ThemableMixin } from '@vaadin/vaadin-themable-mixin/vaadin-themable-mixin';
 import { colorVars } from '../util/vcf-network-colors';
+import { pSBC } from '../util/pSBC';
 import '@vaadin/vaadin-button';
 import '@vaadin/vaadin-text-field';
 import '@vaadin/vaadin-select';
@@ -173,8 +174,8 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
   }
 
   _initEventListeners() {
-    this.$['node-name'].addEventListener('change', this._updateNode('label'));
-    this.$['component-name'].addEventListener('change', this._updateNode('label'));
+    this.$['node-name'].addEventListener('input', this._updateNode('label'));
+    this.$['component-name'].addEventListener('input', this._updateNode('label'));
     this.$['component-color'].addEventListener('change', this._updateNode('componentColor'));
     this.$['create-component-button'].addEventListener('click', () => this._createComponent());
     this.$['export-button'].addEventListener('click', () => this._exportComponent());
@@ -300,7 +301,6 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
       }
       return isExternal;
     });
-    this._parent.dataContext.components.push(component);
     /* Update nodes */
     this._parent.dataContext.nodes.remove(nodeIds);
     this._parent.dataContext.nodes.add(component);
@@ -323,11 +323,19 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
       if (property === 'componentColor') {
         componentStyles = this._getComponentNodeStyles(Number.parseInt(e.target.value));
       }
-      this._parent.dataContext.nodes.update({
+      const changes = {
         id: this._selectedNode.id,
         [property]: e.target.value,
         ...componentStyles
-      });
+      };
+      this._parent.dataContext.nodes.update(changes);
+      if (this._parent.context) {
+        this._updateComponentNodes(this._parent.context.component.nodes, changes);
+        this._parent.context.parentContext.nodes.update({
+          id: this._parent.context.component.id,
+          nodes: this._parent.context.component.nodes
+        });
+      }
     };
   }
 
@@ -340,7 +348,15 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
     const y = Number.parseInt(node.y);
     clearTimeout(this._updateCoordsTimeout);
     this._updateCoordsTimeout = setTimeout(() => {
-      this._parent.dataContext.nodes.update({ id: node.id, x, y });
+      const changes = { id: node.id, x, y };
+      this._parent.dataContext.nodes.update(changes);
+      if (this._parent.context) {
+        this._updateComponentNodes(this._parent.context.component.nodes, changes);
+        this._parent.context.parentContext.nodes.update({
+          id: this._parent.context.component.id,
+          nodes: this._parent.context.component.nodes
+        });
+      }
     }, 200);
     if (node.options.cid) {
       this.$['component-x'].value = x;
@@ -370,17 +386,13 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
 
   _getComponentNodeStyles(colorId) {
     const rgb = colorVars[colorId].value;
-    const rgba = alpha => {
-      const values = /rgb\((\d*),(\d*),(\d*)\)/.exec(rgb);
-      return `rgba(${values[1]},${values[2]},${values[3]},${alpha})`;
-    };
     return {
       color: {
-        background: rgba(0.1),
-        border: rgba(0.9),
+        background: this._shade(0.8, rgb),
+        border: this._shade(0.1, rgb),
         highlight: {
-          background: rgba(0.2),
-          border: rgba(1)
+          background: this._shade(0.7, rgb),
+          border: rgb
         }
       },
       margin: {
@@ -389,12 +401,9 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
         bottom: 10,
         left: 15
       },
-      shapeProperties: {
-        borderRadius: 4
-      },
       font: {
         size: 9,
-        color: 'rgba(0, 0, 0, 1)'
+        color: 'black'
       }
     };
   }
@@ -405,6 +414,15 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
     delete node.shapeProperties;
     delete node.font;
     return node;
+  }
+
+  _shade(percent, color) {
+    return pSBC.bind(this)(percent, color);
+  }
+
+  _updateComponentNodes(nodes, changes) {
+    const updateNode = nodes.filter(node => node.id === changes.id)[0];
+    Object.keys(changes).forEach(key => (updateNode[key] = changes[key]));
   }
 }
 

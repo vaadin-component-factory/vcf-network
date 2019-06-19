@@ -29,6 +29,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
         .canvas-container {
           background-color: var(--lumo-contrast-5pct);
           flex-grow: 1;
+          height: calc(100% - var(--lumo-size-l));
         }
       </style>
       <vcf-network-tool-panel id="toolpanel"></vcf-network-tool-panel>
@@ -54,8 +55,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
         type: Object,
         value: () => ({
           nodes: new vis.DataSet(),
-          edges: new vis.DataSet(),
-          components: []
+          edges: new vis.DataSet()
         })
       },
       import: {
@@ -211,7 +211,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
           ...this.$.breadcrumbs.context,
           {
             parentContext: this.dataContext,
-            data: selectedNode.options
+            component: selectedNode.options
           }
         ]);
       }
@@ -330,8 +330,6 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     }
   }
 
-  _dataChanged() {}
-
   _addingNodeCallback(data, callback) {
     const newNode = {
       id: data.id,
@@ -340,16 +338,15 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       y: data.y
     };
     this.dataContext.nodes.add(newNode);
-    if (this.context && this.context.parentContext !== this.dataContext) {
-      this.context.data.nodes.push(newNode);
+    if (this.context) {
+      this.context.component.nodes.push(newNode);
       this.context.parentContext.nodes.update({
-        id: this.context.data.id,
-        nodes: this.context.data.nodes
+        id: this.context.component.id,
+        nodes: this.context.component.nodes
       });
     }
-    this.addingNode = false;
     this.$.toolpanel.clear();
-    this._canvas.style.cursor = 'default';
+    this.addingNode = false;
   }
 
   _addingEdgeCallback(data, callback) {
@@ -359,14 +356,13 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     };
     this.dataContext.edges.add(newEdge);
     if (this.context) {
-      this.context.data.edges.push(newEdge);
+      this.context.component.edges.push(newEdge);
       this.context.parentContext.nodes.update({
-        id: this.context.data.id,
-        edges: this.context.data.edges
+        id: this.context.component.id,
+        edges: this.context.component.edges
       });
     }
     this.addingEdge = false;
-    this._canvas.style.cursor = 'default';
   }
 
   _detectNode(event) {
@@ -402,19 +398,27 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   _addComponent(opt) {
     const idMap = {};
     const importData = this.addingComponent;
+    importData.nodes.forEach(node => (node.isRoot = true));
     const setNodeUUIDs = nodes => {
       return nodes.map(node => {
-        const coords = this._network.DOMtoCanvas(opt.event.center);
+        let componentStyles = {};
+        const coords = opt.event.center;
+        const canvasCoords = this._network.DOMtoCanvas({
+          x: coords.x - this.$.main.offsetLeft,
+          y: coords.y - this.$.main.offsetTop
+        });
         idMap[node.id] = vis.util.randomUUID();
         if (node.cid) {
+          componentStyles = this.$.infopanel._getComponentNodeStyles(node.componentColor);
           node.nodes = setNodeUUIDs(node.nodes);
           node.edges = setEdgeUUIDs(node.edges);
         }
         return {
           ...node,
           id: idMap[node.id],
-          x: node.x + coords.x,
-          y: node.y + coords.y
+          x: node.isRoot ? canvasCoords.x : node.x,
+          y: node.isRoot ? canvasCoords.y : node.y,
+          ...componentStyles
         };
       });
     };
@@ -431,6 +435,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     };
     this.dataContext.nodes.add(setNodeUUIDs(importData.nodes));
     this.dataContext.edges.add(setEdgeUUIDs(importData.edges));
+    this.$.toolpanel.clear();
     this.addingComponent = null;
   }
 
@@ -438,12 +443,12 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     this._network.moveTo({ scale: this.scale });
   }
 
-  _contextChanged(context) {
-    if (context.length) {
-      const contextObj = context[context.length - 1];
+  _contextChanged(contextStack) {
+    if (contextStack.length) {
+      const context = contextStack[contextStack.length - 1];
       this.dataContext = {
-        nodes: new vis.DataSet(contextObj.data.nodes),
-        edges: new vis.DataSet(contextObj.data.edges)
+        nodes: new vis.DataSet(context.component.nodes),
+        edges: new vis.DataSet(context.component.edges)
       };
     } else {
       this.dataContext = this.data;

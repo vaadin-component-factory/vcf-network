@@ -166,6 +166,10 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
     };
   }
 
+  get _sectionItems() {
+    return this.shadowRoot.querySelectorAll('.section-item');
+  }
+
   connectedCallback() {
     super.connectedCallback();
     this._initToolbar();
@@ -194,7 +198,6 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
   }
 
   _initToolbar() {
-    this._sectionItems = this.shadowRoot.querySelectorAll('.section-item');
     // Set max-height of section-items for collapse animation
     const sectionItems = this.shadowRoot.querySelector('.section-items');
     sectionItems.style.maxHeight = `${sectionItems.clientHeight}px`;
