@@ -1,6 +1,7 @@
 import { html, PolymerElement } from '@polymer/polymer/polymer-element';
 import { ThemableMixin } from '@vaadin/vaadin-themable-mixin';
 import { ElementMixin } from '@vaadin/vaadin-element-mixin';
+import { pSBC } from './util/pSBC';
 import './lib/vis-network.web.js';
 import './components/vcf-network-tool-panel';
 import './components/vcf-network-breadcrumbs';
@@ -91,12 +92,28 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       _addNodeCount: {
         type: Number,
         value: 0
+      },
+      _addInputCount: {
+        type: Number,
+        value: 0
+      },
+      _addOutputCount: {
+        type: Number,
+        value: 0
       }
     };
   }
 
   get context() {
     return this.contextStack[this.contextStack.length - 1];
+  }
+
+  get parentContext() {
+    if (this.contextStack.length > 1) {
+      return this.contextStack[this.contextStack.length - 2].dataContext;
+    } else {
+      return this.data;
+    }
   }
 
   connectedCallback() {
@@ -146,8 +163,8 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       },
       manipulation: {
         enabled: false,
-        addNode: this._addingNodeCallback.bind(this),
-        addEdge: this._addingEdgeCallback.bind(this),
+        addNode: this._addNode.bind(this),
+        addEdge: this._addEdge.bind(this),
         controlNodeStyle: {
           shape: 'dot',
           size: 2,
@@ -207,11 +224,15 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     this._network.on('doubleClick', opt => {
       const selectedNode = this.$.infopanel._selectedNode;
       if (selectedNode.options.cid) {
+        const component = selectedNode.options;
         this.set('contextStack', [
           ...this.$.breadcrumbs.context,
           {
-            parentContext: this.dataContext,
-            component: selectedNode.options
+            component,
+            dataContext: {
+              nodes: new vis.DataSet(component.nodes),
+              edges: new vis.DataSet(component.edges)
+            }
           }
         ]);
       }
@@ -330,38 +351,35 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     }
   }
 
-  _addingNodeCallback(data, callback) {
+  _addNode(data, callback) {
+    const nodeType = this.addingNode;
+    let details = {};
+    let labelPrefix = 'Node';
+    if (nodeType === 'input' || nodeType === 'output') {
+      labelPrefix = nodeType.charAt(0).toUpperCase() + nodeType.slice(1);
+      details = {
+        type: nodeType,
+        ...this._getIONodeStyles(nodeType === 'input')
+      };
+    }
     const newNode = {
       id: data.id,
-      label: `Node ${++this._addNodeCount}`,
+      label: `${labelPrefix} ${++this[`_add${labelPrefix}Count`]}`,
       x: data.x,
-      y: data.y
+      y: data.y,
+      ...details
     };
-    this.dataContext.nodes.add(newNode);
-    if (this.context) {
-      this.context.component.nodes.push(newNode);
-      this.context.parentContext.nodes.update({
-        id: this.context.component.id,
-        nodes: this.context.component.nodes
-      });
-    }
+    this._addToDataSet('nodes', newNode);
     this.$.toolpanel.clear();
     this.addingNode = false;
   }
 
-  _addingEdgeCallback(data, callback) {
+  _addEdge(data, callback) {
     const newEdge = {
       from: data.from,
       to: data.to
     };
-    this.dataContext.edges.add(newEdge);
-    if (this.context) {
-      this.context.component.edges.push(newEdge);
-      this.context.parentContext.nodes.update({
-        id: this.context.component.id,
-        edges: this.context.component.edges
-      });
-    }
+    this._addToDataSet('edges', newEdge);
     this.addingEdge = false;
   }
 
@@ -397,7 +415,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
 
   _addComponent(opt) {
     const idMap = {};
-    const importData = this.addingComponent;
+    const importData = { nodes: [this.addingComponent], edges: [] };
     importData.nodes.forEach(node => (node.isRoot = true));
     const setNodeUUIDs = nodes => {
       return nodes.map(node => {
@@ -408,10 +426,12 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
           y: coords.y - this.$.main.offsetTop
         });
         idMap[node.id] = vis.util.randomUUID();
-        if (node.cid) {
+        if (node.type === 'component') {
           componentStyles = this.$.infopanel._getComponentNodeStyles(node.componentColor);
           node.nodes = setNodeUUIDs(node.nodes);
           node.edges = setEdgeUUIDs(node.edges);
+        } else if (node.type === 'input' || node.type === 'output') {
+          componentStyles = this._getIONodeStyles(node.type === 'input');
         }
         return {
           ...node,
@@ -433,8 +453,8 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
         };
       });
     };
-    this.dataContext.nodes.add(setNodeUUIDs(importData.nodes));
-    this.dataContext.edges.add(setEdgeUUIDs(importData.edges));
+    this._addToDataSet('nodes', setNodeUUIDs(importData.nodes));
+    this._addToDataSet('edges', setEdgeUUIDs(importData.edges));
     this.$.toolpanel.clear();
     this.addingComponent = null;
   }
@@ -446,15 +466,90 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   _contextChanged(contextStack) {
     if (contextStack.length) {
       const context = contextStack[contextStack.length - 1];
-      this.dataContext = {
-        nodes: new vis.DataSet(context.component.nodes),
-        edges: new vis.DataSet(context.component.edges)
-      };
+      this.dataContext = context.dataContext;
     } else {
       this.dataContext = this.data;
     }
     this._network.setData(this.dataContext);
     this._restoreZoom();
+  }
+
+  _shade(percent, color) {
+    return pSBC.bind(this)(percent, color);
+  }
+
+  _getIONodeStyles(input) {
+    const color = input ? 'rgb(0,163,67)' : 'rgb(245,36,24)';
+    return {
+      color: {
+        background: 'white',
+        border: this._shade(0.1, color),
+        highlight: {
+          background: 'white',
+          border: color
+        }
+      }
+    };
+  }
+
+  _addToDataSet(dataset, items) {
+    this.dataContext[dataset].add(items);
+    if (this.context) {
+      if (Array.isArray(items)) {
+        this.context.component[dataset] = this.context.component[dataset].concat(items);
+      } else {
+        this.context.component[dataset].push(items);
+      }
+      this._propagateUpdates();
+    }
+  }
+
+  _removeFromDataSet(dataset, items) {
+    this.dataContext[dataset].remove(items);
+    if (this.context) {
+      if (Array.isArray(items)) {
+        this.context.component[dataset] = this.context.component[dataset].filter(item => !items.includes(item.id));
+      } else {
+        this.context.component[dataset].splice(this.context.component[dataset].indexOf(items.id), 1);
+      }
+      this._propagateUpdates();
+    }
+  }
+
+  _updateDataSet(dataset, items) {
+    this.dataContext[dataset].update(items);
+    if (this.context) {
+      if (Array.isArray(items)) {
+        items.forEach(item => this._updateComponent(this.context.component[dataset], item));
+      } else {
+        this._updateComponent(this.context.component[dataset], items);
+      }
+      this._propagateUpdates();
+    }
+  }
+
+  _updateComponent(dataset, changes) {
+    const updateNode = dataset.filter(node => node.id === changes.id)[0];
+    Object.keys(changes).forEach(key => (updateNode[key] = changes[key]));
+  }
+
+  _propagateUpdates() {
+    for (let i = this.contextStack.length - 1; i >= 0; i--) {
+      const last = i === 0;
+      const context = this.contextStack[i];
+      const parent = !last && this.contextStack[i - 1];
+      const parentContext = last ? this.data : parent.dataContext;
+      parentContext.nodes.update({
+        id: context.component.id,
+        nodes: context.component.nodes,
+        edges: context.component.edges
+      });
+      if (parent) {
+        const component = parent.component.nodes.filter(node => node.id === context.component.id)[0];
+        component.nodes = context.component.nodes;
+        component.edges = context.component.edges;
+      }
+    }
   }
 }
 

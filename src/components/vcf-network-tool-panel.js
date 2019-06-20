@@ -141,10 +141,10 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
             <iron-icon icon="hardware:keyboard-arrow-down"></iron-icon>
           </div>
           <div class="section-items" id="custom">
-            <template is="dom-if" if="{{components.length}}">
+            <template is="dom-if" if="{{components}}">
               <div class="section-item">
-                <vcf-network-color-option color="2" class="icon"></vcf-network-color-option>
-                <span>Component</span>
+                <vcf-network-color-option color="[[components.componentColor]]" class="icon"></vcf-network-color-option>
+                <span>[[components.label]]</span>
               </div>
             </template>
           </div>
@@ -194,7 +194,9 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
       });
     });
     /* buttons */
-    this.$['add-node'].addEventListener('click', this._addNode.bind(this));
+    this.$['add-node'].addEventListener('click', () => this._addNode());
+    this.$['add-input-node'].addEventListener('click', () => this._addNode('input'));
+    this.$['add-output-node'].addEventListener('click', () => this._addNode('output'));
   }
 
   _initToolbar() {
@@ -203,12 +205,16 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
     sectionItems.style.maxHeight = `${sectionItems.clientHeight}px`;
   }
 
-  _addNode() {
-    this._setMode(this.$['add-node'], 'addingNode', true);
+  _addNode(type = true) {
+    let button = 'add-node';
+    if (type === 'input' || type === 'output') {
+      button = `add-${type}-node`;
+    }
+    this._setMode(this.$[button], 'addingNode', type);
   }
 
   _addComponent(item) {
-    this._setMode(item, 'addingComponent', this.components[0]);
+    this._setMode(item, 'addingComponent', this.components);
   }
 
   _setMode(item, mode, value) {
@@ -229,6 +235,9 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
           this._addComponent(item);
         }
       });
+      if (Array.isArray(components)) {
+        this.set('components', components[0].nodes[0]);
+      }
     }
   }
 }

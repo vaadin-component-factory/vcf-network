@@ -1,4 +1,5 @@
-// https://github.com/PimpTrizkit/PJs/wiki/12.-Shade,-Blend-and-Convert-a-Web-Color-(pSBC.js)#stackoverflow-archive-begin
+// Shade, Blend and Convert a Web Color
+// https://github.com/PimpTrizkit/PJs/wiki/12.-Shade,-Blend-and-Convert-a-Web-Color-(pSBC.js)
 
 export function pSBC(p, c0, c1, l) {
   let r;
