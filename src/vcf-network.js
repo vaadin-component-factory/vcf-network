@@ -52,7 +52,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
 
   static get properties() {
     return {
-      data: {
+      rootData: {
         type: Object,
         value: () => ({
           nodes: new vis.DataSet(),
@@ -83,12 +83,6 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
         type: Number,
         value: 2
       },
-      _options: {
-        type: Object
-      },
-      _network: {
-        type: Object
-      },
       _addNodeCount: {
         type: Number,
         value: 0
@@ -110,9 +104,9 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
 
   get parentContext() {
     if (this.contextStack.length > 1) {
-      return this.contextStack[this.contextStack.length - 2].dataContext;
+      return this.contextStack[this.contextStack.length - 2].data;
     } else {
-      return this.data;
+      return this.rootData;
     }
   }
 
@@ -181,20 +175,20 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
         dragNodes: true
       }
     };
-    this._network = new vis.Network(this.$.main, this.data, this._options);
+    this._network = new vis.Network(this.$.main, this.rootData, this._options);
     this.contextStack = [];
     this._manipulation = this._network.manipulation;
     this._canvas = this.shadowRoot.querySelector('canvas');
     this._ctx = this._canvas.getContext('2d');
-    if (!this.dataContext.nodes.length) {
+    if (!this.data.nodes.length) {
       this._restoreZoom();
     }
   }
 
   _initComponents() {
-    this.$.infopanel._parent = this;
-    this.$.toolpanel._parent = this;
-    this.$.breadcrumbs._parent = this;
+    this.$.infopanel.main = this;
+    this.$.toolpanel.main = this;
+    this.$.breadcrumbs.main = this;
   }
 
   _initEventListeners() {
@@ -223,15 +217,16 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     });
     this._network.on('doubleClick', opt => {
       const selectedNode = this.$.infopanel._selectedNode;
-      if (selectedNode.options.cid) {
-        const component = selectedNode.options;
+      if (selectedNode.cid) {
+        this.$.infopanel.selection = null;
         this.set('contextStack', [
           ...this.$.breadcrumbs.context,
           {
-            component,
-            dataContext: {
-              nodes: new vis.DataSet(component.nodes),
-              edges: new vis.DataSet(component.edges)
+            component: selectedNode,
+            parent: this.data,
+            data: {
+              nodes: new vis.DataSet(selectedNode.nodes),
+              edges: new vis.DataSet(selectedNode.edges)
             }
           }
         ]);
@@ -264,7 +259,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       const yRange = getStartToEnd(this._selectionRect.startY, this._selectionRect.h);
       const nodeIndices = this._network.body.nodeIndices;
       for (let i = 0; i < nodeIndices.length; i++) {
-        const curNode = this.dataContext.nodes.get(nodeIndices[i]);
+        const curNode = this.data.nodes.get(nodeIndices[i]);
         const nodePosition = this._network.getPositions([curNode.id]);
         const nodeXY = this._network.canvasToDOM({
           x: nodePosition[curNode.id].x,
@@ -466,11 +461,11 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   _contextChanged(contextStack) {
     if (contextStack.length) {
       const context = contextStack[contextStack.length - 1];
-      this.dataContext = context.dataContext;
+      this.data = context.data;
     } else {
-      this.dataContext = this.data;
+      this.data = this.rootData;
     }
-    this._network.setData(this.dataContext);
+    this._network.setData(this.data);
     this._restoreZoom();
   }
 
@@ -493,7 +488,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   _addToDataSet(dataset, items) {
-    this.dataContext[dataset].add(items);
+    this.data[dataset].add(items);
     if (this.context) {
       if (Array.isArray(items)) {
         this.context.component[dataset] = this.context.component[dataset].concat(items);
@@ -505,7 +500,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   _removeFromDataSet(dataset, items) {
-    this.dataContext[dataset].remove(items);
+    this.data[dataset].remove(items);
     if (this.context) {
       if (Array.isArray(items)) {
         this.context.component[dataset] = this.context.component[dataset].filter(item => !items.includes(item.id));
@@ -517,18 +512,18 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   _updateDataSet(dataset, items) {
-    this.dataContext[dataset].update(items);
+    this.data[dataset].update(items);
     if (this.context) {
       if (Array.isArray(items)) {
-        items.forEach(item => this._updateComponent(this.context.component[dataset], item));
+        items.forEach(item => this._updateComponentProperties(this.context.component[dataset], item));
       } else {
-        this._updateComponent(this.context.component[dataset], items);
+        this._updateComponentProperties(this.context.component[dataset], items);
       }
       this._propagateUpdates();
     }
   }
 
-  _updateComponent(dataset, changes) {
+  _updateComponentProperties(dataset, changes) {
     const updateNode = dataset.filter(node => node.id === changes.id)[0];
     Object.keys(changes).forEach(key => (updateNode[key] = changes[key]));
   }
@@ -538,7 +533,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       const last = i === 0;
       const context = this.contextStack[i];
       const parent = !last && this.contextStack[i - 1];
-      const parentContext = last ? this.data : parent.dataContext;
+      const parentContext = last ? this.rootData : parent.data;
       parentContext.nodes.update({
         id: context.component.id,
         nodes: context.component.nodes,

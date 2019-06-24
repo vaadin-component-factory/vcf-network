@@ -223,7 +223,7 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
       item.classList.remove('active');
     } else {
       item.classList.add('active');
-      this._parent[mode] = value;
+      this.main[mode] = value;
     }
   }
 
