@@ -340,6 +340,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     if (this.addingComponent) {
       this.addingEdge = false;
       this.addingNode = false;
+      this._network.disableEditMode();
       this._canvas.style.cursor = 'crosshair';
     } else {
       this._canvas.style.cursor = 'default';

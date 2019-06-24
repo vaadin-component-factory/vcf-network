@@ -38,7 +38,7 @@ class VcfNetworkBreadcrumbs extends ThemableMixin(PolymerElement) {
           cursor: pointer;
         }
       </style>
-      <div id="main" class="breadcrumbs-container">
+      <div class="breadcrumbs-container">
         <div id="root" class$="[[_rootStyle(context)]]">Root</div>
         <div id="container">
           <template is="dom-repeat" items="[[context]]">

@@ -114,7 +114,7 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
           color: var(--lumo-error-text-color);
         }
       </style>
-      <div id="main" class="panel-container">
+      <div class="panel-container">
         <div class="section">
           <div class="section-header">
             <h6>Default</h6>
