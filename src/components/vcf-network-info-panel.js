@@ -1,6 +1,6 @@
 import { html, PolymerElement } from '@polymer/polymer/polymer-element';
 import { ThemableMixin } from '@vaadin/vaadin-themable-mixin/vaadin-themable-mixin';
-import { colorVars } from '../util/vcf-network-colors';
+import { colorVars, Edge, ComponentNode, IONode } from '../util/vcf-network-shared';
 import '@vaadin/vaadin-button';
 import '@vaadin/vaadin-text-field';
 import '@vaadin/vaadin-select';
@@ -324,53 +324,45 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
     });
     if (!hasInput) {
       const inputId = vis.util.randomUUID();
-      const inputNode = {
-        type: 'input',
+      const inputNode = new IONode({
         id: inputId,
         label: `Input ${++this.main._addInputCount}`,
         x: x0 - 100,
-        y: y0 + (y1 - y0) / 2,
-        ...this.main._getIONodeStyles(true)
-      };
-      nodes.push(inputNode);
-      nodeIds.push(inputNode.id);
-      edges.push({
-        id: vis.util.randomUUID(),
+        y: y0 + (y1 - y0) / 2
+      });
+      const edge = new Edge({
         from: inputId,
         to: firstx.id
       });
+      nodes.push(inputNode);
+      nodeIds.push(inputNode.id);
+      edges.push(edge);
     }
     if (!hasOutput) {
       const outputId = vis.util.randomUUID();
-      const outputNode = {
+      const outputNode = new IONode({
         type: 'output',
         id: outputId,
         label: `Output ${++this.main._addOutputCount}`,
         x: x1 + 100,
-        y: y0 + (y1 - y0) / 2,
-        ...this.main._getIONodeStyles(false)
-      };
-      nodes.push(outputNode);
-      nodeIds.push(outputNode.id);
-      edges.push({
-        id: vis.util.randomUUID(),
+        y: y0 + (y1 - y0) / 2
+      });
+      const edge = new Edge({
         from: lastx.id,
         to: outputId
       });
+      nodes.push(outputNode);
+      nodeIds.push(outputNode.id);
+      edges.push(edge);
     }
     /* Create component node */
-    const component = {
+    const component = new ComponentNode({
       label: this.componentLabel,
-      id: vis.util.randomUUID(),
       x: posNode.x,
       y: posNode.y,
-      type: 'component',
-      cid: `c:${vis.util.randomUUID()}`,
       nodes,
-      edges,
-      componentColor: 0,
-      ...this._getComponentNodeStyles(0)
-    };
+      edges
+    });
     const edgesCopy = component.edges.slice(0);
     const externalEdges = edgesCopy.filter(edge => {
       const isExternal = !nodeIds.includes(edge.to) || !nodeIds.includes(edge.from);
@@ -399,7 +391,7 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
     return e => {
       let componentStyles = {};
       if (property === 'componentColor') {
-        componentStyles = this._getComponentNodeStyles(Number.parseInt(e.target.value));
+        componentStyles = ComponentNode.getComponentNodeStyles(Number.parseInt(e.target.value));
       }
       this.main._updateDataSet('nodes', {
         id: this._selectedNode.id,
@@ -444,29 +436,6 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
     /* create array of edge objects from set */
     const edges = [...edgeIdSet].map(id => this.main.data.edges.get(id));
     return edges;
-  }
-
-  _getComponentNodeStyles(colorId) {
-    const color = colorVars[colorId].value;
-    return {
-      color: {
-        background: this.main._shade(0.8, color),
-        border: this.main._shade(0.1, color),
-        highlight: {
-          background: this.main._shade(0.7, color),
-          border: color
-        }
-      },
-      margin: {
-        top: 10,
-        right: 15,
-        bottom: 10,
-        left: 15
-      },
-      font: {
-        size: 9
-      }
-    };
   }
 
   _removeExtraProperties(node) {
