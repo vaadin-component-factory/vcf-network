@@ -160,13 +160,6 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
     };
   }
 
-  get componentLabel() {
-    if (!this._componentCount) {
-      this._componentCount = 0;
-    }
-    return `Component ${++this._componentCount}`;
-  }
-
   connectedCallback() {
     super.connectedCallback();
     this._initEventListeners();
@@ -325,8 +318,9 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
     if (!hasInput) {
       const inputId = vis.util.randomUUID();
       const inputNode = new IONode({
+        type: 'input',
         id: inputId,
-        label: `Input ${++this.main._addInputCount}`,
+        label: this.main._getLabel('input'),
         x: x0 - 100,
         y: y0 + (y1 - y0) / 2
       });
@@ -343,7 +337,7 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
       const outputNode = new IONode({
         type: 'output',
         id: outputId,
-        label: `Output ${++this.main._addOutputCount}`,
+        label: this.main._getLabel('output'),
         x: x1 + 100,
         y: y0 + (y1 - y0) / 2
       });
@@ -357,7 +351,7 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
     }
     /* Create component node */
     const component = new ComponentNode({
-      label: this.componentLabel,
+      label: this.main._getLabel('component'),
       x: posNode.x,
       y: posNode.y,
       nodes,
