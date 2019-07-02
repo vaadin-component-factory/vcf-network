@@ -384,12 +384,14 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
   _updateNode(property) {
     return e => {
       let componentStyles = {};
+      let value = e.target.value;
       if (property === 'componentColor') {
-        componentStyles = ComponentNode.getComponentNodeStyles(Number.parseInt(e.target.value));
+        value = Number.parseInt(value);
+        componentStyles = ComponentNode.getComponentNodeStyles(value);
       }
       this.main._updateDataSet('nodes', {
         id: this._selectedNode.id,
-        [property]: e.target.value,
+        [property]: value,
         ...componentStyles
       });
     };
@@ -397,9 +399,7 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
 
   _updateCoords(opt) {
     const node = this.main._network.body.nodes[opt.nodes[0]];
-    if (node !== this._selectedNode) {
-      this.selection = opt;
-    }
+    if (node !== this._selectedNode) this.selection = opt;
     const x = Number.parseInt(node.x);
     const y = Number.parseInt(node.y);
     clearTimeout(this._updateCoordsTimeout);

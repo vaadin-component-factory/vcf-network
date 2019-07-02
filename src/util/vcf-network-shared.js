@@ -25,8 +25,12 @@ export const colors = () => {
   });
 };
 
+export const randomColor = () => {
+  return Math.floor(Math.random() * colorVars.length);
+};
+
 export class Node {
-  constructor(options) {
+  constructor(options = {}) {
     this.label = options.label || 'Node';
     this.id = options.id || vis.util.randomUUID();
     Object.assign(this, options);
@@ -34,7 +38,7 @@ export class Node {
 }
 
 export class Edge {
-  constructor(options) {
+  constructor(options = {}) {
     if (!options.from) throw new Error("'from' is required to create an edge");
     if (!options.to) throw new Error("'to' is required to create an edge");
     this.from = options.from;
@@ -44,14 +48,25 @@ export class Edge {
 }
 
 export class ComponentNode extends Node {
-  constructor(options) {
+  constructor(options = {}) {
     super(options);
-    this.componentColor = options.componentColor || 0;
     this.type = 'component';
+    this.label = options.label || 'Component';
     this.nodes = options.nodes || [];
     this.edges = options.edges || [];
+    this.inputs = {};
+    this.outputs = {};
     this.cid = `c:${vis.util.randomUUID()}`;
+    this.setComponentColor(options.componentColor);
     Object.assign(this, ComponentNode.getComponentNodeStyles(this.componentColor));
+  }
+
+  setComponentColor(color) {
+    let colorId = parseInt(color);
+    if (color === undefined || colorId < 0 || colorId > 8) {
+      colorId = randomColor();
+    }
+    this.componentColor = colorId;
   }
 
   static getComponentNodeStyles(colorId) {
@@ -79,9 +94,10 @@ export class ComponentNode extends Node {
 }
 
 export class IONode extends Node {
-  constructor(options) {
+  constructor(options = {}) {
     super(options);
     this.type = options.type || 'input';
+    this.label = options.label || 'Input';
     Object.assign(this, IONode.getIONodeStyles(this.type === 'input'));
   }
 
