@@ -300,7 +300,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     });
     this._network.on('click', opt => {
       if (this.addingComponent && !opt.nodes.length) {
-        this._addComponentHelper(opt);
+        this._addComponent(opt);
       }
     });
     this._network.on('doubleClick', opt => {
@@ -442,20 +442,20 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     const nodeType = this.addingNode;
     let newNode;
     if (nodeType === 'input' || nodeType === 'output') {
-      newNode = new IONode({
+      newNode = {
         id: data.id,
         label: this._getLabel(nodeType),
         x: data.x,
         y: data.y,
         type: nodeType
-      });
+      };
     } else {
-      newNode = new Node({
+      newNode = {
         id: data.id,
         label: this._getLabel(),
         x: data.x,
         y: data.y
-      });
+      };
     }
     this._addToDataSet('nodes', newNode);
     this.$.toolpanel.clear();
@@ -501,32 +501,26 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       });
   }
 
-  _addComponentHelper(opt) {
+  _addComponent(opt) {
     const idMap = {};
     const importData = { nodes: [this.addingComponent], edges: [] };
     importData.nodes.forEach(node => (node.isRoot = true));
     const setNodeUUIDs = nodes => {
-      return nodes.map(templateNode => {
-        let instanceNode;
+      return nodes.map(node => {
         const coords = opt.event.center;
         const canvasCoords = this._network.DOMtoCanvas({
           x: coords.x - this.$.main.offsetLeft,
           y: coords.y - this.$.main.offsetTop
         });
-        idMap[templateNode.id] = vis.util.randomUUID();
-        if (templateNode.type === 'component') {
-          templateNode.nodes = setNodeUUIDs(templateNode.nodes);
-          templateNode.edges = setEdgeUUIDs(templateNode.edges);
-          instanceNode = new ComponentNode(templateNode);
-        } else if (templateNode.type === 'input' || templateNode.type === 'output') {
-          instanceNode = new IONode(templateNode);
-        } else {
-          instanceNode = new Node(templateNode);
+        idMap[node.id] = vis.util.randomUUID();
+        if (node.type === 'component') {
+          node.nodes = setNodeUUIDs(node.nodes);
+          node.edges = setEdgeUUIDs(node.edges);
         }
-        instanceNode.id = idMap[templateNode.id];
-        instanceNode.x = instanceNode.isRoot ? canvasCoords.x : instanceNode.x;
-        instanceNode.y = instanceNode.isRoot ? canvasCoords.y : instanceNode.y;
-        return instanceNode;
+        node.id = idMap[node.id];
+        node.x = node.isRoot ? canvasCoords.x : node.x;
+        node.y = node.isRoot ? canvasCoords.y : node.y;
+        return this._wrapItemClass(node);
       });
     };
     const setEdgeUUIDs = edges => {
@@ -673,16 +667,14 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   _wrapItemClass(item) {
-    switch (item.type) {
-      case 'component':
-        return new ComponentNode(item);
-      case 'input':
-      case 'output':
-        return new IONode(item);
-      case 'edge':
-        return new Edge(item);
-      default:
-        return new Node(item);
+    if (item.from) {
+      return new Edge(item);
+    } else if (item.type === 'component') {
+      return new ComponentNode(item);
+    } else if (item.type === 'input' || item.type === 'output') {
+      return new IONode(item);
+    } else {
+      return new Node(item);
     }
   }
 }
