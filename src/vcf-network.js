@@ -64,13 +64,12 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   static get properties() {
     return {
       data: Object,
-      rootData: {
+      nodes: {
         type: Object,
-        value: () => ({
-          nodes: new vis.DataSet(),
-          edges: new vis.DataSet()
-        })
+        value: new vis.DataSet(),
+        notify: true
       },
+      edges: new vis.DataSet(),
       import: {
         type: String,
         observer: '_importChanged'
@@ -102,17 +101,17 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     this._initMultiSelect();
   }
 
-  get nodes() {
-    return this.getNodes();
-  }
+  // get nodes() {
+  //   return this.getNodes();
+  // }
 
   get nodeIds() {
     return this.getNodeIds();
   }
 
-  get edges() {
-    return this.getEdges();
-  }
+  // get edges() {
+  //   return this.getEdges();
+  // }
 
   get edgeIds() {
     return this.getEdgeIds();
@@ -135,7 +134,10 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     if (this.contextStack.length > 1) {
       return this.contextStack[this.contextStack.length - 2].data;
     } else {
-      return this.rootData;
+      return {
+        nodes: this.nodes,
+        edges: this.edges
+      };
     }
   }
 
@@ -263,7 +265,11 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
         dragNodes: true
       }
     };
-    this._network = new vis.Network(this.$.main, this.rootData, this._options);
+    const rootData = {
+      nodes: this.nodes,
+      edges: this.edges
+    };
+    this._network = new vis.Network(this.$.main, rootData, this._options);
     this.contextStack = [];
     this._manipulation = this._network.manipulation;
     this._canvas = this.shadowRoot.querySelector('canvas');
@@ -549,7 +555,11 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       this.data = context.data;
       this._setIOPanelVisibility(true);
     } else {
-      this.data = this.rootData;
+      const rootData = {
+        nodes: this.nodes,
+        edges: this.edges
+      };
+      this.data = rootData;
       this._setIOPanelVisibility(false);
     }
     this._network.setData(this.data);
@@ -625,7 +635,11 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       const last = i === 0;
       const context = this.contextStack[i];
       const parent = !last && this.contextStack[i - 1];
-      const parentContext = last ? this.rootData : parent.data;
+      const rootData = {
+        nodes: this.nodes,
+        edges: this.edges
+      };
+      const parentContext = last ? rootData : parent.data;
       parentContext.nodes.update({
         id: context.component.id,
         nodes: context.component.nodes,
