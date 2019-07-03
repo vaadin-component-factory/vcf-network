@@ -66,6 +66,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       data: Object,
       rootData: {
         type: Object,
+        notify: true,
         value: () => ({
           nodes: new vis.DataSet(),
           edges: new vis.DataSet()
@@ -580,6 +581,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       }
       this._propagateUpdates();
     }
+    this.rootData = Object.assign({}, this.rootData);
   }
 
   _removeFromDataSet(dataset, items) {
@@ -601,6 +603,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       }
       this._propagateUpdates();
     }
+    this.rootData = Object.assign({}, this.rootData);
   }
 
   _updateDataSet(dataset, items) {
@@ -613,6 +616,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       }
       this._propagateUpdates();
     }
+    this.rootData = Object.assign({}, this.rootData);
   }
 
   _updateComponentProperties(dataset, changes) {

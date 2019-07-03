@@ -12,6 +12,7 @@ styleModule({
   styles: `
     :host {
       border: 1px solid var(--lumo-contrast-10pct);
+      box-sizing: border-box;
     }
   `
 });
