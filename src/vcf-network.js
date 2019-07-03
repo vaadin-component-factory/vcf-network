@@ -590,6 +590,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       }
       this._propagateUpdates();
     }
+    this.notifyPath('nodes._data');
   }
 
   _removeFromDataSet(dataset, items) {
@@ -611,6 +612,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       }
       this._propagateUpdates();
     }
+    this.notifyPath('nodes._data');
   }
 
   _updateDataSet(dataset, items) {
