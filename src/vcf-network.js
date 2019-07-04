@@ -64,12 +64,14 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   static get properties() {
     return {
       data: Object,
-      nodes: {
+      rootData: {
         type: Object,
-        value: new vis.DataSet(),
+        value: () => ({
+          nodes: new vis.DataSet(),
+          edges: new vis.DataSet()
+        }),
         notify: true
       },
-      edges: new vis.DataSet(),
       import: {
         type: String,
         observer: '_importChanged'
@@ -101,17 +103,17 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     this._initMultiSelect();
   }
 
-  // get nodes() {
-  //   return this.getNodes();
-  // }
+  get nodes() {
+    return this.getNodes();
+  }
 
   get nodeIds() {
     return this.getNodeIds();
   }
 
-  // get edges() {
-  //   return this.getEdges();
-  // }
+  get edges() {
+    return this.getEdges();
+  }
 
   get edgeIds() {
     return this.getEdgeIds();
@@ -265,11 +267,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
         dragNodes: true
       }
     };
-    const rootData = {
-      nodes: this.nodes,
-      edges: this.edges
-    };
-    this._network = new vis.Network(this.$.main, rootData, this._options);
+    this._network = new vis.Network(this.$.main, this.rootData, this._options);
     this.contextStack = [];
     this._manipulation = this._network.manipulation;
     this._canvas = this.shadowRoot.querySelector('canvas');
@@ -296,7 +294,11 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
           if (node && node.id !== nodeId) {
             this._manipulation._finishConnect(e);
           } else {
-            this._reset();
+            this.addingNode = false;
+            this.addingEdge = false;
+            this.$.toolpanel.clear();
+            this._manipulation._clean();
+            this._manipulation._restore();
           }
         });
       }
@@ -491,13 +493,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     return node;
   }
 
-  _reset() {
-    this.addingNode = false;
-    this.addingEdge = false;
-    this.$.toolpanel.clear();
-    this._manipulation._clean();
-    this._manipulation._restore();
-  }
+  _resetToolPanel() {}
 
   _importChanged(src) {
     fetch(src)
@@ -555,11 +551,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       this.data = context.data;
       this._setIOPanelVisibility(true);
     } else {
-      const rootData = {
-        nodes: this.nodes,
-        edges: this.edges
-      };
-      this.data = rootData;
+      this.data = this.rootData;
       this._setIOPanelVisibility(false);
     }
     this._network.setData(this.data);
@@ -572,16 +564,16 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     } else {
       items = this._wrapItemClass(items);
     }
-    const evt = new CustomEvent('vcf-network-new-' + dataset, { detail: { items }, cancelable: true });
-    const cancelled = !this.dispatchEvent(evt);
+    const event = new CustomEvent(`vcf-network-new-${dataset}`, { detail: { items }, cancelable: true });
+    const cancelled = !this.dispatchEvent(event);
     if (!cancelled) {
       this._confirmAddToDataSet(dataset, items);
+      this.dispatchEvent(new CustomEvent(`vcf-network-after-new-${dataset}`, { detail: { items } }));
     }
   }
 
   _confirmAddToDataSet(dataset, items) {
     this.data[dataset].add(items);
-    this.dispatchEvent(new CustomEvent('vcf-network-after-new-' + dataset, { detail: { items } }));
     if (this.context) {
       if (Array.isArray(items)) {
         this.context.component[dataset] = this.context.component[dataset].concat(items);
@@ -590,20 +582,20 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       }
       this._propagateUpdates();
     }
-    this.notifyPath('nodes._data');
+    this._notifyRoot();
   }
 
   _removeFromDataSet(dataset, items) {
-    const evt = new CustomEvent('vcf-network-delete-' + dataset, { detail: { ids: items }, cancelable: true });
-    const cancelled = !this.dispatchEvent(evt);
+    const event = new CustomEvent(`vcf-network-delete-${dataset}`, { detail: { ids: items }, cancelable: true });
+    const cancelled = !this.dispatchEvent(event);
     if (!cancelled) {
       this._confirmRemoveFromDataSet(dataset, items);
+      this.dispatchEvent(new CustomEvent(`vcf-network-after-delete-${dataset}`, { detail: { ids: items } }));
     }
   }
 
   _confirmRemoveFromDataSet(dataset, items) {
     this.data[dataset].remove(items);
-    this.dispatchEvent(new CustomEvent('vcf-network-after-delete-' + dataset, { detail: { ids: items } }));
     if (this.context) {
       if (Array.isArray(items)) {
         this.context.component[dataset] = this.context.component[dataset].filter(item => !items.includes(item.id));
@@ -612,7 +604,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       }
       this._propagateUpdates();
     }
-    this.notifyPath('nodes._data');
+    this._notifyRoot();
   }
 
   _updateDataSet(dataset, items) {
@@ -625,6 +617,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       }
       this._propagateUpdates();
     }
+    this._notifyRoot();
   }
 
   _updateComponentProperties(dataset, changes) {
@@ -637,11 +630,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       const last = i === 0;
       const context = this.contextStack[i];
       const parent = !last && this.contextStack[i - 1];
-      const rootData = {
-        nodes: this.nodes,
-        edges: this.edges
-      };
-      const parentContext = last ? rootData : parent.data;
+      const parentContext = last ? this.rootData : parent.data;
       parentContext.nodes.update({
         id: context.component.id,
         nodes: context.component.nodes,
@@ -692,6 +681,10 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     } else {
       return new Node(item);
     }
+  }
+
+  _notifyRoot() {
+    this.rootData = Object.assign({}, this.rootData);
   }
 }
 
