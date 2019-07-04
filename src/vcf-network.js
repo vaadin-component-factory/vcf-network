@@ -8,6 +8,12 @@ import './components/vcf-network-breadcrumbs';
 import './components/vcf-network-info-panel';
 import './components/vcf-network-io-panel';
 
+/**
+ * @class VcfNetwork
+ * @extends {PolymerElement}
+ * @mixes ElementMixin
+ * @mixes ThemableMixin
+ */
 class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   static get template() {
     return html`
@@ -492,8 +498,6 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     }
     return node;
   }
-
-  _resetToolPanel() {}
 
   _importChanged(src) {
     fetch(src)
