@@ -149,49 +149,82 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     }
   }
 
-  select(nodeIds = [], edgeIds = []) {
-    if (nodeIds.length) this._network.selectNodes(nodeIds, false);
-    if (edgeIds.length) this._network.selectEdges(edgeIds);
-    this.$.infopanel.selection = { nodes: nodeIds, edges: edgeIds };
+  /**
+   * @param {{ nodeIds: string[], edgeIds: string[] }} data
+   */
+  select(data) {
+    this._network.selectNodes(data.nodeIds, false);
+    this._network.selectEdges(data.edgeIds);
+    this.$.infopanel.selection = { nodes: data.nodeIds, edges: data.edgeIds };
   }
 
+  /**
+   * @param {Node | Node[]} nodes
+   */
   addNodes(nodes) {
     this._addToDataSet('nodes', nodes);
   }
 
+  /**
+   * @param {Node | Node[]} nodes
+   */
   confirmAddNodes(nodes) {
     this._confirmAddToDataSet('nodes', nodes);
   }
 
+  /**
+   * @param {string[]} nodeIds
+   */
   deleteNodes(nodeIds) {
     this._removeFromDataSet('nodes', nodeIds);
   }
 
+  /**
+   * @param {string[]} nodeIds
+   */
   confirmDeleteNodes(nodeIds) {
     this._confirmRemoveFromDataSet('nodes', nodeIds);
   }
 
+  /**
+   * @param {Edge | Edge[]} edges
+   */
   addEdges(edges) {
     this._addToDataSet('edges', edges);
   }
 
+  /**
+   * @param {Edge | Edge[]} edges
+   */
   confirmAddEdges(edges) {
     this._confirmAddToDataSet('edges', edges);
   }
 
+  /**
+   * @param {string[]} edgeIds
+   */
   deleteEdges(edgeIds) {
     this._removeFromDataSet('edges', edgeIds);
   }
 
+  /**
+   * @param {string[]} edgeIds
+   */
   confirmDeleteEdges(edgeIds) {
     this._confirmRemoveFromDataSet('edges', edgeIds);
   }
 
+  /**
+   * @param {string[]} nodeIds
+   */
   createComponent(nodeIds) {
     this.select(nodeIds);
     this.$.infopanel._createComponent();
   }
 
+  /**
+   * @param {string} id
+   */
   getNode(id) {
     return this.data.nodes.get(id);
   }
@@ -204,6 +237,9 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     return this._network.body.nodeIndices;
   }
 
+  /**
+   * @param {string} id
+   */
   getEdge(id) {
     return this.data.edges.get(id);
   }
@@ -214,6 +250,25 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
 
   getEdgeIds() {
     return this._network.body.edgeIndices;
+  }
+
+  clearData() {
+    this.contextStack = [];
+    this.data.nodes.clear();
+    this.data.edges.clear();
+  }
+
+  /**
+   * @param {{nodes: Node[], edges: Edge[]}} data
+   */
+  setData(data) {
+    this.clearData();
+    this.rootData = {
+      nodes: vis.DataSet(data.nodes),
+      edges: vis.DataSet(data.edges)
+    };
+    this.data = this.rootData;
+    this._network.setData(this.data);
   }
 
   _initNetwork() {
@@ -530,13 +585,10 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       });
     };
     const setEdgeUUIDs = edges => {
-      return edges.map(templateEdge => {
-        idMap[templateEdge.id] = vis.util.randomUUID();
-        const instanceEdge = new Edge(templateEdge);
-        instanceEdge.from = idMap[templateEdge.from];
-        instanceEdge.to = idMap[templateEdge.to];
-        instanceEdge.id = idMap[templateEdge.id];
-        return instanceEdge;
+      return edges.map(edge => {
+        edge.from = idMap[edge.from];
+        edge.to = idMap[edge.to];
+        return edge;
       });
     };
     this._addToDataSet('nodes', setNodeUUIDs(importData.nodes));
@@ -667,7 +719,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   _getPath(id) {
     const path = [id];
     if (this.context) {
-      const stack = this.contextStack.slice().reverse();
+      const stack = this.contextStack.slice();
       for (const context of stack) {
         path.unshift(context.id);
       }
