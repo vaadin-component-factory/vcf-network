@@ -276,7 +276,8 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       interaction: {
         multiselect: false,
         selectConnectedEdges: false,
-        dragNodes: true
+        dragNodes: true,
+        hover: true
       }
     };
     this._network = new vis.Network(this.$.main, this.rootData, this._options);
@@ -357,7 +358,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       const node = this._network.body.nodes[opt.nodes[0]];
       const x = Number.parseInt(node.x);
       const y = Number.parseInt(node.y);
-      const evt = new CustomEvent('vcf-network-update-coordinates', { detail: { id: opt.nodes[0]}, cancelable: true });
+      const evt = new CustomEvent('vcf-network-update-coordinates', { detail: { id: opt.nodes[0], x: x, y: y }, cancelable: true });
       const cancelled = !this.dispatchEvent(evt);
       if (!cancelled) {
         this.$.infopanel._updateCoords(opt);
@@ -365,6 +366,14 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
         this.$.infopanel._refreshCoords(opt, x, y);
       }
     }
+  });
+
+    this._network.on('hoverNode', opt => {
+      this.dispatchEvent(new CustomEvent('vcf-network-hover-node', { detail: { id: opt.node} }));
+  });
+
+    this._network.on('hoverEdge', opt => {
+      this.dispatchEvent(new CustomEvent('vcf-network-hover-edge', { detail: { id: opt.edge} }));
   });
   }
 
