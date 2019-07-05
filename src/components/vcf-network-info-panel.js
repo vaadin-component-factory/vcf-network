@@ -300,82 +300,87 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
   }
 
   _createComponent() {
-    const nodeIds = this.selection.nodes;
-    const posNode = this.main.data.nodes.get(nodeIds[0]);
-    const nodes = this._getSelectedNodes();
-    const edges = this._getConnectedEdges(nodeIds);
-    /* Generate I/O nodes */
-    const first = nodes[0];
-    let firstx = first;
-    let lastx = first;
-    let x0 = first.x;
-    let x1 = first.x;
-    let y0 = first.y;
-    let y1 = first.y;
-    let hasInput = false;
-    let hasOutput = false;
-    nodes.forEach((node, i) => {
-      if (node.x < x0) {
-        x0 = node.x;
-        firstx = node;
-      }
-      if (node.x > x1) {
-        x1 = node.x;
-        lastx = node;
-      }
-      if (node.y < y0) y0 = node.y;
-      if (node.y > y1) y1 = node.y;
-      if (node.type === 'input') hasInput = true;
-      if (node.type === 'output') hasOutput = true;
-    });
-    if (!hasInput) {
-      const inputNode = new IONode({
-        type: 'input',
-        label: this.main._getLabel('input'),
-        x: x0 - 100,
-        y: y0 + (y1 - y0) / 2
+
+    const evt = new CustomEvent('vcf-network-create-component', {  cancelable: true });
+    const cancelled = !this.main.dispatchEvent(evt);
+    if (!cancelled) {
+      const nodeIds = this.selection.nodes;
+      const posNode = this.main.data.nodes.get(nodeIds[0]);
+      const nodes = this._getSelectedNodes();
+      const edges = this._getConnectedEdges(nodeIds);
+      /* Generate I/O nodes */
+      const first = nodes[0];
+      let firstx = first;
+      let lastx = first;
+      let x0 = first.x;
+      let x1 = first.x;
+      let y0 = first.y;
+      let y1 = first.y;
+      let hasInput = false;
+      let hasOutput = false;
+      nodes.forEach((node, i) => {
+        if (node.x < x0) {
+          x0 = node.x;
+          firstx = node;
+        }
+        if (node.x > x1) {
+          x1 = node.x;
+          lastx = node;
+        }
+        if (node.y < y0) y0 = node.y;
+        if (node.y > y1) y1 = node.y;
+        if (node.type === 'input') hasInput = true;
+        if (node.type === 'output') hasOutput = true;
       });
-      const edge = new Edge({
-        from: inputNode.id,
-        to: firstx.id
+      if (!hasInput) {
+        const inputNode = new IONode({
+          type: 'input',
+          label: this.main._getLabel('input'),
+          x: x0 - 100,
+          y: y0 + (y1 - y0) / 2
+        });
+        const edge = new Edge({
+          from: inputNode.id,
+          to: firstx.id
+        });
+        nodes.push(inputNode);
+        nodeIds.push(inputNode.id);
+        edges.push(edge);
+      }
+      if (!hasOutput) {
+        const outputNode = new IONode({
+          type: 'output',
+          label: this.main._getLabel('output'),
+          x: x1 + 100,
+          y: y0 + (y1 - y0) / 2
+        });
+        const edge = new Edge({
+          from: lastx.id,
+          to: outputNode.id
+        });
+        nodes.push(outputNode);
+        nodeIds.push(outputNode.id);
+        edges.push(edge);
+      }
+      /* Create component node */
+      const component = new ComponentNode({
+        label: this.main._getLabel('component'),
+        x: posNode.x,
+        y: posNode.y,
+        nodes,
+        edges
       });
-      nodes.push(inputNode);
-      nodeIds.push(inputNode.id);
-      edges.push(edge);
+      component.edges.forEach(edge => {
+        if (!nodeIds.includes(edge.to) || !nodeIds.includes(edge.from)) {
+          component.edges.splice(component.edges.indexOf(edge), 1);
+        }
+      });
+      /* Update nodes */
+      this.main._removeFromDataSet('nodes', nodeIds);
+      this.main._addToDataSet('nodes', component);
+      /* Update edges */
+      this.main._removeFromDataSet('edges', component.edges);
     }
-    if (!hasOutput) {
-      const outputNode = new IONode({
-        type: 'output',
-        label: this.main._getLabel('output'),
-        x: x1 + 100,
-        y: y0 + (y1 - y0) / 2
-      });
-      const edge = new Edge({
-        from: lastx.id,
-        to: outputNode.id
-      });
-      nodes.push(outputNode);
-      nodeIds.push(outputNode.id);
-      edges.push(edge);
-    }
-    /* Create component node */
-    const component = new ComponentNode({
-      label: this.main._getLabel('component'),
-      x: posNode.x,
-      y: posNode.y,
-      nodes,
-      edges
-    });
-    component.edges.forEach(edge => {
-      if (!nodeIds.includes(edge.to) || !nodeIds.includes(edge.from)) {
-        component.edges.splice(component.edges.indexOf(edge), 1);
-      }
-    });
-    /* Update nodes */
-    this.main._removeFromDataSet('nodes', nodeIds);
-    this.main._addToDataSet('nodes', component);
-    /* Update edges */
-    this.main._removeFromDataSet('edges', component.edges);
   }
 
   _updateNode(property) {
@@ -403,6 +408,11 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
     this._updateCoordsTimeout = setTimeout(() => {
       this.main._updateDataSet('nodes', { id: node.id, x, y });
     }, 200);
+    this._refreshCoords(opt, x, y);
+  }
+
+  _refreshCoords(opt, x, y) {
+    const node = this.main._network.body.nodes[opt.nodes[0]];
     if (node.options.cid) {
       this.$['component-x'].value = x;
       this.$['component-y'].value = y;
