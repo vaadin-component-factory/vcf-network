@@ -96,7 +96,7 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
           <vaadin-button id="copy-button" theme="tertiary" title="Copy">
             <iron-icon icon="icons:content-copy"></iron-icon>
           </vaadin-button>
-          <vaadin-button id="save-button" theme="tertiary" title="Save">
+          <vaadin-button id="save-button" class="details hidden" theme="tertiary" title="Save">
             <iron-icon icon="icons:save"></iron-icon>
           </vaadin-button>
           <vaadin-button id="delete-button" theme="tertiary error" title="Delete">
@@ -200,6 +200,7 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
     this.$['node-form'].classList.add('hidden');
     this.$['edge-details'].classList.add('hidden');
     this.$['component-details'].classList.add('hidden');
+    this.$['save-button'].classList.add('hidden');
     /* Set selection text class */
     if (this.selectionText === 'No selection') {
       this.$['selection'].classList.remove('active');
@@ -248,6 +249,7 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
       this.$['node-y'].value = this._selectedNode.y;
     } else {;
       this.$['node-form'].classList.remove('hidden');
+      this.$['save-button'].classList.remove('hidden');
     }
   }
 
