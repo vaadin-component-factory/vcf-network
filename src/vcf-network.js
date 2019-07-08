@@ -190,9 +190,16 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     this._confirmRemoveFromDataSet('nodes', nodeIds);
   }
 
+  /**
+   * @param {Node | Node[]} nodes
+   */
   updateNodes(nodes) {
     this._updateDataSet('nodes', nodes);
   }
+
+  /**
+   * @param {Node | Node[]} nodes
+   */
   confirmUpdateNodes(nodes) {
     this._confirmUpdateDataSet('nodes', nodes);
   }
@@ -225,9 +232,16 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     this._confirmRemoveFromDataSet('edges', edgeIds);
   }
 
+  /**
+   * @param {Edge | Edge[]} edges
+   */
   updateEdges(edges) {
     this._updateDataSet('edges', edges);
   }
+
+  /**
+   * @param {Edge | Edge[]} edges
+   */
   confirmUpdateEdges(edges) {
     this._confirmUpdateDataSet('edges', edges);
   }
@@ -414,8 +428,6 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
               }
             }
           ]);
-          // send a event to the server
-          this.dispatchEvent(new CustomEvent('vcf-network-navigate-to', { detail: { id: selectedNode.id } }));
         }
       }
     });
@@ -656,24 +668,27 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   _contextChanged(contextStack) {
+    let id = '';
     if (contextStack.length) {
       const context = contextStack[contextStack.length - 1];
       this.data = context.data;
       this._setIOPanelVisibility(true);
+      id = context.component.id;
     } else {
       this.data = this.rootData;
       this._setIOPanelVisibility(false);
     }
     this._network.setData(this.data);
     this._restoreZoom();
+    this.dispatchEvent(new CustomEvent('vcf-network-navigate-to', { detail: { id } }));
   }
 
   _addToDataSet(dataset, items) {
-    const evt = new CustomEvent('vcf-network-new-' + dataset, { detail: { items }, cancelable: true });
+    const evt = new CustomEvent(`vcf-network-new-${dataset}`, { detail: { items }, cancelable: true });
     const cancelled = !this.dispatchEvent(evt);
     if (!cancelled) {
       this._confirmAddToDataSet(dataset, items);
-      this.dispatchEvent(new CustomEvent('vcf-network-after-new-' + dataset, { detail: { items } }));
+      this.dispatchEvent(new CustomEvent(`vcf-network-after-new-${dataset}`, { detail: { items } }));
     }
   }
 
@@ -718,11 +733,11 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   _updateDataSet(dataset, items) {
-    const evt = new CustomEvent('vcf-network-update-' + dataset, { detail: { items }, cancelable: true });
+    const evt = new CustomEvent(`vcf-network-update-${dataset}`, { detail: { items }, cancelable: true });
     const cancelled = !this.dispatchEvent(evt);
     if (!cancelled) {
       this._confirmUpdateDataSet(dataset, items);
-      this.dispatchEvent(new CustomEvent('vcf-network-after-update-' + dataset, { detail: { ids: items } }));
+      this.dispatchEvent(new CustomEvent(`vcf-network-after-update-${dataset}`, { detail: { ids: items } }));
     }
   }
 
