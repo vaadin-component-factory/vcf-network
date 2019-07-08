@@ -348,6 +348,8 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
               }
             }
       ]);
+        // send a event to the server
+        this.dispatchEvent(new CustomEvent('vcf-network-navigate-to', { detail: { id: selectedNode.id} }));
       }
     }
   });

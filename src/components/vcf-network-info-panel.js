@@ -317,7 +317,7 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
 
   _createComponent() {
 
-    const evt = new CustomEvent('vcf-network-create-component', {  cancelable: true });
+    const evt = new CustomEvent('vcf-network-create-component', { detail: {nodes : this.selection.nodes}, cancelable: true });
     const cancelled = !this.main.dispatchEvent(evt);
     if (!cancelled) {
       const nodeIds = this.selection.nodes;
