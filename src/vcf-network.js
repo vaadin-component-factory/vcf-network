@@ -49,7 +49,12 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
           <vcf-network-io-panel output></vcf-network-io-panel>
         </div>
       </main>
-      <vcf-network-info-panel id="infopanel"></vcf-network-info-panel>
+      <vcf-network-info-panel id="infopanel">
+        <div slot="node-form">
+          <slot name="node-form">
+          </slot>
+        </div>
+      </vcf-network-info-panel>
     `;
   }
 
@@ -324,6 +329,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       if (this.addingComponent && !opt.nodes.length) {
       this._addComponent(opt);
     }
+      console.log('')
   });
     this._network.on('doubleClick', opt => {
       if (opt.nodes.length) {
