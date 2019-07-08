@@ -68,12 +68,15 @@ class VcfNetworkBreadcrumbs extends ThemableMixin(PolymerElement) {
     this.$.root.addEventListener('click', e => {
       if (!this.$.root.classList.contains('active')) {
         this.context = [];
+      // send a event to the server
+      this.main.dispatchEvent(new CustomEvent('vcf-network-navigate-to', { detail: { id: ""} }));
       }
     });
     this.$.container.addEventListener('click', e => {
       const el = e.target;
       if (el.tagName === 'SPAN' && !el.classList.contains('active')) {
-        this.context = this.context.slice(0, el.dataIndex + 1);
+        this.context = this.context.slice(0, el.dataIndex + 1);// send a event to the server
+        this.main.dispatchEvent(new CustomEvent('vcf-network-navigate-to', { detail: { id: this.context.component.id} }));
       }
     });
   }
