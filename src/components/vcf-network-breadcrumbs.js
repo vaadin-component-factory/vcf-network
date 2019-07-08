@@ -76,7 +76,7 @@ class VcfNetworkBreadcrumbs extends ThemableMixin(PolymerElement) {
       const el = e.target;
       if (el.tagName === 'SPAN' && !el.classList.contains('active')) {
         this.context = this.context.slice(0, el.dataIndex + 1);// send a event to the server
-        this.maindispatchEvent(new CustomEvent('vcf-network-navigate-to', { detail: { id: this.context.component.id} }));
+        this.main.dispatchEvent(new CustomEvent('vcf-network-navigate-to', { detail: { id: this.context.component.id} }));
       }
     });
   }
