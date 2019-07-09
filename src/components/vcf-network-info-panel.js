@@ -46,15 +46,12 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
         }
 
         .button-container {
+          justify-content: space-around; 
           align-items: center;
           box-shadow: inset 0 -1px 0 0 var(--lumo-shade-10pct);
           display: flex;
           flex-shrink: 0;
           height: var(--lumo-size-xl);
-        }
-
-        .button-container vaadin-button {
-          width: calc(100% / 4);
         }
 
         .details-container {
@@ -247,7 +244,7 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
       this.$['node-id'].title = this._selectedNode.id;
       this.$['node-x'].value = this._selectedNode.x;
       this.$['node-y'].value = this._selectedNode.y;
-    } else {;
+    } else {
       this.$['node-form'].classList.remove('hidden');
       this.$['save-button'].classList.remove('hidden');
     }
