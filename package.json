@@ -44,6 +44,7 @@
     "@vaadin/vaadin-select": "^2.1.2",
     "@vaadin/vaadin-text-field": "^2.4.4",
     "@vaadin/vaadin-themable-mixin": "^1.4.4",
+    "tippy.js": "^4.3.4",
     "vis": "^4.21.0"
   },
   "devDependencies": {

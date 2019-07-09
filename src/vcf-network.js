@@ -7,6 +7,7 @@ import './components/vcf-network-tool-panel';
 import './components/vcf-network-breadcrumbs';
 import './components/vcf-network-info-panel';
 import './components/vcf-network-io-panel';
+import './components/vcf-network-io-dialog';
 
 /**
  * @class VcfNetwork
@@ -21,6 +22,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
         :host {
           display: flex;
           overflow: hidden;
+          position: relative;
         }
 
         :host([hidden]) {
@@ -41,7 +43,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
           height: calc(100% - var(--lumo-size-l));
         }
 
-        .canvas-container #main {
+        .canvas-container .vis-network-container {
           height: 100%;
           width: 100%;
         }
@@ -50,16 +52,21 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       <main>
         <vcf-network-breadcrumbs id="breadcrumbs" context="{{contextStack}}"></vcf-network-breadcrumbs>
         <div class="canvas-container">
-          <vcf-network-io-panel></vcf-network-io-panel>
-          <div id="main"></div>
-          <vcf-network-io-panel output></vcf-network-io-panel>
+          <vcf-network-io-panel id="inputs" context-stack="[[contextStack]]"></vcf-network-io-panel>
+          <div class="vis-network-container"></div>
+          <vcf-network-io-panel id="outputs" output context-stack="[[contextStack]]"></vcf-network-io-panel>
         </div>
       </main>
       <vcf-network-info-panel id="infopanel">
         <div slot="node-form">
-          <slot name="node-form"> </slot>
+          <slot name="node-form"></slot>
         </div>
       </vcf-network-info-panel>
+      <vcf-network-io-dialog
+        id="iodialog"
+        start-node="[[_ioStartNode]]"
+        end-node="[[_ioEndNode]]"
+      ></vcf-network-io-dialog>
     `;
   }
 
@@ -73,7 +80,9 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
 
   static get properties() {
     return {
-      data: Object,
+      data: {
+        type: Object
+      },
       rootData: {
         type: Object,
         value: () => ({
@@ -89,6 +98,9 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       contextStack: {
         type: Array,
         observer: '_contextChanged'
+      },
+      vis: {
+        type: Object
       },
       addingEdge: {
         type: Boolean,
@@ -304,6 +316,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   _initNetwork() {
+    this.vis = this.shadowRoot.querySelector('.vis-network-container');
     this._options = {
       physics: false,
       nodes: {
@@ -361,7 +374,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
         hover: true
       }
     };
-    this._network = new vis.Network(this.$.main, this.rootData, this._options);
+    this._network = new vis.Network(this.vis, this.rootData, this._options);
     this.contextStack = [];
     this._manipulation = this._network.manipulation;
     this._canvas = this.shadowRoot.querySelector('canvas');
@@ -372,27 +385,30 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   _initComponents() {
-    this.$.infopanel.main = this;
-    this.$.toolpanel.main = this;
-    this.$.breadcrumbs.main = this;
+    Object.values(this.$).forEach(i => (i.main = this));
   }
 
   _initEventListeners() {
     this._network.on('hold', opt => {
       if (opt.nodes.length === 1) {
-        const nodeId = opt.nodes[0];
+        const startNodeId = opt.nodes[0];
         this.addingEdge = true;
         this._manipulation._handleConnect(opt.event);
         this._manipulation._temporaryBindUI('onRelease', e => {
           const node = this._detectNode(e);
-          if (node && node.id !== nodeId) {
-            this._manipulation._finishConnect(e);
+          if (node && node.id !== startNodeId) {
+            const startNode = this.data.nodes.get(startNodeId);
+            const endNode = this.data.nodes.get(node.id);
+            if (endNode.type === 'component' || startNode.type === 'component') {
+              // this._cancelAddingEdge();
+              this._ioStartNode = startNode;
+              this._ioEndNode = endNode;
+              this.$.iodialog.open();
+            } else {
+              this._manipulation._finishConnect(e);
+            }
           } else {
-            this.addingNode = false;
-            this.addingEdge = false;
-            this.$.toolpanel.clear();
-            this._manipulation._clean();
-            this._manipulation._restore();
+            this._cancelAddingEdge();
           }
         });
       }
@@ -498,11 +514,13 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
         );
       }
     };
-    this.$.main.addEventListener('mousemove', e => {
+    this.vis.addEventListener('mousemove', e => {
       if (this._selectionDrag) {
         restoreDrawingSurface();
-        this._selectionRect.w = e.pageX - this.$.main.offsetLeft - this._selectionRect.startX;
-        this._selectionRect.h = e.pageY - this.$.main.offsetTop - this._selectionRect.startY;
+        const offsetLeft = this.vis.offsetLeft + this.offsetLeft;
+        const offsetTop = this.vis.offsetTop + this.offsetTop;
+        this._selectionRect.w = e.pageX - offsetLeft - this._selectionRect.startX;
+        this._selectionRect.h = e.pageY - offsetTop - this._selectionRect.startY;
         this._ctx.strokeStyle = 'rgb(121, 173, 249)';
         this._ctx.strokeRect(
           this._selectionRect.startX,
@@ -520,24 +538,26 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
         );
       }
     });
-    this.$.main.addEventListener('mousedown', e => {
+    this.vis.addEventListener('mousedown', e => {
       if (e.button == 2) {
         saveDrawingSurface();
-        this._selectionRect.startX = e.pageX - this.$.main.offsetLeft;
-        this._selectionRect.startY = e.pageY - this.$.main.offsetTop;
+        const offsetLeft = this.vis.offsetLeft + this.offsetLeft;
+        const offsetTop = this.vis.offsetTop + this.offsetTop;
+        this._selectionRect.startX = e.pageX - offsetLeft;
+        this._selectionRect.startY = e.pageY - offsetTop;
         this._selectionDrag = true;
-        this.$.main.style.cursor = 'crosshair';
+        this.vis.style.cursor = 'crosshair';
       }
     });
-    this.$.main.addEventListener('mouseup', e => {
+    this.vis.addEventListener('mouseup', e => {
       if (e.button == 2) {
         restoreDrawingSurface();
         this._selectionDrag = false;
-        this.$.main.style.cursor = 'default';
+        this.vis.style.cursor = 'default';
         selectNodesFromHighlight();
       }
     });
-    this.$.main.oncontextmenu = () => false;
+    this.vis.oncontextmenu = () => false;
   }
 
   _addingNodeChanged() {
@@ -598,11 +618,12 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   _addEdgeCallback(data, callback) {
-    const newEdge = {
+    this._newEdge = {
+      id: vis.util.randomUUID(),
       from: data.from,
       to: data.to
     };
-    this._addToDataSet('edges', newEdge);
+    this._addToDataSet('edges', this._newEdge);
     this.addingEdge = false;
   }
 
@@ -629,36 +650,37 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   _addComponent(opt) {
-    const idMap = {};
     const importData = { nodes: [this.addingComponent], edges: [] };
-    importData.nodes.forEach(node => (node.isRoot = true));
-    const setNodeUUIDs = nodes => {
+    const parsedData = this._setUUIDs(importData);
+    const setDeepEdges = edges => {
+      return edges.map(edge => {
+        return {
+          ...edge,
+          to: edge.displayTo || edge.to,
+          from: edge.displayFrom || edge.from
+        };
+      });
+    };
+    const setNodeStyles = nodes => {
       return nodes.map(node => {
         const coords = opt.event.center;
         const canvasCoords = this._network.DOMtoCanvas({
-          x: coords.x - this.$.main.offsetLeft,
-          y: coords.y - this.$.main.offsetTop
+          x: coords.x - this.vis.offsetLeft - this.offsetLeft,
+          y: coords.y - this.vis.offsetTop - this.offsetTop
         });
-        idMap[node.id] = vis.util.randomUUID();
+        /* Recursively set styles on nested nodes */
         if (node.type === 'component') {
-          node.nodes = setNodeUUIDs(node.nodes);
-          node.edges = setEdgeUUIDs(node.edges);
+          node.nodes = setNodeStyles(node.nodes);
+          node.edges = setDeepEdges(node.edges);
         }
-        node.id = idMap[node.id];
         node.x = node.isRoot ? canvasCoords.x : node.x;
         node.y = node.isRoot ? canvasCoords.y : node.y;
         return this._wrapItemClass(node);
       });
     };
-    const setEdgeUUIDs = edges => {
-      return edges.map(edge => {
-        edge.from = idMap[edge.from];
-        edge.to = idMap[edge.to];
-        return edge;
-      });
-    };
-    this._addToDataSet('nodes', setNodeUUIDs(importData.nodes));
-    this._addToDataSet('edges', setEdgeUUIDs(importData.edges));
+    parsedData.nodes.forEach(node => (node.isRoot = true));
+    this._addToDataSet('nodes', setNodeStyles(parsedData.nodes));
+    this._addToDataSet('edges', parsedData.edges);
     this.$.toolpanel.clear();
     this.addingComponent = null;
   }
@@ -672,7 +694,8 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     if (contextStack.length) {
       const context = contextStack[contextStack.length - 1];
       this.data = context.data;
-      this._setIOPanelVisibility(true);
+      const hasIO = context.component.inputs.length || context.component.outputs.length;
+      this._setIOPanelVisibility(hasIO);
       id = context.component.id;
     } else {
       this.data = this.rootData;
@@ -819,6 +842,58 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
 
   _notifyRoot() {
     this.rootData = Object.assign({}, this.rootData);
+  }
+
+  _setUUIDs(data) {
+    const json = JSON.stringify(data);
+    const idMap = {};
+    const idRegex = /"id":(\d+)/g;
+    const pathRegex = /\[([\d,]+)\]/g;
+    const fromToRegex = /"(from|displayFrom)":(\d+)|"(to|displayTo)":(\d+)/g;
+    let idMatches;
+    let pathMatches;
+    let fromToMatches;
+    let parsed = json.slice();
+    /* Replace node and edge template ids */
+    while ((idMatches = idRegex.exec(json)) !== null) {
+      const match = idMatches[0];
+      const templateId = idMatches[1];
+      const uuid = idMap[templateId] || vis.util.randomUUID();
+      const uuidString = match.replace(templateId, `"${uuid}"`);
+      parsed = parsed.replace(match, uuidString);
+      if (!idMap[templateId]) idMap[templateId] = uuid;
+    }
+    /* Replace edge from and to template ids */
+    while ((fromToMatches = fromToRegex.exec(json)) !== null) {
+      const match = fromToMatches[0];
+      const isFrom = match.includes('"from"') || match.includes('"displayFrom"');
+      const templateId = isFrom ? fromToMatches[2] : fromToMatches[4];
+      const uuid = idMap[templateId];
+      const uuidString = match.replace(templateId, `"${uuid}"`);
+      parsed = parsed.replace(match, uuidString);
+    }
+    /* Replace input/output path template ids */
+    while ((pathMatches = pathRegex.exec(json)) !== null) {
+      const match = pathMatches[0];
+      const templateIds = pathMatches[1];
+      const uuids = templateIds
+        .split(',')
+        .map(id => `"${idMap[id]}"`)
+        .join(',');
+      const uuidString = match.replace(templateIds, uuids);
+      parsed = parsed.replace(match, uuidString);
+    }
+    return JSON.parse(parsed);
+  }
+
+  _cancelAddingEdge() {
+    this.addingEdge = false;
+    this._manipulation._clean();
+    this._manipulation._restore();
+  }
+
+  _removelastEdge() {
+    this.deleteEdges(this._newEdge.id);
   }
 }
 

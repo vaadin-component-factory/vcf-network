@@ -55,8 +55,8 @@ export class ComponentNode extends Node {
     this.cid = options.cid || `c:${vis.util.randomUUID()}`;
     this.nodes = options.nodes || [];
     this.edges = options.edges || [];
-    this.inputs = {};
-    this.outputs = {};
+    this.inputs = options.inputs || [];
+    this.outputs = options.outputs || [];
     this.setComponentColor(options.componentColor);
     Object.assign(this, ComponentNode.getComponentNodeStyles(this.componentColor));
   }
