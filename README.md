@@ -1,17 +1,19 @@
-# &lt;vcf-network&gt; [WIP]
+[![npm version](https://badgen.net/npm/v/@vaadin-component-factory/vcf-network)](https://www.npmjs.com/package/@vaadin-component-factory/vcf-network)
+
+# &lt;vcf-network&gt;
 
 ## Installation
 
 Install `vcf-network`:
 
 ```sh
-npm i @vaadin/vcf-network --save
+npm i @vaadin-component-factory/vcf-network --save
 ```
 
 Once installed, import it in your application:
 
 ```js
-import '@vaadin/vcf-network/vcf-network.js';
+import '@vaadin-component-factory/vcf-network/vcf-network.js';
 ```
 
 ## Running demo
