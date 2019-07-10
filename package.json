@@ -1,6 +1,6 @@
 {
   "name": "@vaadin-component-factory/vcf-network",
-  "version": "1.0.0",
+  "version": "1.0.0-alpha.0",
   "description": "Hierarchical network visualizing web component",
   "main": "theme/lumo/vcf-network.js",
   "author": "Vaadin Ltd",
