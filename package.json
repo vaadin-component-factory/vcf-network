@@ -1,5 +1,5 @@
 {
-  "name": "vcf-network",
+  "name": "@vaadin-component-factory/vcf-network",
   "version": "0.1.0",
   "description": "Hierarchical network visualizing web component",
   "main": "theme/lumo/vcf-network.js",
@@ -7,7 +7,7 @@
   "license": "https://raw.githubusercontent.com/vaadin/vaadin-incubator-element/master/LICENSE",
   "repository": {
     "type": "git",
-    "url": "vaadin-component-factory/vcf-network"
+    "url": "git+https://github.com/vaadin-component-factory/vcf-network.git"
   },
   "keywords": [
     "Vaadin",
@@ -64,5 +64,12 @@
     "polymer-cli": "^1.9.10",
     "prettier": "^1.17.1",
     "wct-mocha": "^1.0.0"
+  },
+  "bugs": {
+    "url": "https://github.com/vaadin-component-factory/vcf-network/issues"
+  },
+  "homepage": "https://github.com/vaadin-component-factory/vcf-network#readme",
+  "directories": {
+    "test": "test"
   }
 }
