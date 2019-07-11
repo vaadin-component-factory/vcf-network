@@ -41,6 +41,7 @@ export class Edge {
   constructor(options = {}) {
     if (!options.from) throw new Error("'from' is required to create an edge");
     if (!options.to) throw new Error("'to' is required to create an edge");
+    this.id = options.id || vis.util.randomUUID();
     this.from = options.from;
     this.to = options.to;
     Object.assign(this, options);
@@ -55,8 +56,8 @@ export class ComponentNode extends Node {
     this.cid = options.cid || `c:${vis.util.randomUUID()}`;
     this.nodes = options.nodes || [];
     this.edges = options.edges || [];
-    this.inputs = options.inputs || [];
-    this.outputs = options.outputs || [];
+    this.inputs = options.inputs || {};
+    this.outputs = options.outputs || {};
     this.setComponentColor(options.componentColor);
     Object.assign(this, ComponentNode.getComponentNodeStyles(this.componentColor));
   }

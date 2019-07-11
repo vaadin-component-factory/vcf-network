@@ -8,8 +8,12 @@ class VcfNetworkIOPanel extends ThemableMixin(PolymerElement) {
       <style>
         :host {
           display: block;
-          width: 160px;
+          width: 120px;
           height: 100%;
+          position: absolute;
+          left: 240px;
+          top: 44px;
+          z-index: 1;
         }
 
         :host([hidden]) {
@@ -121,6 +125,10 @@ class VcfNetworkIOPanel extends ThemableMixin(PolymerElement) {
 
   static get properties() {
     return {
+      input: {
+        type: Boolean,
+        value: false
+      },
       output: {
         type: Boolean,
         value: false
@@ -143,6 +151,8 @@ class VcfNetworkIOPanel extends ThemableMixin(PolymerElement) {
     super.connectedCallback();
     if (this.output) {
       this.label = 'output';
+      this.style.left = 'unset';
+      this.style.right = '240px';
       this.$.container.classList.add('output');
     }
   }
@@ -157,13 +167,13 @@ class VcfNetworkIOPanel extends ThemableMixin(PolymerElement) {
     if (contextStack.length) {
       const component = contextStack[contextStack.length - 1].component;
       const type = this.output ? 'output' : 'input';
-      this.data = component[`${type}s`].map(item => {
-        const node = component.nodes.filter(node => node.id === item.id)[0];
+      this.data = Object.entries(component[`${type}s`]).map(item => {
+        const node = component.nodes.filter(node => node.id === item[0])[0];
         return {
           id: node.id,
           label: node.label,
           mainTooltip: this._getTooltip(node.label),
-          paths: this._getPaths(item.paths)
+          paths: this._getPaths(item[1])
         };
       });
     }
@@ -181,7 +191,9 @@ class VcfNetworkIOPanel extends ThemableMixin(PolymerElement) {
    * @param {string[]} path
    */
   _getPaths(paths) {
-    return paths.map(path => {
+    return paths.map(obj => {
+      const path = obj.path;
+      const edgeId = obj.id;
       let data = this.main.rootData.nodes;
       let label = '';
       let type = '';
@@ -196,7 +208,7 @@ class VcfNetworkIOPanel extends ThemableMixin(PolymerElement) {
         if (i !== 0) tooltip += ' > ';
         tooltip += node.label;
       });
-      return { label, type, tooltip, path };
+      return { label, type, tooltip, path, edgeId };
     });
   }
 }

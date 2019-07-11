@@ -15,7 +15,7 @@ class VcfNetworkIOOption extends ThemableMixin(PolymerElement) {
         }
       </style>
       <span>[[label]]</span>
-      <span class$="type [[type]]">[[type]]</span>
+      <span id="type" class$="type [[type]]">[[type]]</span>
     `;
   }
 
@@ -26,8 +26,16 @@ class VcfNetworkIOOption extends ThemableMixin(PolymerElement) {
   static get properties() {
     return {
       label: Object,
-      type: Object
+      type: {
+        type: String,
+        observer: '_typeChanged'
+      }
     };
+  }
+
+  _typeChanged(type) {
+    if (type === 'input') this.$.type.style.color = 'var(--lumo-success-text-color)';
+    else if (type === 'output') this.$.type.style.color = 'var(--lumo-error-text-color)';
   }
 }
 
