@@ -413,7 +413,7 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
         componentStyles = ComponentNode.getComponentNodeStyles(value);
       }
       this.main._updateDataSet('nodes', {
-        id: this._selectedNode.id,
+        ...this._selectedNode,
         [property]: value,
         ...componentStyles
       });
