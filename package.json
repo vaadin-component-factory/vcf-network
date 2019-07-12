@@ -1,6 +1,6 @@
 {
   "name": "@vaadin-component-factory/vcf-network",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha.2",
   "description": "Hierarchical network visualizing web component",
   "main": "theme/lumo/vcf-network.js",
   "author": "Vaadin Ltd",
@@ -44,6 +44,7 @@
     "@vaadin/vaadin-select": "^2.1.2",
     "@vaadin/vaadin-text-field": "^2.4.4",
     "@vaadin/vaadin-themable-mixin": "^1.4.4",
+    "browserify": "^16.2.3",
     "tippy.js": "^4.3.4",
     "vis": "^4.21.0"
   },
@@ -53,7 +54,6 @@
     "@types/vis": "^4.21.16",
     "@webcomponents/webcomponentsjs": "^2.0.0",
     "babel-eslint": "^10.0.1",
-    "browserify": "^16.2.3",
     "chai": "^4.2.0",
     "eslint": "^5.16.0",
     "eslint-config-prettier": "^4.3.0",
