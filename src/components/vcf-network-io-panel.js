@@ -51,6 +51,15 @@ class VcfNetworkIOPanel extends ThemableMixin(PolymerElement) {
           width: 100%;
           text-align: center;
           user-select: none;
+          padding: 1px;
+        }
+
+        .node.selectable:hover {
+          cursor: pointer;
+          background-color: #d2e5ff;
+          border: 2px solid #2c7cea;
+          font-weight: bold;
+          padding: 0;
         }
 
         .node.input {
@@ -99,7 +108,14 @@ class VcfNetworkIOPanel extends ThemableMixin(PolymerElement) {
           <template is="dom-if" if="[[!output]]">
             <div class="io-item">
               <template is="dom-repeat" items="[[item.paths]]" on-dom-change="_setTooltips">
-                <div class$="node [[item.type]]" data-tippy-content$="[[item.tooltip]]">[[item.label]]</div>
+                <div
+                  class$="node selectable [[item.type]]"
+                  data-tippy-content$="[[item.tooltip]]"
+                  data-path$="[[item.path]]"
+                  on-click="_selectEdge"
+                >
+                  [[item.label]]
+                </div>
               </template>
               <div class="arrow-down"></div>
               <div class="node input" data-tippy-content$="[[item.mainTooltip]]">[[item.label]]</div>
@@ -110,7 +126,14 @@ class VcfNetworkIOPanel extends ThemableMixin(PolymerElement) {
               <div class="node output" data-tippy-content$="[[item.mainTooltip]]">[[item.label]]</div>
               <div class="arrow-down"></div>
               <template is="dom-repeat" items="[[item.paths]]" on-dom-change="_setTooltips">
-                <div class$="node [[item.type]]" data-tippy-content$="[[item.tooltip]]">[[item.label]]</div>
+                <div
+                  class$="node selectable [[item.type]]"
+                  data-tippy-content$="[[item.tooltip]]"
+                  data-path$="[[item.path]]"
+                  on-click="_selectEdge"
+                >
+                  [[item.label]]
+                </div>
               </template>
             </div>
           </template>
@@ -210,6 +233,10 @@ class VcfNetworkIOPanel extends ThemableMixin(PolymerElement) {
       });
       return { label, type, tooltip, path, edgeId };
     });
+  }
+
+  _selectEdge(e) {
+    console.log(e);
   }
 }
 

@@ -478,6 +478,7 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
     const evt = new CustomEvent('vcf-network-save-node-editor', { cancelable: true });
     const cancelled = !this.main.dispatchEvent(evt);
     if (!cancelled) {
+      // TODO
     }
   }
 }

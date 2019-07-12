@@ -63,7 +63,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   static get version() {
-    return '1.0.0-alpha.1';
+    return '1.0.0-alpha.2';
   }
 
   static get properties() {
@@ -741,7 +741,11 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   _confirmRemoveFromDataSet(dataset, items) {
-    if (dataset === 'edges') this._removeIO(items);
+    if (dataset === 'edges') {
+      this._removeIO(items);
+    } else {
+      this._removeConnectedEdges(items);
+    }
     this.data[dataset].remove(items);
     if (this.context) {
       if (Array.isArray(items)) {
@@ -754,8 +758,18 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     this._notifyRoot();
   }
 
-  _removeIO(edges) {
-    edges.forEach(edgeId => {
+  _removeConnectedEdges(nodeIds) {
+    const edgeIdSet = new Set();
+    nodeIds.forEach(nodeId => {
+      this._network.getConnectedEdges(nodeId).forEach(edge => {
+        edgeIdSet.add(edge);
+      });
+    });
+    this._removeFromDataSet('edges', [...edgeIdSet]);
+  }
+
+  _removeIO(edgeIds) {
+    edgeIds.forEach(edgeId => {
       const edge = this.data.edges.get(edgeId);
       if (edge.deepFrom) {
         const path = edge.deepFromPath;
