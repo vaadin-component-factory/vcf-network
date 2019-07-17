@@ -185,6 +185,10 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
     this.$['export-button'].addEventListener('click', () => this._exportComponent());
     this.$['delete-button'].addEventListener('click', () => this._deleteSelected());
     this.$['save-button'].addEventListener('click', () => this._saveSelected());
+    this.$['copy-button'].addEventListener('click', () => {
+      this._copyCache = this.selection;
+      this.main.addingCopy = true;
+    });
   }
 
   /**
@@ -480,6 +484,46 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
     if (!cancelled) {
       // TODO
     }
+  }
+
+  _addCopy(opt) {
+    const idMap = {};
+    const coords = opt.event.center;
+    const canvasCoords = this.main._network.DOMtoCanvas({
+      x: coords.x - this.main.vis.offsetLeft - this.main.offsetLeft,
+      y: coords.y - this.main.vis.offsetTop - this.main.offsetTop
+    });
+    const copyItems = (itemIds, dataset) => {
+      return itemIds.map(id => {
+        let itemCopy;
+        idMap[id] = vis.util.randomUUID();
+        const item = this.main.data[dataset].get(id);
+        if (item.type === 'component') item[dataset] = copyItems(item[dataset], 'nodes');
+        if (dataset === 'nodes') {
+          itemCopy = {
+            ...item,
+            id: idMap[id]
+          };
+        } else {
+          itemCopy = {
+            ...item,
+            id: vis.util.randomUUID(),
+            from: idMap[item.from],
+            to: idMap[item.to]
+          };
+        }
+        return itemCopy;
+      });
+    };
+    const nodesCopy = copyItems(this._copyCache.nodes, 'nodes');
+    const edgesCopy = copyItems(this._copyCache.edges, 'edges');
+    nodesCopy.forEach(node => {
+      node.x = canvasCoords.x + node.x;
+      node.y = canvasCoords.y + node.y;
+    });
+    this.main.addNodes(nodesCopy);
+    this.main.addEdges(edgesCopy);
+    this.main.addingCopy = false;
   }
 }
 

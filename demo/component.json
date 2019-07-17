@@ -1,73 +1,44 @@
-{
-  "nodes": [
-    {
-      "label": "One",
-      "id": 0,
-      "x": 11,
-      "y": -61,
-      "nodes": [
-        { "label": "Input 1", "id": 1, "type": "input", "x": -137, "y": -61 },
-        { "label": "Output 1", "id": 2, "type": "output", "x": 175, "y": -58 },
-        {
-          "label": "Two",
-          "id": 3,
-          "x": 11,
-          "y": -61,
-          "nodes": [
-            { "label": "Node 1", "id": 4, "x": 11, "y": -61 },
-            { "label": "Node 2", "id": 5, "x": -6, "y": -189 },
-            { "label": "Input 2", "id": 6, "type": "input", "x": -106, "y": -125 },
-            { "label": "Output 2", "id": 7, "type": "output", "x": 111, "y": -125 }
-          ],
-          "edges": [
-            { "id": 8, "from": 4, "to": 2 },
-            { "id": 9, "from": 5, "to": 4 },
-            { "id": 10, "from": 6, "to": 5 },
-            { "id": 11, "from": 4, "to": 7 }
-          ],
-          "type": "component",
-          "cid": "c:c643c832-29fa-473e-b8f4-b5cf0e93867a",
-          "inputs": {
-            "d517dff2-a372-445e-bc38-14e4e9d1ceeb": [
-              {
-                "id": "a5db3978-4502-47ab-9272-0b9f4ce942f0",
-                "path": ["eb6ad85b-49bd-461e-9c8c-7d453a77a999", "1662ea2c-aefe-4b1c-bd34-c59c4175c034"]
-              }
-            ]
-          },
-          "outputs": {
-            "52c9af5c-455e-44bc-bda9-2f1c95796ba2": [
-              {
-                "id": "4ea8b593-a8d3-46b9-b16f-5795e57619b1",
-                "path": ["eb6ad85b-49bd-461e-9c8c-7d453a77a999", "4fd6e8bd-94b3-4a21-a253-1d0b20ea8a77"]
-              }
-            ]
-          },
-          "componentColor": 7
-        }
-      ],
-      "edges": [
-        {
-          "id": 12,
-          "from": 1,
-          "to": 3,
-          "deepTo": "d517dff2-a372-445e-bc38-14e4e9d1ceeb",
-          "deepToPath": ["eb6ad85b-49bd-461e-9c8c-7d453a77a999", "c1ffe28c-71e0-47e1-a6bf-25b56e0e72fe"]
-        },
-        {
-          "id": 13,
-          "from": 3,
-          "to": 2,
-          "deepFrom": "52c9af5c-455e-44bc-bda9-2f1c95796ba2",
-          "deepFromPath": ["eb6ad85b-49bd-461e-9c8c-7d453a77a999", "c1ffe28c-71e0-47e1-a6bf-25b56e0e72fe"]
-        }
-      ],
-      "type": "component",
-      "cid": "c:126f2e3e-b16c-4a1b-ae85-2f8386b21455",
-      "inputs": {},
-      "outputs": {},
-      "componentColor": 5
-    }
-  ],
-  "edges": []
-}
+[
+  {
+    "label": "Test 1",
+    "id": 0,
+    "x": -86.25,
+    "y": -89.25,
+    "nodes": [
+      { "label": "Node 1", "id": 1, "x": -86.25, "y": -89.25 },
+      { "label": "Node 2", "id": 2, "x": -77.75, "y": 26.75 },
+      { "label": "Input 1", "id": 3, "type": "input", "x": -186.25, "y": -31.25 },
+      { "label": "Output 1", "id": 4, "type": "output", "x": 22.25, "y": -31.25 }
+    ],
+    "edges": [{ "id": 5, "from": 2, "to": 1 }, { "id": 6, "from": 3, "to": 1 }, { "id": 7, "from": 2, "to": 4 }],
+    "type": "component",
+    "cid": "c:b3398b6c-6d30-45cc-b9c9-24edbc595e91",
+    "inputs": {},
+    "outputs": {},
+    "componentColor": 3
+  },
+  {
+    "label": "Test 2",
+    "id": 0,
+    "x": -179.25,
+    "y": 36.25,
+    "nodes": [
+      { "label": "Node 1", "id": 1, "x": -179.25, "y": 36.25 },
+      { "label": "Node 2", "id": 2, "x": 74.75, "y": 102.25 },
+      { "label": "Node 3", "id": 3, "x": 88.75, "y": 4.75 },
+      { "label": "Input 1", "id": 4, "type": "input", "x": -279.25, "y": 53.5 },
+      { "label": "Output 1", "id": 5, "type": "output", "x": 188.75, "y": 53.5 }
+    ],
+    "edges": [
+      { "id": 6, "from": 2, "to": 1 },
+      { "id": 7, "from": 3, "to": 2 },
+      { "id": 8, "from": 4, "to": 1 },
+      { "id": 9, "from": 3, "to": 5 }
+    ],
+    "type": "component",
+    "cid": "c:3cdaad37-e1f0-4b3f-bc44-a617985292db",
+    "inputs": {},
+    "outputs": {},
+    "componentColor": 8
+  }
+]

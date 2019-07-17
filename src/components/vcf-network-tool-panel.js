@@ -141,11 +141,13 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
             <iron-icon icon="hardware:keyboard-arrow-down"></iron-icon>
           </div>
           <div class="section-items" id="custom">
-            <template is="dom-if" if="{{components}}">
-              <div class="section-item">
-                <vcf-network-color-option color="[[components.componentColor]]" class="icon"></vcf-network-color-option>
-                <span>[[components.label]]</span>
-              </div>
+            <template is="dom-if" if="[[components]]">
+              <template is="dom-repeat" items="[[components]]">
+                <div class="section-item" data-index$="[[index]]">
+                  <vcf-network-color-option color="[[item.componentColor]]" class="icon"></vcf-network-color-option>
+                  <span>[[item.label]]</span>
+                </div>
+              </template>
             </template>
           </div>
         </div>
@@ -217,7 +219,7 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
   }
 
   _addComponent(item) {
-    this.main._componentTemplate = this.components;
+    this.main._componentTemplate = this.components[item.dataset.index];
     this._setMode(item, 'addingComponent');
   }
 
@@ -239,9 +241,6 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
           this._addComponent(item);
         }
       });
-      if (Array.isArray(components)) {
-        this.set('components', components[0].nodes[0]);
-      }
     }
   }
 }
