@@ -90,10 +90,6 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       vis: {
         type: Object
       },
-      addingEdge: {
-        type: Boolean,
-        observer: '_addingEdgeChanged'
-      },
       addingNode: {
         type: Boolean,
         observer: '_addingNodeChanged'
@@ -378,9 +374,10 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
 
   _initEventListeners() {
     this._network.on('hold', opt => {
-      if (opt.nodes.length === 1) {
+      if (!this.addingNode && !this.addingComponent && opt.nodes.length === 1) {
         const startNodeId = opt.nodes[0];
-        this.addingEdge = true;
+        this._network.addEdgeMode();
+        this._canvas.style.cursor = 'grabbing';
         this._manipulation._handleConnect(opt.event);
         this._manipulation._temporaryBindUI('onRelease', e => {
           const node = this._detectNode(e);
@@ -388,7 +385,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
             const fromNode = this.data.nodes.get(startNodeId);
             const toNode = this.data.nodes.get(node.id);
             if (toNode.type === 'component' || fromNode.type === 'component') {
-              this._cancelAddingEdge();
+              this._clearDataManipulation();
               this._ioFromNode = fromNode;
               this._ioToNode = toNode;
               this.$.iodialog.open();
@@ -396,11 +393,12 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
               this._manipulation._finishConnect(e);
             }
           } else {
-            this._cancelAddingEdge();
+            this._clearDataManipulation();
           }
         });
       }
     });
+
     this._network.on('select', opt => {
       if (opt.nodes.length || opt.edges.length) {
         this.dispatchEvent(
@@ -415,6 +413,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
         this._addComponent(opt);
       }
     });
+
     this._network.on('doubleClick', opt => {
       if (opt.nodes.length) {
         const selectedNode = this.$.infopanel._selectedNode;
@@ -464,6 +463,25 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
 
     this._network.on('hoverEdge', opt => {
       this.dispatchEvent(new CustomEvent('vcf-network-hover-edge', { detail: { id: opt.edge } }));
+    });
+
+    this.setAttribute('tabindex', '0');
+    this.addEventListener('mouseenter', () => this.focus());
+    this.addEventListener('keyup', e => {
+      if (e.defaultPrevented) return;
+      const handled = false;
+      switch (e.key) {
+        case 'n': // -> Add node mode
+          this.$.toolpanel.$['add-node'].click();
+          break;
+        case 'i': // -> Add input node mode
+          this.$.toolpanel.$['add-input-node'].click();
+          break;
+        case 'o': // -> Add output node mode
+          this.$.toolpanel.$['add-output-node'].click();
+          break;
+      }
+      if (handled) e.preventDefault();
     });
   }
 
@@ -552,29 +570,18 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     if (this.addingNode) {
       this._network.addNodeMode();
       this.addingEdge = false;
-      this.addingComponent = null;
+      this.addingComponent = false;
       this._canvas.style.cursor = 'crosshair';
     } else {
-      this._canvas.style.cursor = 'default';
-    }
-  }
-
-  _addingEdgeChanged() {
-    if (this.addingEdge) {
-      this._network.addEdgeMode();
-      this.addingNode = false;
-      this.addingComponent = null;
-      this._canvas.style.cursor = 'grabbing';
-    } else {
+      this._clearDataManipulation();
       this._canvas.style.cursor = 'default';
     }
   }
 
   _addingComponentChanged() {
     if (this.addingComponent) {
-      this.addingEdge = false;
       this.addingNode = false;
-      this._network.disableEditMode();
+      this.addingEdge = false;
       this._canvas.style.cursor = 'crosshair';
     } else {
       this._canvas.style.cursor = 'default';
@@ -582,7 +589,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   _addNodeCallback(data, callback) {
-    const nodeType = this.addingNode;
+    const nodeType = this._nodeType;
     let newNode;
     if (nodeType === 'input' || nodeType === 'output') {
       newNode = {
@@ -601,8 +608,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       };
     }
     this._addToDataSet('nodes', newNode);
-    this.$.toolpanel.clear();
-    this.addingNode = false;
+    this._network.addNodeMode();
   }
 
   _addEdgeCallback(data, callback) {
@@ -612,7 +618,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       to: data.to
     };
     this._addToDataSet('edges', newEdge);
-    this.addingEdge = false;
+    this._canvas.style.cursor = 'default';
   }
 
   _detectNode(event) {
@@ -638,7 +644,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   _addComponent(opt) {
-    const importData = { nodes: [this.addingComponent], edges: [] };
+    const importData = { nodes: [this._componentTemplate], edges: [] };
     const parsedData = this._setUUIDs(importData);
     const setDeepEdges = edges => {
       return edges.map(edge => {
@@ -915,10 +921,10 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     return JSON.parse(parsed);
   }
 
-  _cancelAddingEdge() {
-    this.addingEdge = false;
+  _clearDataManipulation() {
     this._manipulation._clean();
     this._manipulation._restore();
+    this._canvas.style.cursor = 'default';
   }
 }
 

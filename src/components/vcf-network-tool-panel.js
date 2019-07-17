@@ -176,8 +176,10 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
     this._initEventListeners();
   }
 
-  clear() {
-    this._sectionItems.forEach(item => item.classList.remove('active'));
+  clear(exclude = null) {
+    this._sectionItems.forEach(item => {
+      if (!exclude || (exclude && exclude.id !== item.id)) item.classList.remove('active');
+    });
   }
 
   _initEventListeners() {
@@ -209,22 +211,24 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
     let button = 'add-node';
     if (type === 'input' || type === 'output') {
       button = `add-${type}-node`;
+      this.main._nodeType = type;
     }
-    this._setMode(this.$[button], 'addingNode', type);
+    this._setMode(this.$[button], 'addingNode');
   }
 
   _addComponent(item) {
-    this._setMode(item, 'addingComponent', this.components);
+    this.main._componentTemplate = this.components;
+    this._setMode(item, 'addingComponent');
   }
 
-  _setMode(item, mode, value) {
-    this.clear();
+  _setMode(item, mode) {
+    this.clear(item);
     if (item.classList.contains('active')) {
       item.classList.remove('active');
     } else {
       item.classList.add('active');
-      this.main[mode] = value;
     }
+    this.main[mode] = !this.main[mode];
   }
 
   _componentsChanged(components) {
