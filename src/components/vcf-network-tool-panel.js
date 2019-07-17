@@ -218,7 +218,8 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
 
   _addComponentListener(event) {
     const sectionItem = event.target.matches('.section-item') ? event.target : event.target.parentElement;
-    this._setMode(sectionItem, 'addingComponent', event.model.item);
+    this.main._componentTemplate = event.model.item;
+    this._setMode(sectionItem, 'addingComponent');
   }
 
   _setMode(item, mode) {
