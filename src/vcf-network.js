@@ -254,6 +254,9 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     this.$.infopanel._createComponent();
   }
 
+  addComponentToCustom(component) {
+    this.$.toolpanel.addComponentToCustom(component);
+  }
   /**
    * @param {string} id
    */
