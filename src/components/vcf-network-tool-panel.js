@@ -141,13 +141,11 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
             <iron-icon icon="hardware:keyboard-arrow-down"></iron-icon>
           </div>
           <div class="section-items" id="custom">
-            <template is="dom-if" if="[[components]]">
-              <template is="dom-repeat" items="[[components]]">
-                <div class="section-item" data-index$="[[index]]">
-                  <vcf-network-color-option color="[[item.componentColor]]" class="icon"></vcf-network-color-option>
-                  <span>[[item.label]]</span>
-                </div>
-              </template>
+            <template is="dom-repeat" items="[[components]]">
+              <div class="section-item" on-click="_addComponentListener">
+                <vcf-network-color-option color="[[item.componentColor]]" class="icon"></vcf-network-color-option>
+                <span>[[item.label]]</span>
+              </div>
             </template>
           </div>
         </div>
@@ -163,7 +161,7 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
     return {
       components: {
         type: Array,
-        observer: '_componentsChanged'
+        default: []
       }
     };
   }
@@ -218,9 +216,9 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
     this._setMode(this.$[button], 'addingNode');
   }
 
-  _addComponent(item) {
-    this.main._componentTemplate = this.components[item.dataset.index];
-    this._setMode(item, 'addingComponent');
+  _addComponentListener(event) {
+    const sectionItem = event.target.matches('.section-item') ? event.target : event.target.parentElement;
+    this._setMode(sectionItem, 'addingComponent', event.model.item);
   }
 
   _setMode(item, mode) {
@@ -233,15 +231,14 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
     this.main[mode] = !this.main[mode];
   }
 
-  _componentsChanged(components) {
-    if (components.length) {
-      this.$.custom.addEventListener('click', e => {
-        if (e.target.matches('.section-item') || e.target.parentElement.matches('.section-item')) {
-          const item = e.target.matches('.section-item') ? e.target : e.target.parentElement;
-          this._addComponent(item);
-        }
-      });
+  addComponentToCustom(component) {
+    if (this.components == null) {
+      this.components = [];
     }
+    var components = this.components;
+    this.components = [];
+    components.push(component);
+    this.components = components;
   }
 }
 
