@@ -270,6 +270,32 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     this.$.toolpanel.confirmDeleteTemplate(id);
   }
 
+  hideEditTemplateButton() {
+    this.$.toolpanel.hideEditTemplateButton();
+  }
+  showEditTemplateButton() {
+    this.$.toolpanel.showEditTemplateButton();
+  }
+
+  hideTemplatePanel() {
+    this.$.toolpanel.hideTemplatePanel();
+  }
+  showTemplatePanel() {
+    this.$.toolpanel.showTemplatePanel();
+  }
+  closeLeftPanel() {
+    this.$.toolpanel.closePanel();
+  }
+  openLeftPanel() {
+    this.$.toolpanel.openPanel();
+  }
+
+  closeRightPanel() {
+    // this.$.toolpanel.closeRightPanel();
+  }
+  openRightPanel() {
+    // this.$.toolpanel.openRightPanel();
+  }
   /**
    * @param {string} id
    */

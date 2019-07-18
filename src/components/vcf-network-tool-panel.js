@@ -11,12 +11,17 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
   static get template() {
     return html`
       <style include="lumo-typography">
-        :host {
+        .panel-container {
           box-shadow: inset -1px 0 0 0 var(--lumo-shade-10pct);
-          display: block;
+          display: flex;
+          flex-direction:column;
           overflow: auto;
           width: 240px;
           flex-shrink: 0;
+          height:100%;
+        }
+        .panel-container.closed {
+          width: 36px;
         }
 
         :host([hidden]) {
@@ -75,8 +80,7 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
           transition: all 0.2s;
         }
 
-        .section-item iron-icon {
-          color: var(--lumo-primary-color);
+        iron-icon.blue, iron-icon.green,iron-icon.red {
           margin-right: var(--lumo-space-m);
         }
 
@@ -107,6 +111,9 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
           font-weight: 500;
         }
 
+        iron-icon.blue {
+          color: var(--lumo-primary-color);
+        }
         iron-icon.green {
           color: var(--lumo-success-text-color);
         }
@@ -123,8 +130,41 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
           flex-grow: 1;
           display:flex
         }
+        .hidden {
+          display: none;
+        }
+        .edit-hidden .edit-template {
+          display: none;
+        }
+        .section-grow {
+          flex-grow: 1;
+        }
+
+        /** closed **/
+        .closed span, .closed h6, .closed #template-panel {
+          display: none;
+        }
+        .closed .section-header {
+          padding:0;
+          justify-content: center;
+        }
+        .closed .section-header, .closed .section-item  {
+          padding:0;
+          justify-content: center;
+        }
+        .closed iron-icon.blue, .closed iron-icon.green,.closed iron-icon.red {
+          margin-right: 0;
+        }
+        .closed .section-footer iron-icon {
+          transform: rotate(180deg);
+        }
+        .closed .section-footer {
+          text-align: center;
+        }
+        /** end closed **/
+
       </style>
-      <div class="panel-container">
+      <div id="tool-panel" class="panel-container">
         <div class="section">
           <div class="section-header">
             <h6>Default</h6>
@@ -132,7 +172,7 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
           </div>
           <div class="section-items">
             <div id="add-node" class="section-item">
-              <iron-icon icon="editor:format-shapes"></iron-icon>
+              <iron-icon icon="editor:format-shapes" class="blue"></iron-icon>
               <span>Node</span>
             </div>
             <div id="add-input-node" class="section-item">
@@ -145,7 +185,7 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
             </div>
           </div>
         </div>
-        <div class="section">
+        <div id="template-panel" class="section edit-hidden">
           <div class="section-header">
             <h6>Template</h6>
             <iron-icon icon="hardware:keyboard-arrow-down"></iron-icon>
@@ -157,10 +197,10 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
                   <vcf-network-color-option color="[[item.componentColor]]" class="icon"></vcf-network-color-option>
                   <span>[[item.label]]</span>
                 </div>
-                <vaadin-button theme="tertiary icon" title="Edit template" on-click="_updateTemplateListener">
+                <vaadin-button class="edit-template" theme="tertiary small" title="Edit template" on-click="_updateTemplateListener">
                   <iron-icon icon="icons:create" slot="prefix"></iron-icon>
                 </vaadin-button>
-                <vaadin-button theme="tertiary error icon" title="Delete template" on-click="_deleteTemplateListener">
+                <vaadin-button theme="tertiary error small" title="Delete template" on-click="_deleteTemplateListener">
                   <iron-icon icon="icons:delete" slot="prefix"></iron-icon>
                 </vaadin-button>
               </div>
@@ -172,6 +212,11 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
               </vaadin-button>
             </div>
           </div>
+        </div>
+        <div class="section section-grow">
+        </div>
+        <div class="section-footer">
+          <iron-icon icon="hardware:keyboard-arrow-left"></iron-icon>
         </div>
       </div>
     `;
@@ -208,7 +253,7 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
 
   _initEventListeners() {
     /* section-header */
-    const sectionHeaders = this.shadowRoot.querySelectorAll('.section-header');
+   const sectionHeaders = this.shadowRoot.querySelectorAll('.section-header');
     sectionHeaders.forEach(header => {
       const section = header.parentElement;
       header.addEventListener('click', () => {
@@ -216,6 +261,17 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
           section.classList.remove('collapsed');
         } else {
           section.classList.add('collapsed');
+        }
+      });
+    });
+    const sectionFooters = this.shadowRoot.querySelectorAll('.section-footer');
+    sectionFooters.forEach(footer => {
+      const section = footer.parentElement;
+      footer.addEventListener('click', () => {
+        if (section.classList.contains('closed')) {
+          section.classList.remove('closed');
+        } else {
+          section.classList.add('closed');
         }
       });
     });
@@ -331,6 +387,27 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
     this.components = components;
     console.log('template updated component='+component);
   }
+
+  hideEditTemplateButton() {
+    this.$['template-panel'].classList.add('edit-hidden');
+  }
+  showEditTemplateButton() {
+    this.$['template-panel'].classList.remove('edit-hidden');
+  }
+
+  hideTemplatePanel() {
+    this.$['template-panel'].classList.add('hidden');
+  }
+  showTemplatePanel() {
+    this.$['template-panel'].classList.remove('hidden');
+  }
+  closePanel() {
+    this.$['tool-panel'].classList.add('closed');
+  }
+  openPanel() {
+    this.$['tool-panel'].classList.remove('closed');
+  }
+
 }
 
 customElements.define(VcfNetworkToolPanel.is, VcfNetworkToolPanel);
