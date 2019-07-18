@@ -258,9 +258,18 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     this.$.infopanel._createComponent();
   }
 
-  addComponentToCustom(component) {
-    this.$.toolpanel.addComponentToCustom(component);
+  confirmAddTemplate(component) {
+    this.$.toolpanel.confirmAddTemplate(component);
   }
+
+  confirmUpdateTemplate(component) {
+    this.$.toolpanel.confirmUpdateTemplate(component);
+  }
+
+  confirmDeleteTemplate(id) {
+    this.$.toolpanel.confirmDeleteTemplate(id);
+  }
+
   /**
    * @param {string} id
    */
@@ -667,6 +676,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   _addComponent(opt) {
+    // const importData = this._componentTemplate;
     const importData = { nodes: [this._componentTemplate], edges: [] };
     const parsedData = this._setUUIDs(importData);
     const setDeepEdges = edges => {

@@ -1,3 +1,4 @@
 /node_modules/
 package-lock.json
 vis-network.web.js
+copy_webc.sh

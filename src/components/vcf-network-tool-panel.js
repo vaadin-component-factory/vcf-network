@@ -5,6 +5,7 @@ import '@polymer/iron-icons/editor-icons';
 import '@polymer/iron-icons/hardware-icons';
 import '@polymer/iron-icons/social-icons';
 import './vcf-network-color-option';
+import '@vaadin/vaadin-button';
 
 class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
   static get template() {
@@ -70,7 +71,7 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
           cursor: pointer;
           display: flex;
           height: var(--lumo-size-l);
-          padding: 0 var(--lumo-space-m);
+          padding-left: var(--lumo-space-m);
           transition: all 0.2s;
         }
 
@@ -113,6 +114,15 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
         iron-icon.red {
           color: var(--lumo-error-text-color);
         }
+
+        .section-item {
+          display: flex;
+          align-items: center;
+        }
+        .section-item div {
+          flex-grow: 1;
+          display:flex
+        }
       </style>
       <div class="panel-container">
         <div class="section">
@@ -137,16 +147,30 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
         </div>
         <div class="section">
           <div class="section-header">
-            <h6>Custom</h6>
+            <h6>Template</h6>
             <iron-icon icon="hardware:keyboard-arrow-down"></iron-icon>
           </div>
           <div class="section-items" id="custom">
             <template is="dom-repeat" items="[[components]]">
-              <div class="section-item" on-click="_addComponentListener">
-                <vcf-network-color-option color="[[item.componentColor]]" class="icon"></vcf-network-color-option>
-                <span>[[item.label]]</span>
+              <div class="section-item">
+                <div on-click="_addComponentListener">
+                  <vcf-network-color-option color="[[item.componentColor]]" class="icon"></vcf-network-color-option>
+                  <span>[[item.label]]</span>
+                </div>
+                <vaadin-button theme="tertiary icon" title="Edit template" on-click="_updateTemplateListener">
+                  <iron-icon icon="icons:create" slot="prefix"></iron-icon>
+                </vaadin-button>
+                <vaadin-button theme="tertiary error icon" title="Delete template" on-click="_deleteTemplateListener">
+                  <iron-icon icon="icons:delete" slot="prefix"></iron-icon>
+                </vaadin-button>
               </div>
             </template>
+            <div class="template-item">
+              <vaadin-button style="flex-grow:1;" title="Add template" on-click="_addTemplateListener">
+              <iron-icon icon="icons:add" slot="prefix"></iron-icon>
+                New template
+              </vaadin-button>
+            </div>
           </div>
         </div>
       </div>
@@ -217,7 +241,8 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
   }
 
   _addComponentListener(event) {
-    const sectionItem = event.target.matches('.section-item') ? event.target : event.target.parentElement;
+    var sectionItem = event.target.matches('.section-item') ? event.target : event.target.parentElement;
+    sectionItem = sectionItem.matches('.section-item') ? sectionItem : sectionItem.parentElement;
     this.main._componentTemplate = event.model.item;
     this._setMode(sectionItem, 'addingComponent');
   }
@@ -232,7 +257,25 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
     this.main[mode] = !this.main[mode];
   }
 
-  addComponentToCustom(component) {
+  /**
+   * call new-template-event
+   */
+  _addTemplateListener() {
+    const evt = new CustomEvent('vcf-network-new-template', {
+      cancelable: true
+    });
+    const cancelled = !this.main.dispatchEvent(evt);
+    if (!cancelled) {
+      // JCG todo default behaviour for the client side
+      this.confirmAddTemplate({label:"new template"});
+    }
+  }
+
+  /**
+   * Refresh the client model
+   */
+  confirmAddTemplate(component) {
+    console.log('template added');
     if (this.components == null) {
       this.components = [];
     }
@@ -240,6 +283,53 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
     this.components = [];
     components.push(component);
     this.components = components;
+  }
+
+  /**
+   * call delete-template-event
+   */
+  _deleteTemplateListener(event) {
+    const evt = new CustomEvent('vcf-network-delete-template', {
+      detail: { id: event.model.item.id },
+      cancelable: true
+    });
+    const cancelled = !this.main.dispatchEvent(evt);
+    if (!cancelled) {
+      this.confirmDeleteTemplate(event.model.item.id);
+    }
+  }
+
+  
+  /**
+   * Refresh the client model
+   */
+  confirmDeleteTemplate(id) {
+    this.components = this.components.filter(template => template.id != id);
+  }
+
+
+  /**
+   * call update-template-event
+   */
+  _updateTemplateListener(event) {
+    const evt = new CustomEvent('vcf-network-update-template', {
+      detail: { id: event.model.item.id },
+      cancelable: true
+    });
+    const cancelled = !this.main.dispatchEvent(evt);
+    if (!cancelled) {
+      this.confirmUpdateTemplate(event.model.item);
+    }
+  }
+
+  confirmUpdateTemplate(component) {
+    var index = this.components.findIndex(item => item.id === component.id)
+    
+    var components = this.components;
+    this.components.splice(index, 1, component);
+    this.components = [];
+    this.components = components;
+    console.log('template updated component='+component);
   }
 }
 
