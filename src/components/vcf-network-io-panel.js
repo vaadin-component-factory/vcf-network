@@ -8,12 +8,12 @@ class VcfNetworkIOPanel extends ThemableMixin(PolymerElement) {
       <style>
         :host {
           display: block;
-          width: 120px;
+          width: 220px;
           height: 100%;
-          position: absolute;
+        /*  position: absolute;
           left: 240px;
           top: 44px;
-          z-index: 1;
+          z-index: 1;*/
         }
 
         :host([hidden]) {

@@ -291,6 +291,8 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
     if (type === 'input' || type === 'output') {
       button = `add-${type}-node`;
       this.main._nodeType = type;
+    } else {
+      this.main._nodeType = "";
     }
     this._setMode(this.$[button], 'addingNode');
   }
@@ -306,10 +308,12 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
     this.clear(item);
     if (item.classList.contains('active')) {
       item.classList.remove('active');
+      this.main[mode] = false;
     } else {
       item.classList.add('active');
+      this.main[mode] = true;
     }
-    this.main[mode] = !this.main[mode];
+    // this.main[mode] = !this.main[mode];
   }
 
   /**
