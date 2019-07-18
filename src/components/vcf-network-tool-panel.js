@@ -20,10 +20,6 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
           flex-shrink: 0;
           height:100%;
         }
-        .panel-container.closed {
-          width: 36px;
-        }
-
         :host([hidden]) {
           display: none !important;
         }
@@ -141,6 +137,9 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
         }
 
         /** closed **/
+        .panel-container.closed {
+          width: 36px;
+        }
         .closed span, .closed h6, .closed #template-panel {
           display: none;
         }

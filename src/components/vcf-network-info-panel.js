@@ -16,16 +16,12 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
   static get template() {
     return html`
       <style>
-        :host {
-          display: block;
-          width: 240px;
-          flex-shrink: 0;
-        }
-
         .panel-container {
           display: flex;
           flex-direction: column;
           height: 100%;
+          width: 240px;
+          flex-shrink: 0;
         }
 
         span.selection {
@@ -51,16 +47,14 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
           display: flex;
           flex-shrink: 0;
           height: var(--lumo-size-xl);
-        }
-
-        .button-container vaadin-button {
-          width: calc(100% / 4);
+          justify-content: space-around;
         }
 
         .details-container {
           flex-grow: 1;
           overflow: auto;
           padding: 0 var(--lumo-space-m) var(--lumo-space-m) var(--lumo-space-m);
+          box-shadow: inset 0 -1px 0 0 var(--lumo-shade-10pct);
         }
 
         .details {
@@ -83,8 +77,32 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
         .coords vaadin-text-field:first-child {
           margin-right: var(--lumo-space-m);
         }
+
+
+        /** closed **/
+        .panel-container.closed {
+          width: 36px;
+        }
+        .closed span {
+          display: none;
+        }
+        .closed .section-footer iron-icon {
+          transform: rotate(180deg);
+        }
+        .closed .section-footer {
+          text-align: center;
+        }
+        .closed .button-container {
+          flex-direction: column;
+          margin-top: var(--lumo-size-l);
+          height: auto;
+        }
+        .closed .details {
+          display:none;
+        }
+        /** end closed **/
       </style>
-      <div class="panel-container">
+      <div class="panel-container" id="info-panel">
         <span id="selection" class="selection">[[selectionText]]</span>
         <div class="button-container">
           <vaadin-button id="create-component-button" theme="tertiary" title="Create component">
@@ -147,6 +165,9 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
             </div>
           </div>
         </div>
+        <div class="section-footer">
+          <iron-icon icon="hardware:keyboard-arrow-right"></iron-icon>
+        </div>
       </div>
     `;
   }
@@ -188,6 +209,18 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
     this.$['copy-button'].addEventListener('click', () => {
       this._copyCache = this.selection;
       this.main.addingCopy = true;
+    });
+
+    const sectionFooters = this.shadowRoot.querySelectorAll('.section-footer');
+    sectionFooters.forEach(footer => {
+      const section = footer.parentElement;
+      footer.addEventListener('click', () => {
+        if (section.classList.contains('closed')) {
+          section.classList.remove('closed');
+        } else {
+          section.classList.add('closed');
+        }
+      });
     });
   }
 
@@ -524,6 +557,14 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
     this.main.addNodes(nodesCopy);
     this.main.addEdges(edgesCopy);
     this.main.addingCopy = false;
+  }
+
+
+  closePanel() {
+    this.$['info-panel'].classList.add('closed');
+  }
+  openPanel() {
+    this.$['info-panel'].classList.remove('closed');
   }
 }
 

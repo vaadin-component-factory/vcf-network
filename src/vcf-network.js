@@ -289,12 +289,11 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   openLeftPanel() {
     this.$.toolpanel.openPanel();
   }
-
   closeRightPanel() {
-    // this.$.toolpanel.closeRightPanel();
+    this.$.infopanel.closePanel();
   }
   openRightPanel() {
-    // this.$.toolpanel.openRightPanel();
+    this.$.infopanel.openPanel();
   }
   /**
    * @param {string} id
