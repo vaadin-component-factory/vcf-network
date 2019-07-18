@@ -313,7 +313,6 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
       item.classList.add('active');
       this.main[mode] = true;
     }
-    // this.main[mode] = !this.main[mode];
   }
 
   /**
