@@ -260,7 +260,7 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
 
   clear(exclude = null) {
     this._sectionItems.forEach(item => {
-      if (!exclude || (exclude && exclude.id !== item.id)) item.classList.remove('active');
+      if (!exclude || (exclude && exclude !== item)) item.classList.remove('active');
     });
   }
 
