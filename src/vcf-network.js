@@ -665,9 +665,6 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       };
     }
     this._addToDataSet('nodes', newNode);
-    // keep the add a new mode active
-    // does not work when the component is boundto the java side
-    // this._network.addNodeMode();
   }
 
   _addEdgeCallback(data, callback) {
@@ -742,9 +739,6 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     parsedData.nodes.forEach(node => (node.isRoot = true));
     this._addToDataSet('nodes', setNodeStyles(parsedData.nodes));
     this._addToDataSet('edges', parsedData.edges);
-    // keep the component mode active
-    // this.$.toolpanel.clear();
-    // this.addingComponent = null;
   }
 
   _restoreZoom() {
@@ -796,7 +790,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       this._propagateUpdates();
     }
     this._notifyRoot();
-    // Does work from the java side
+    // Keep add node mode active
     if (this.addingNode) {
       this._network.addNodeMode();
     }
