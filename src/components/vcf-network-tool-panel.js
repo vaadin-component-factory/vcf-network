@@ -14,11 +14,11 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
         .panel-container {
           box-shadow: inset -1px 0 0 0 var(--lumo-shade-10pct);
           display: flex;
-          flex-direction:column;
+          flex-direction: column;
           overflow: auto;
           width: 240px;
           flex-shrink: 0;
-          height:100%;
+          height: 100%;
         }
         :host([hidden]) {
           display: none !important;
@@ -76,7 +76,9 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
           transition: all 0.2s;
         }
 
-        iron-icon.blue, iron-icon.green,iron-icon.red {
+        iron-icon.blue,
+        iron-icon.green,
+        iron-icon.red {
           margin-right: var(--lumo-space-m);
         }
 
@@ -124,7 +126,7 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
         }
         .section-item div {
           flex-grow: 1;
-          display:flex
+          display: flex;
         }
         .hidden {
           display: none;
@@ -136,22 +138,31 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
           flex-grow: 1;
         }
 
+        .template-item {
+          margin: var(--lumo-space-s) var(--lumo-space-m);
+        }
+
         /** closed **/
         .panel-container.closed {
           width: 36px;
         }
-        .closed span, .closed h6, .closed #template-panel {
+        .closed span,
+        .closed h6,
+        .closed #template-panel {
           display: none;
         }
         .closed .section-header {
-          padding:0;
+          padding: 0;
           justify-content: center;
         }
-        .closed .section-header, .closed .section-item  {
-          padding:0;
+        .closed .section-header,
+        .closed .section-item {
+          padding: 0;
           justify-content: center;
         }
-        .closed iron-icon.blue, .closed iron-icon.green,.closed iron-icon.red {
+        .closed iron-icon.blue,
+        .closed iron-icon.green,
+        .closed iron-icon.red {
           margin-right: 0;
         }
         .closed .section-footer iron-icon {
@@ -161,7 +172,6 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
           text-align: center;
         }
         /** end closed **/
-
       </style>
       <div id="tool-panel" class="panel-container">
         <div class="section">
@@ -190,13 +200,18 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
             <iron-icon icon="hardware:keyboard-arrow-down"></iron-icon>
           </div>
           <div class="section-items" id="custom">
-            <template is="dom-repeat" items="[[components]]">
+            <template is="dom-repeat" items="[[components]]" on-dom-change="_initToolbar">
               <div class="section-item">
                 <div on-click="_addComponentListener">
                   <vcf-network-color-option color="[[item.componentColor]]" class="icon"></vcf-network-color-option>
                   <span>[[item.label]]</span>
                 </div>
-                <vaadin-button class="edit-template" theme="tertiary small" title="Edit template" on-click="_updateTemplateListener">
+                <vaadin-button
+                  class="edit-template"
+                  theme="tertiary small"
+                  title="Edit template"
+                  on-click="_updateTemplateListener"
+                >
                   <iron-icon icon="icons:create" slot="prefix"></iron-icon>
                 </vaadin-button>
                 <vaadin-button theme="tertiary error small" title="Delete template" on-click="_deleteTemplateListener">
@@ -206,14 +221,13 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
             </template>
             <div class="template-item">
               <vaadin-button style="flex-grow:1;" title="Add template" on-click="_addTemplateListener">
-              <iron-icon icon="icons:add" slot="prefix"></iron-icon>
+                <iron-icon icon="icons:add" slot="prefix"></iron-icon>
                 New template
               </vaadin-button>
             </div>
           </div>
         </div>
-        <div class="section section-grow">
-        </div>
+        <div class="section section-grow"></div>
         <div class="section-footer">
           <iron-icon icon="hardware:keyboard-arrow-left"></iron-icon>
         </div>
@@ -252,7 +266,7 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
 
   _initEventListeners() {
     /* section-header */
-   const sectionHeaders = this.shadowRoot.querySelectorAll('.section-header');
+    const sectionHeaders = this.shadowRoot.querySelectorAll('.section-header');
     sectionHeaders.forEach(header => {
       const section = header.parentElement;
       header.addEventListener('click', () => {
@@ -281,9 +295,12 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
   }
 
   _initToolbar() {
-    // Set max-height of section-items for collapse animation
-    const sectionItems = this.shadowRoot.querySelector('.section-items');
-    sectionItems.style.maxHeight = `${sectionItems.clientHeight}px`;
+    // Set max-height of sections for collapse animation
+    const sections = this.shadowRoot.querySelectorAll('.section-items');
+    sections.forEach(section => {
+      section.style.maxHeight = 'unset';
+      section.style.maxHeight = `${section.clientHeight}px`;
+    });
   }
 
   _addNode(type = true) {
@@ -292,7 +309,7 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
       button = `add-${type}-node`;
       this.main._nodeType = type;
     } else {
-      this.main._nodeType = "";
+      this.main._nodeType = '';
     }
     this._setMode(this.$[button], 'addingNode');
   }
@@ -325,7 +342,7 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
     const cancelled = !this.main.dispatchEvent(evt);
     if (!cancelled) {
       // JCG todo default behaviour for the client side
-      this.confirmAddTemplate({label:"new template"});
+      this.confirmAddTemplate({ label: 'new template' });
     }
   }
 
@@ -333,7 +350,6 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
    * Refresh the client model
    */
   confirmAddTemplate(component) {
-    console.log('template added');
     if (this.components == null) {
       this.components = [];
     }
@@ -341,6 +357,7 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
     this.components = [];
     components.push(component);
     this.components = components;
+    console.debug('template added');
   }
 
   /**
@@ -353,18 +370,16 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
     });
     const cancelled = !this.main.dispatchEvent(evt);
     if (!cancelled) {
-      this.confirmDeleteTemplate(event.model.item.id);
+      this.confirmDeleteTemplate(event.model.item.cid);
     }
   }
 
-  
   /**
    * Refresh the client model
    */
-  confirmDeleteTemplate(id) {
-    this.components = this.components.filter(template => template.id != id);
+  confirmDeleteTemplate(cid) {
+    this.components = this.components.filter(template => template.cid != cid);
   }
-
 
   /**
    * call update-template-event
@@ -381,13 +396,12 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
   }
 
   confirmUpdateTemplate(component) {
-    var index = this.components.findIndex(item => item.id === component.id)
-    
+    var index = this.components.findIndex(item => item.id === component.id);
     var components = this.components;
     this.components.splice(index, 1, component);
     this.components = [];
     this.components = components;
-    console.log('template updated component='+component);
+    console.debug(`template updated component=${component}`);
   }
 
   hideEditTemplateButton() {
@@ -409,7 +423,6 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
   openPanel() {
     this.$['tool-panel'].classList.remove('closed');
   }
-
 }
 
 customElements.define(VcfNetworkToolPanel.is, VcfNetworkToolPanel);
