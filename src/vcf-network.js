@@ -775,18 +775,15 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   _confirmAddToDataSet(dataset, items) {
+    let styledNodes;
     if (Array.isArray(items)) {
-      items = items.map(item => this._wrapItemClass(item));
+      styledNodes = this._setNodeStyles(items);
     } else {
-      items = this._wrapItemClass(items);
+      styledNodes = this._setNodeStyles([items]);
     }
-    this.data[dataset].add(items);
+    this.data[dataset].add(styledNodes);
     if (this.context) {
-      if (Array.isArray(items)) {
-        this.context.component[dataset] = this.context.component[dataset].concat(items);
-      } else {
-        this.context.component[dataset].push(items);
-      }
+      this.context.component[dataset] = this.context.component[dataset].concat(styledNodes);
       this._propagateUpdates();
     }
     this._notifyRoot();
@@ -988,6 +985,16 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     this._manipulation._clean();
     this._manipulation._restore();
     this._canvas.style.cursor = 'default';
+  }
+
+  _setNodeStyles(nodes) {
+    return nodes.map(node => {
+      /* Recursively set styles on nested nodes */
+      if (node.type === 'component') {
+        node.nodes = this._setNodeStyles(node.nodes);
+      }
+      return this._wrapItemClass(node);
+    });
   }
 }
 
