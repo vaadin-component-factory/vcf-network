@@ -466,7 +466,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     this._network.on('doubleClick', opt => {
       if (opt.nodes.length) {
         const selectedNode = this.$.infopanel._selectedNode;
-        if (selectedNode.cid) {
+        if (selectedNode.type === 'component') {
           this.$.infopanel.selection = null;
           this.set('contextStack', [
             ...this.$.breadcrumbs.context,
