@@ -14,7 +14,7 @@ export const colorVars = [
   { name: '--vcf-network-brown', value: 'rgb(138,86,43)' }
 ];
 
-export const colors = () => {
+export const addColorStyles = () => {
   styleModule({
     themeName: 'vcf-network-colors',
     styles: `
@@ -53,7 +53,6 @@ export class ComponentNode extends Node {
     super(options);
     this.type = 'component';
     this.label = options.label || 'Component';
-    this.cid = options.cid || `c:${vis.util.randomUUID()}`;
     this.nodes = options.nodes || [];
     this.edges = options.edges || [];
     this.inputs = options.inputs || {};

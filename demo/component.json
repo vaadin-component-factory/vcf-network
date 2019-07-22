@@ -5,16 +5,39 @@
     "x": -86.25,
     "y": -89.25,
     "nodes": [
+      {
+        "label": "Test 2",
+        "id": 5,
+        "x": -179.25,
+        "y": 36.25,
+        "nodes": [
+          { "label": "Node 1", "id": 6, "x": -179.25, "y": 36.25 },
+          { "label": "Node 2", "id": 7, "x": 74.75, "y": 102.25 },
+          { "label": "Node 3", "id": 8, "x": 88.75, "y": 4.75 },
+          { "label": "Input 1", "id": 9, "type": "input", "x": -279.25, "y": 53.5 },
+          { "label": "Output 1", "id": 10, "type": "output", "x": 188.75, "y": 53.5 }
+        ],
+        "edges": [
+          { "id": 11, "from": 7, "to": 8 },
+          { "id": 12, "from": 9, "to": 6 },
+          { "id": 13, "from": 6, "to": 7 },
+          { "id": 14, "from": 8, "to": 10 }
+        ],
+        "type": "component",
+        "componentColor": 8
+      },
       { "label": "Node 1", "id": 1, "x": -86.25, "y": -89.25 },
       { "label": "Node 2", "id": 2, "x": -77.75, "y": 26.75 },
       { "label": "Input 1", "id": 3, "type": "input", "x": -186.25, "y": -31.25 },
       { "label": "Output 1", "id": 4, "type": "output", "x": 22.25, "y": -31.25 }
     ],
-    "edges": [{ "id": 5, "from": 2, "to": 1 }, { "id": 6, "from": 3, "to": 1 }, { "id": 7, "from": 2, "to": 4 }],
+    "edges": [
+      { "id": 15, "from": 2, "to": 1 },
+      { "id": 16, "from": 3, "to": 1 },
+      { "id": 17, "from": 2, "to": 4 },
+      { "id": 18, "from": 2, "to": 9 }
+    ],
     "type": "component",
-    "cid": "c:b3398b6c-6d30-45cc-b9c9-24edbc595e91",
-    "inputs": {},
-    "outputs": {},
     "componentColor": 3
   },
   {
@@ -37,8 +60,6 @@
     ],
     "type": "component",
     "cid": "c:3cdaad37-e1f0-4b3f-bc44-a617985292db",
-    "inputs": {},
-    "outputs": {},
     "componentColor": 8
   }
 ]

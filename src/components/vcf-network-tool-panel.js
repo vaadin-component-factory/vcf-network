@@ -142,6 +142,11 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
           margin: var(--lumo-space-s) var(--lumo-space-m);
         }
 
+        .section-footer {
+          text-align: right;
+          cursor: pointer;
+        }
+
         /** closed **/
         .panel-container.closed {
           width: 36px;
@@ -370,15 +375,15 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
     });
     const cancelled = !this.main.dispatchEvent(evt);
     if (!cancelled) {
-      this.confirmDeleteTemplate(event.model.item.cid);
+      this.confirmDeleteTemplate(event.model.item.id);
     }
   }
 
   /**
    * Refresh the client model
    */
-  confirmDeleteTemplate(cid) {
-    this.components = this.components.filter(template => template.cid != cid);
+  confirmDeleteTemplate(id) {
+    this.components = this.components.filter(template => template.id !== id);
   }
 
   /**

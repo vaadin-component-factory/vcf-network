@@ -8,9 +8,9 @@ class VcfNetworkIOPanel extends ThemableMixin(PolymerElement) {
       <style>
         :host {
           display: block;
-          width: 220px;
+          width: 120px;
           height: 100%;
-        /*  position: absolute;
+          /*  position: absolute;
           left: 240px;
           top: 44px;
           z-index: 1;*/
@@ -104,7 +104,7 @@ class VcfNetworkIOPanel extends ThemableMixin(PolymerElement) {
       </style>
       <div id="container" class="io-container">
         <h6>[[label]]</h6>
-        <template id="io-list" is="dom-repeat" items="[[data]]">
+        <template id="io-list" is="dom-repeat" items="[[ioData]]">
           <template is="dom-if" if="[[!output]]">
             <div class="io-item">
               <template is="dom-repeat" items="[[item.paths]]" on-dom-change="_setTooltips">
@@ -164,7 +164,7 @@ class VcfNetworkIOPanel extends ThemableMixin(PolymerElement) {
         type: Array,
         observer: '_contextStackChanged'
       },
-      data: {
+      ioData: {
         type: Array
       }
     };
@@ -190,20 +190,23 @@ class VcfNetworkIOPanel extends ThemableMixin(PolymerElement) {
     if (contextStack.length) {
       const component = contextStack[contextStack.length - 1].component;
       const type = this.output ? 'output' : 'input';
-      this.data = Object.entries(component[`${type}s`]).map(item => {
-        const node = component.nodes.filter(node => node.id === item[0])[0];
-        return {
-          id: node.id,
-          label: node.label,
-          mainTooltip: this._getTooltip(node.label),
-          paths: this._getPaths(item[1])
-        };
-      });
+      const ioData = component[`${type}s`];
+      if (ioData) {
+        this.ioData = Object.entries(ioData).map(item => {
+          const node = component.nodes.filter(node => node.id === item[0])[0];
+          return {
+            id: node.id,
+            label: node.label,
+            mainTooltip: this._getTooltip(node.label),
+            paths: this._getPaths(item[1])
+          };
+        });
+      }
     }
   }
 
   _getTooltip(label) {
-    let tooltip = '';
+    let tooltip = 'Root > ';
     this.contextStack.forEach((context, i) => {
       tooltip += context.component.label + ' > ';
     });
@@ -220,7 +223,7 @@ class VcfNetworkIOPanel extends ThemableMixin(PolymerElement) {
       let data = this.main.rootData.nodes;
       let label = '';
       let type = '';
-      let tooltip = '';
+      let tooltip = 'Root > ';
       path.forEach((id, i) => {
         const node = data instanceof vis.DataSet ? data.get(id) : data.filter(i => i.id === id)[0];
         if (i < path.length - 1) data = node.nodes;
