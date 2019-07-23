@@ -998,8 +998,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     while ((idMatches = idRegex.exec(json)) !== null) {
       const match = idMatches[0];
       const templateId = idMatches[1];
-      // const uuid = idMap[templateId] || vis.util.randomUUID();
-      const uuid = idMap[templateId] || this._getLabel(' ').trim();
+      const uuid = idMap[templateId] || vis.util.randomUUID();
       const uuidString = match.replace(templateId, uuid);
       parsed = parsed.replace(match, uuidString);
       if (!idMap[templateId]) idMap[templateId] = uuid;
