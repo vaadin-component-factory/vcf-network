@@ -291,6 +291,7 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
         } else {
           section.classList.add('closed');
         }
+        this.main._network.redraw();
       });
     });
     /* buttons */

@@ -264,8 +264,13 @@ class VcfNetworkIODialog extends ThemableMixin(PolymerElement) {
 
   _getPathObj(type, edgeId) {
     let path = [];
+    const oppositeType = type === 'input' ? 'output' : 'input';
+    const oppositeActiveSelect = this[`_active${oppositeType[0].toUpperCase() + oppositeType.slice(1)}Select`];
+    const isComponent = oppositeType === 'input' ? this.toComponent : this.fromComponent;
+    const parent = oppositeType === 'input' ? this.toNode : this.fromNode;
+    if (isComponent) path.push(parent.id);
     if (this.main.context) path = this.main.contextStack.map(context => context.component.id);
-    path.push(this._activeSelect(type, true).value.id);
+    path.push(oppositeActiveSelect.value.id);
     return { id: edgeId, path };
   }
 
@@ -280,11 +285,6 @@ class VcfNetworkIODialog extends ThemableMixin(PolymerElement) {
     });
     path.pop();
     return path;
-  }
-
-  _activeSelect(type, opposite) {
-    if (opposite) type = type === 'input' ? 'output' : 'input';
-    return this[`_active${type[0].toUpperCase() + type.slice(1)}Select`];
   }
 }
 

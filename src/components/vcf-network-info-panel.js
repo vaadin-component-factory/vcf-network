@@ -216,6 +216,7 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
         } else {
           section.classList.add('closed');
         }
+        this.main._network.redraw();
       });
     });
   }
@@ -312,36 +313,31 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
   }
 
   _exportComponent() {
-    let templateId = 0;
-    const templateIdMap = {};
-    const setNodeTemplateIds = nodes => {
-      return nodes.map(node => {
-        templateIdMap[node.id] = templateId++;
-        if (node.type === 'component') {
-          node.nodes = setNodeTemplateIds(node.nodes);
-          node.edges = setEdgeTemplateIds(node.edges);
+    const removeUIData = component => {
+      component.nodes = component.nodes.map(node => {
+        let newNode = { ...node };
+        if (newNode.type === 'component') {
+          newNode = removeUIData(newNode);
         }
-        return this._removeExtraProperties({
-          ...node,
-          id: templateIdMap[node.id]
-        });
+        return this._removeExtraProperties(newNode);
       });
-    };
-    const setEdgeTemplateIds = edges => {
-      return edges.map(edge => {
-        templateIdMap[edge.id] = templateId++;
-        return {
-          ...edge,
-          from: templateIdMap[edge.from],
-          to: templateIdMap[edge.to],
-          id: templateIdMap[edge.id]
-        };
+      component.edges = component.edges.map(edge => {
+        const newEdge = { ...edge };
+        if (newEdge.deepTo) {
+          newEdge.to = newEdge.deepTo;
+          delete newEdge.deepTo;
+          delete newEdge.deepToPath;
+        }
+        if (newEdge.deepFrom) {
+          newEdge.from = newEdge.deepFrom;
+          delete newEdge.deepFrom;
+          delete newEdge.deepFromPath;
+        }
+        return newEdge;
       });
+      return this._removeExtraProperties({ ...component });
     };
-    const obj = {
-      nodes: setNodeTemplateIds(this._getSelectedNodes()),
-      edges: setEdgeTemplateIds(this._getConnectedEdges(this.selection.nodes))
-    };
+    const obj = [removeUIData(this._selectedNode)];
     const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(obj));
     const download = document.createElement('a');
     download.setAttribute('href', dataStr);
@@ -513,6 +509,8 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
     delete node.margin;
     delete node.shapeProperties;
     delete node.font;
+    delete node.inputs;
+    delete node.outputs;
     return node;
   }
 

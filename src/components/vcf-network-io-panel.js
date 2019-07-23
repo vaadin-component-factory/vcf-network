@@ -10,6 +10,7 @@ class VcfNetworkIOPanel extends ThemableMixin(PolymerElement) {
           display: block;
           width: 120px;
           height: 100%;
+          flex: 0 0 120px;
           /*  position: absolute;
           left: 240px;
           top: 44px;

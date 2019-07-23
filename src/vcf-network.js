@@ -63,7 +63,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   static get version() {
-    return '1.0.0-alpha.4';
+    return '1.0.0-beta.0';
   }
 
   static get properties() {
@@ -701,23 +701,71 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   _addComponent(opt) {
-    // const importData = this._componentTemplate;
-    const importData = { nodes: [this._componentTemplate], edges: [] };
-    const parsedData = this._setUUIDs(importData);
-    const setDeepEdges = edges => {
-      return edges.map(edge => {
-        const deepEdge = { ...edge };
-        if (deepEdge.displayTo) {
-          deepEdge.deepTo = deepEdge.to;
-          deepEdge.to = deepEdge.displayTo;
-          delete deepEdge.displayTo;
+    const template = this._componentTemplate;
+    const componentInstance = this._setUUIDs(template);
+    const getDeepPath = (component, id1, id2, edge) => {
+      let path = [component.id];
+      let ioNode = null;
+      component.nodes.forEach(node => {
+        if (node.type === 'component') {
+          ioNode = node.nodes.filter(node => node.id === id1)[0];
+          if (ioNode) {
+            path.push(node.id);
+            node[`${ioNode.type}s`] = node[`${ioNode.type}s`] || {};
+            const io = node[`${ioNode.type}s`];
+            io[ioNode.id] = io[ioNode.id] || [];
+            io[ioNode.id].push({ id: edge.id, path: getShallowPath(componentInstance, id2) });
+          } else if (this._containsNode(node, id1)) {
+            path = path.concat(getDeepPath(node, id1, id2, edge));
+          }
         }
-        if (deepEdge.displayFrom) {
-          deepEdge.deepFrom = deepEdge.from;
-          deepEdge.from = deepEdge.displayFrom;
-          delete deepEdge.displayFrom;
+      });
+      return path;
+    };
+    const getShallowPath = (component, id) => {
+      let path = [component.id];
+      let outerNode = null;
+      component.nodes.forEach(node => {
+        if (node.type === 'component') {
+          outerNode = node.nodes.filter(node => node.id === id)[0];
+          if (outerNode) {
+            path.push(node.id);
+            path.push(outerNode.id);
+          } else if (this._containsNode(node, id)) {
+            path = path.concat(getShallowPath(node, id));
+          }
         }
-        return deepEdge;
+      });
+      return path;
+    };
+    const getDisplayId = (component, path) => {
+      let displayId;
+      path.forEach((id, i) => {
+        if (component.id === id) {
+          displayId = path[i + 1];
+        }
+      });
+      return displayId;
+    };
+    const setDeepEdges = component => {
+      component.nodes.forEach(node => {
+        if (node.type === 'component') setDeepEdges(node);
+      });
+      component.edges.forEach(edge => {
+        const fromNode = component.nodes.filter(node => node.id === edge.from)[0];
+        const toNode = component.nodes.filter(node => node.id === edge.to)[0];
+        const from = edge.from;
+        const to = edge.to;
+        if (!fromNode) {
+          edge.deepFromPath = getDeepPath(componentInstance, from, to, edge);
+          edge.deepFrom = from;
+          edge.from = getDisplayId(component, edge.deepFromPath);
+        }
+        if (!toNode) {
+          edge.deepToPath = getDeepPath(componentInstance, to, from, edge);
+          edge.deepTo = to;
+          edge.to = getDisplayId(component, edge.deepToPath);
+        }
       });
     };
     const setNodeStyles = nodes => {
@@ -728,18 +776,15 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
           y: coords.y - this.vis.offsetTop - this.offsetTop
         });
         /* Recursively set styles on nested nodes */
-        if (node.type === 'component') {
-          node.nodes = setNodeStyles(node.nodes);
-          node.edges = setDeepEdges(node.edges);
-        }
+        if (node.type === 'component') node.nodes = setNodeStyles(node.nodes);
         node.x = node.isRoot ? canvasCoords.x : node.x;
         node.y = node.isRoot ? canvasCoords.y : node.y;
         return this._wrapItemClass(node);
       });
     };
-    parsedData.nodes.forEach(node => (node.isRoot = true));
-    this._addToDataSet('nodes', setNodeStyles(parsedData.nodes));
-    this._addToDataSet('edges', parsedData.edges);
+    componentInstance.isRoot = true;
+    setDeepEdges(componentInstance);
+    this._addToDataSet('nodes', setNodeStyles([componentInstance]));
   }
 
   _restoreZoom() {
@@ -905,6 +950,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   _setIOPanelVisibility(type, hidden) {
     if (hidden) this.$[`${type}s`].setAttribute('hidden', true);
     else this.$[`${type}s`].removeAttribute('hidden');
+    this._network.redraw();
   }
 
   _getLabel(type = 'node') {
@@ -943,28 +989,28 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   _setUUIDs(data) {
     const json = JSON.stringify(data);
     const idMap = {};
-    const idRegex = /"id":([a-f\d-]+)/g;
-    const fromToRegex = /"(from|displayFrom)":(\d+)|"(to|displayTo)":(\d+)/g;
+    const idRegex = /"id":"([a-f\d-]+)"/g;
+    const fromToRegex = /"from":"([a-f\d-]+)"|"to":"([a-f\d-]+)"/g;
     let idMatches;
     let fromToMatches;
     let parsed = json.slice();
     /* Replace node and edge template ids */
     while ((idMatches = idRegex.exec(json)) !== null) {
       const match = idMatches[0];
-      const templateId = idMatches[1] || idMatches[2];
-      const uuid = idMap[templateId] || vis.util.randomUUID();
-      const replaceString = idMatches[1] ? `"${uuid}"` : uuid;
-      const uuidString = match.replace(templateId, replaceString);
+      const templateId = idMatches[1];
+      // const uuid = idMap[templateId] || vis.util.randomUUID();
+      const uuid = idMap[templateId] || this._getLabel(' ').trim();
+      const uuidString = match.replace(templateId, uuid);
       parsed = parsed.replace(match, uuidString);
       if (!idMap[templateId]) idMap[templateId] = uuid;
     }
     /* Replace edge from and to template ids */
     while ((fromToMatches = fromToRegex.exec(json)) !== null) {
       const match = fromToMatches[0];
-      const isFrom = match.includes('"from"') || match.includes('"displayFrom"');
-      const templateId = isFrom ? fromToMatches[2] : fromToMatches[4];
+      const isFrom = match.includes('"from"');
+      const templateId = isFrom ? fromToMatches[1] : fromToMatches[2];
       const uuid = idMap[templateId];
-      const uuidString = match.replace(templateId, `"${uuid}"`);
+      const uuidString = match.replace(templateId, uuid);
       parsed = parsed.replace(match, uuidString);
     }
     return JSON.parse(parsed);
@@ -984,6 +1030,24 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       }
       return this._wrapItemClass(node);
     });
+  }
+
+  _containsNode(component, nodeId) {
+    const result = false;
+    const containsNodeHelper = (result, component, nodeId) => {
+      const targetNode = component.nodes.filter(node => node.id === nodeId)[0];
+      if (!targetNode) {
+        component.nodes.forEach(node => {
+          if (node.type === 'component') {
+            result = containsNodeHelper(result, node, nodeId);
+          }
+        });
+      } else {
+        result = true;
+      }
+      return result;
+    };
+    return containsNodeHelper(result, component, nodeId);
   }
 }
 
