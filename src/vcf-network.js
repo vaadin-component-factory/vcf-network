@@ -63,7 +63,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   static get version() {
-    return '1.0.0-beta.1';
+    return '1.0.0-beta.2';
   }
 
   static get properties() {
@@ -704,8 +704,12 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     const template = this._componentTemplate;
     const componentInstance = this._setUUIDs(template);
     const getDeepPath = (component, id1, id2, edge) => {
-      let path = [component.id];
+      let path = [];
       let ioNode = null;
+      if (this.context) {
+        path = this.contextStack.map(context => context.component.id);
+      }
+      path.push(component.id);
       component.nodes.forEach(node => {
         if (node.type === 'component') {
           ioNode = node.nodes.filter(node => node.id === id1)[0];
@@ -723,8 +727,12 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       return path;
     };
     const getShallowPath = (component, id) => {
-      let path = [component.id];
+      let path = [];
       let outerNode = null;
+      if (this.context) {
+        path = this.contextStack.map(context => context.component.id);
+      }
+      path.push(component.id);
       component.nodes.forEach(node => {
         if (node.type === 'component') {
           outerNode = node.nodes.filter(node => node.id === id)[0];
