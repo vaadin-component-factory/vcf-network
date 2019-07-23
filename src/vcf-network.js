@@ -63,7 +63,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   static get version() {
-    return '1.0.0-beta.2';
+    return '1.0.0-beta.3';
   }
 
   static get properties() {
@@ -928,7 +928,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     this.data[dataset].update(styledItems);
     if (this.context) {
       if (Array.isArray(styledItems)) {
-        styledItems.forEach(item => this._updateComponentProperties(this.context.component[dataset], styledItems));
+        styledItems.forEach(item => this._updateComponentProperties(this.context.component[dataset], item));
       } else {
         this._updateComponentProperties(this.context.component[dataset], styledItems);
       }

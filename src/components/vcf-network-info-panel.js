@@ -464,13 +464,15 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
   }
 
   _updateCoords(opt) {
-    const node = this.main._network.body.nodes[opt.nodes[0]];
-    if (node !== this._selectedNode) this.selection = opt;
-    const x = Number.parseInt(node.x);
-    const y = Number.parseInt(node.y);
+    const nodeId = opt.nodes[0];
+    const bodyNode = this.main._network.body.nodes[nodeId];
+    const datasetNode = this.main.data.nodes.get(nodeId);
+    if (datasetNode !== this._selectedNode) this.selection = opt;
+    const x = Number.parseInt(bodyNode.x);
+    const y = Number.parseInt(bodyNode.y);
     clearTimeout(this._updateCoordsTimeout);
     this._updateCoordsTimeout = setTimeout(() => {
-      this.main._updateDataSet('nodes', { id: node.id, x, y });
+      this.main._updateDataSet('nodes', { ...datasetNode, x, y });
     }, 200);
     this._refreshCoords(opt, x, y);
   }
