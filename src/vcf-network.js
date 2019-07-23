@@ -63,7 +63,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   static get version() {
-    return '1.0.0-beta.0';
+    return '1.0.0-beta.1';
   }
 
   static get properties() {
@@ -911,12 +911,18 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   _confirmUpdateDataSet(dataset, items) {
-    this.data[dataset].update(items);
+    let styledItems;
+    if (Array.isArray(items)) {
+      styledItems = this._setNodeStyles(items);
+    } else {
+      styledItems = this._setNodeStyles([items]);
+    }
+    this.data[dataset].update(styledItems);
     if (this.context) {
-      if (Array.isArray(items)) {
-        items.forEach(item => this._updateComponentProperties(this.context.component[dataset], item));
+      if (Array.isArray(styledItems)) {
+        styledItems.forEach(item => this._updateComponentProperties(this.context.component[dataset], styledItems));
       } else {
-        this._updateComponentProperties(this.context.component[dataset], items);
+        this._updateComponentProperties(this.context.component[dataset], styledItems);
       }
       this._propagateUpdates();
     }
