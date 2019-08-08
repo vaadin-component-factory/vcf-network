@@ -101,6 +101,11 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       components: {
         type: Array,
         observer: () => []
+      },
+      scale: {
+        type: Number,
+        observer: '_scaleChanged',
+        notify: true
       }
     };
   }
@@ -127,15 +132,6 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
 
   get edgeIds() {
     return this.getEdgeIds();
-  }
-
-  get scale() {
-    return this._scale || 2;
-  }
-
-  set scale(value) {
-    this._scale = value;
-    this._restoreZoom();
   }
 
   get context() {
@@ -408,6 +404,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     this._manipulation = this._network.manipulation;
     this._canvas = this.shadowRoot.querySelector('canvas');
     this._ctx = this._canvas.getContext('2d');
+    this.scale = 2;
     if (!this.data.nodes.length) {
       this._restoreZoom();
     }
@@ -486,7 +483,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     });
 
     this._network.on('zoom', opt => {
-      this._scale = opt.scale;
+      this.scale = opt.scale;
     });
 
     this._network.on('dragEnd', opt => {
@@ -644,6 +641,10 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     } else {
       this._canvas.style.cursor = 'default';
     }
+  }
+
+  _scaleChanged() {
+    this._restoreZoom();
   }
 
   _addNodeCallback(data, callback) {
