@@ -1,11 +1,5 @@
 import { html, PolymerElement } from '@polymer/polymer/polymer-element';
 import { ThemableMixin } from '@vaadin/vaadin-themable-mixin/vaadin-themable-mixin';
-import '@polymer/iron-icons/iron-icons';
-import '@polymer/iron-icons/editor-icons';
-import '@polymer/iron-icons/hardware-icons';
-import '@polymer/iron-icons/social-icons';
-import './vcf-network-color-option';
-import '@vaadin/vaadin-button';
 
 class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
   static get template() {

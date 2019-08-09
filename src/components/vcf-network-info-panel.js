@@ -1,10 +1,6 @@
 import { html, PolymerElement } from '@polymer/polymer/polymer-element';
 import { ThemableMixin } from '@vaadin/vaadin-themable-mixin/vaadin-themable-mixin';
-import { colorVars, Edge, ComponentNode, IONode } from '../util/vcf-network-shared';
-import '@vaadin/vaadin-button';
-import '@vaadin/vaadin-text-field';
-import '@vaadin/vaadin-select';
-import './vcf-network-color-option';
+import { colorVars, ComponentNode, IONode } from '../util/vcf-network-shared';
 
 /**
  * Left side panel of VCF Network.

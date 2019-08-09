@@ -2,12 +2,23 @@ import { html, PolymerElement } from '@polymer/polymer/polymer-element';
 import { ThemableMixin } from '@vaadin/vaadin-themable-mixin';
 import { ElementMixin } from '@vaadin/vaadin-element-mixin';
 import { Node, Edge, IONode, ComponentNode } from './util/vcf-network-shared';
-import './lib/vis-network.web';
-import './components/vcf-network-tool-panel';
+import vis from './lib/vis-network';
+
 import './components/vcf-network-breadcrumbs';
+import './components/vcf-network-color-option';
 import './components/vcf-network-info-panel';
-import './components/vcf-network-io-panel';
 import './components/vcf-network-io-dialog';
+import './components/vcf-network-io-option';
+import './components/vcf-network-io-panel';
+import './components/vcf-network-tool-panel';
+
+import '@polymer/iron-icons/iron-icons';
+import '@polymer/iron-icons/editor-icons';
+import '@polymer/iron-icons/hardware-icons';
+import '@polymer/iron-icons/social-icons';
+import '@vaadin/vaadin-button';
+import '@vaadin/vaadin-select';
+import '@vaadin/vaadin-text-field';
 
 /**
  * @class VcfNetwork
