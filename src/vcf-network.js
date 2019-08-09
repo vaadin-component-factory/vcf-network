@@ -2,7 +2,7 @@ import { html, PolymerElement } from '@polymer/polymer/polymer-element';
 import { ThemableMixin } from '@vaadin/vaadin-themable-mixin';
 import { ElementMixin } from '@vaadin/vaadin-element-mixin';
 import { Node, Edge, IONode, ComponentNode } from './util/vcf-network-shared';
-import vis from './lib/vis-network';
+import vis from './lib/vis-network.es.min.js';
 
 import './components/vcf-network-breadcrumbs';
 import './components/vcf-network-color-option';

@@ -1,7 +1,5 @@
 import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
-import babel from 'rollup-plugin-babel';
-import pkg from './package.json';
 
 const plugins = [
   // The 'node-resolve' plugin allows Rollup to resolve bare module imports like
@@ -11,26 +9,7 @@ const plugins = [
   // The 'commonjs' plugin allows Rollup to convert CommonJS exports on the fly
   // into ES module imports (so that `import vis from 'vcf-network'`
   // works even though the exports are done via `module.exports = {}`)
-  commonjs(),
-
-  babel({
-    // The 'external-helpers' Babel plugin allows Rollup to include every
-    // used babel helper just once per bundle, rather than including them in
-    // every module that uses them (which is the default behaviour).
-    plugins: ['external-helpers'],
-    exclude: 'node_modules/**',
-    presets: [
-      [
-        'env',
-        {
-          // Instructs Babel to not convert ES modules to CommonJS--that's a
-          // job for Rollup.
-          modules: false
-        }
-      ],
-      'stage-0'
-    ]
-  })
+  commonjs()
 ];
 
 const config = [
@@ -50,10 +29,10 @@ const config = [
   // there will be two copies of the vis-network code in the final bundle.
   // That does not lead to any naming conflicts, but that code is duplicated.
   {
-    input: 'theme/lumo/vcf-network.js',
+    input: 'src/lib/vis-network.js',
     output: {
       format: 'es',
-      file: pkg.main,
+      file: 'src/lib/vis-network.es.js',
       sourcemap: true
     },
     plugins
