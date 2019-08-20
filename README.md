@@ -2,6 +2,8 @@
 
 # &lt;vcf-network&gt;
 
+![Kapture 2019-08-20 at 14 40 39](https://user-images.githubusercontent.com/3392815/63344445-1e567900-c359-11e9-8d6b-057fc743d12d.gif)
+
 ## Installation
 
 Install `vcf-network`:
