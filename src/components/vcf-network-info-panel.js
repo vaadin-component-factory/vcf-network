@@ -551,43 +551,17 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
   }
 
   _addCopy() {
-    const idMap = {};
-    const copyItems = (itemIds, dataset) => {
-      return itemIds.map(id => {
-        let itemCopy;
-        idMap[id] = vis.util.randomUUID();
-        const item = this.main.data[dataset].get(id);
-        if (dataset === 'nodes') {
-          if (item.type === 'component') {
-            itemCopy = this.main._createComponentCopy(item);
-          } else {
-            itemCopy = {
-              ...item,
-              id: idMap[id]
-            };
-          }
-        } else {
-          itemCopy = {
-            ...item,
-            id: vis.util.randomUUID(),
-            from: idMap[item.from],
-            to: idMap[item.to]
-          };
-        }
-        return itemCopy;
-      });
-    };
-    const nodesCopy = copyItems(this._copyCache.nodes, 'nodes');
-    const edgesCopy = copyItems(this._copyCache.edges, 'edges');
-    nodesCopy.forEach(node => {
+    const nodes = this._copyCache.nodes.map(id => this.main.data.nodes.get(id));
+    const edges = this._copyCache.edges.map(id => this.main.data.edges.get(id));
+    const dataCopy = this._setUUIDs({ nodes, edges });
+    dataCopy.nodes.forEach(node => {
       node.x = node.x + 50;
       node.y = node.y + 50;
     });
-    this.main.addNodes(nodesCopy);
-    this.main.addEdges(edgesCopy);
-    this.main.addingCopy = false;
-    const nodeIds = nodesCopy.map(i => i.id);
-    const edgeIds = edgesCopy.map(i => i.id);
+    this.main.addNodes(dataCopy.nodes);
+    this.main.addEdges(dataCopy.edges);
+    const nodeIds = dataCopy.nodes.map(i => i.id);
+    const edgeIds = dataCopy.edges.map(i => i.id);
     setTimeout(() => this.main.select({ nodeIds, edgeIds }));
   }
 
@@ -609,9 +583,9 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
   _setUUIDs(data) {
     const json = JSON.stringify(data);
     const idMap = {};
-    const idRegex = /"id":(\d+)|"(\d+)":/g;
-    const pathRegex = /\[([\d,]+)\]/g;
-    const fromToRegex = /"(from|displayFrom)":(\d+)|"(to|displayTo)":(\d+)/g;
+    const idRegex = /"id":"([a-f\d-]+)"|"([a-f\d-]+)":/g;
+    const pathRegex = /\[([a-f\d-",]+)\]/g;
+    const fromToRegex = /[Ff]rom":"([a-f\d-]+)"|[Tt]o":"([a-f\d-]+)"/g;
     let idMatches;
     let pathMatches;
     let fromToMatches;
@@ -621,7 +595,7 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
       const match = idMatches[0];
       const templateId = idMatches[1] || idMatches[2];
       const uuid = idMap[templateId] || vis.util.randomUUID();
-      const replaceString = idMatches[1] ? `"${uuid}"` : uuid;
+      const replaceString = uuid;
       const uuidString = match.replace(templateId, replaceString);
       parsed = parsed.replace(match, uuidString);
       if (!idMap[templateId]) idMap[templateId] = uuid;
@@ -629,19 +603,20 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
     /* Replace edge from and to template ids */
     while ((fromToMatches = fromToRegex.exec(json)) !== null) {
       const match = fromToMatches[0];
-      const isFrom = match.includes('"from"') || match.includes('"displayFrom"');
-      const templateId = isFrom ? fromToMatches[2] : fromToMatches[4];
+      const isFrom = match.includes('from') || match.includes('From');
+      const templateId = isFrom ? fromToMatches[1] : fromToMatches[2];
       const uuid = idMap[templateId];
-      const uuidString = match.replace(templateId, `"${uuid}"`);
+      const uuidString = match.replace(templateId, uuid);
       parsed = parsed.replace(match, uuidString);
     }
     /* Replace input/output path template ids */
     while ((pathMatches = pathRegex.exec(json)) !== null) {
       const match = pathMatches[0];
-      const templateIds = pathMatches[1];
+      let templateIds = pathMatches[1];
+      templateIds = templateIds.substring(1, templateIds.length - 1);
       const uuids = templateIds
         .split(',')
-        .map(id => `"${idMap[id]}"`)
+        .map(id => idMap[id])
         .join(',');
       const uuidString = match.replace(templateIds, uuids);
       parsed = parsed.replace(match, uuidString);

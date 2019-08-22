@@ -127,10 +127,6 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
         type: Boolean,
         observer: '_addingComponentChanged'
       },
-      addingCopy: {
-        type: Boolean,
-        observer: '_addingCopyChanged'
-      },
       components: {
         type: Array,
         observer: () => []
@@ -894,6 +890,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     this._network.setData(this.data);
     this._restoreZoom();
     this.dispatchEvent(new CustomEvent('vcf-network-navigate-to', { detail: { id } }));
+    this.$.infopanel.selection = { nodes: [], edges: [] };
   }
 
   _addToDataSet(dataset, items) {
