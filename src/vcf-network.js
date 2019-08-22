@@ -92,7 +92,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   static get version() {
-    return '1.0.0-beta.3';
+    return '1.1.0';
   }
 
   static get properties() {
