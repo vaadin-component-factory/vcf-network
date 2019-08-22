@@ -1,6 +1,7 @@
 import { html, PolymerElement } from '@polymer/polymer/polymer-element';
 import { ThemableMixin } from '@vaadin/vaadin-themable-mixin/vaadin-themable-mixin';
 import { colorVars, ComponentNode, IONode } from '../util/vcf-network-shared';
+import vis from '../lib/vis-network.es.min.js';
 
 /**
  * Left side panel of VCF Network.
@@ -18,8 +19,8 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
           height: 100%;
           width: 240px;
           flex-shrink: 0;
+          box-shadow: inset 1px 0 0 0 var(--lumo-shade-10pct);
         }
-
         span.selection {
           align-items: center;
           box-shadow: inset 0 -1px 0 0 var(--lumo-shade-10pct);
@@ -31,12 +32,10 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
           height: var(--lumo-size-l);
           padding: 0 var(--lumo-space-m);
         }
-
         span.selection.active {
           background-color: var(--lumo-primary-color-10pct);
           color: var(--lumo-primary-text-color);
         }
-
         .button-container {
           align-items: center;
           box-shadow: inset 0 -1px 0 0 var(--lumo-shade-10pct);
@@ -45,40 +44,34 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
           height: var(--lumo-size-xl);
           justify-content: space-around;
         }
-
         .details-container {
           flex-grow: 1;
           overflow: auto;
           padding: 0 var(--lumo-space-m) var(--lumo-space-m) var(--lumo-space-m);
           box-shadow: inset 0 -1px 0 0 var(--lumo-shade-10pct);
         }
-
         .details {
           display: flex;
           flex-direction: column;
           opacity: 1;
           transition: all 0.2s;
         }
-
         .details.hidden {
           display: none;
           opacity: 0;
           transition: all 0.2s;
         }
-
         .coords vaadin-text-field {
           width: 45%;
         }
-
         .coords vaadin-text-field:first-child {
           margin-right: var(--lumo-space-m);
         }
-
         .section-footer {
           cursor: pointer;
         }
 
-        /** closed **/
+        /** Closed **/
         .panel-container.closed {
           width: 36px;
         }
@@ -99,24 +92,23 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
         .closed .details {
           display: none;
         }
-        /** end closed **/
       </style>
       <div class="panel-container" id="info-panel">
         <span id="selection" class="selection">[[selectionText]]</span>
         <div class="button-container">
-          <vaadin-button id="create-component-button" theme="tertiary" title="Create component">
+          <vaadin-button id="create-component-button" theme="tertiary" title="Create component" disabled>
             <iron-icon icon="icons:cached"></iron-icon>
           </vaadin-button>
-          <vaadin-button id="export-button" theme="tertiary" title="Export component">
+          <vaadin-button id="export-button" theme="tertiary" title="Export component" disabled>
             <iron-icon icon="icons:swap-vert"></iron-icon>
           </vaadin-button>
-          <vaadin-button id="copy-button" theme="tertiary" title="Copy">
+          <vaadin-button id="copy-button" theme="tertiary" title="Copy" disabled>
             <iron-icon icon="icons:content-copy"></iron-icon>
           </vaadin-button>
           <vaadin-button id="save-button" class="details hidden" theme="tertiary" title="Save">
             <iron-icon icon="icons:save"></iron-icon>
           </vaadin-button>
-          <vaadin-button id="delete-button" theme="tertiary error" title="Delete">
+          <vaadin-button id="delete-button" theme="tertiary error" title="Delete" disabled>
             <iron-icon icon="icons:delete"></iron-icon>
           </vaadin-button>
         </div>
@@ -200,7 +192,7 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
     this.$['save-button'].addEventListener('click', () => this._saveSelected());
     this.$['copy-button'].addEventListener('click', () => {
       this._copyCache = this.selection;
-      this.main.addingCopy = true;
+      this._addCopy();
     });
 
     const sectionFooters = this.shadowRoot.querySelectorAll('.section-footer');
@@ -225,6 +217,7 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
    * @private
    */
   _selectionChanged(selection) {
+    this._disableMenuButtons();
     this._setSelectionText();
     this.$['node-details'].classList.add('hidden');
     this.$['node-form'].classList.add('hidden');
@@ -246,9 +239,18 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
         } else {
           this._showNodeDetails();
         }
+        this.$['create-component-button'].disabled = false;
+        this.$['export-button'].disabled = false;
+        this.$['copy-button'].disabled = false;
+        this.$['delete-button'].disabled = false;
+      } else if (selection.nodes.length > 0) {
+        this.$['create-component-button'].disabled = false;
+        this.$['copy-button'].disabled = false;
+        this.$['delete-button'].disabled = false;
       } else if (selection.edges.length === 1 && !selection.nodes.length) {
         this._selectedEdge = this.main.data.edges.get(this.selection.edges[0]);
         this._setEdgeDetails();
+        this.$['delete-button'].disabled = false;
       }
     } else {
       this._selectedNode = null;
@@ -315,7 +317,7 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
         if (newNode.type === 'component') {
           newNode = removeUIData(newNode);
         }
-        return this._removeExtraProperties(newNode);
+        return this._removeDisplayProperties(newNode);
       });
       component.edges = component.edges.map(edge => {
         const newEdge = { ...edge };
@@ -331,7 +333,7 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
         }
         return newEdge;
       });
-      return this._removeExtraProperties({ ...component });
+      return this._removeDisplayProperties({ ...component });
     };
     const obj = [removeUIData(this._selectedNode)];
     const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(obj));
@@ -501,20 +503,22 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
     return edges;
   }
 
-  _removeExtraProperties(node) {
-    delete node.isRoot;
-    delete node.color;
-    delete node.margin;
-    delete node.shapeProperties;
-    delete node.font;
-    delete node.inputs;
-    delete node.outputs;
-    return node;
+  _removeDisplayProperties(node) {
+    const newNode = { ...node };
+    delete newNode.isRoot;
+    delete newNode.color;
+    delete newNode.margin;
+    delete newNode.shapeProperties;
+    delete newNode.font;
+    delete newNode.inputs;
+    delete newNode.outputs;
+    return newNode;
   }
 
   _deleteSelected() {
     this.main._removeFromDataSet('nodes', this.selection.nodes);
     this.main._removeFromDataSet('edges', this.selection.edges);
+    this.selection = { nodes: [], edges: [] };
   }
 
   _saveSelected() {
@@ -525,24 +529,22 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
     }
   }
 
-  _addCopy(opt) {
+  _addCopy() {
     const idMap = {};
-    const coords = opt.event.center;
-    const canvasCoords = this.main._network.DOMtoCanvas({
-      x: coords.x - this.main.vis.offsetLeft - this.main.offsetLeft,
-      y: coords.y - this.main.vis.offsetTop - this.main.offsetTop
-    });
     const copyItems = (itemIds, dataset) => {
       return itemIds.map(id => {
         let itemCopy;
         idMap[id] = vis.util.randomUUID();
         const item = this.main.data[dataset].get(id);
-        if (item.type === 'component') item[dataset] = copyItems(item[dataset], 'nodes');
         if (dataset === 'nodes') {
-          itemCopy = {
-            ...item,
-            id: idMap[id]
-          };
+          if (item.type === 'component') {
+            itemCopy = this.main._createComponentCopy(item);
+          } else {
+            itemCopy = {
+              ...item,
+              id: idMap[id]
+            };
+          }
         } else {
           itemCopy = {
             ...item,
@@ -557,12 +559,15 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
     const nodesCopy = copyItems(this._copyCache.nodes, 'nodes');
     const edgesCopy = copyItems(this._copyCache.edges, 'edges');
     nodesCopy.forEach(node => {
-      node.x = canvasCoords.x + node.x;
-      node.y = canvasCoords.y + node.y;
+      node.x = node.x + 50;
+      node.y = node.y + 50;
     });
     this.main.addNodes(nodesCopy);
     this.main.addEdges(edgesCopy);
     this.main.addingCopy = false;
+    const nodeIds = nodesCopy.map(i => i.id);
+    const edgeIds = edgesCopy.map(i => i.id);
+    setTimeout(() => this.main.select({ nodeIds, edgeIds }));
   }
 
   closePanel() {
@@ -571,6 +576,56 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
 
   openPanel() {
     this.$['info-panel'].classList.remove('closed');
+  }
+
+  _disableMenuButtons() {
+    this.$['create-component-button'].disabled = true;
+    this.$['export-button'].disabled = true;
+    this.$['copy-button'].disabled = true;
+    this.$['delete-button'].disabled = true;
+  }
+
+  _setUUIDs(data) {
+    const json = JSON.stringify(data);
+    const idMap = {};
+    const idRegex = /"id":(\d+)|"(\d+)":/g;
+    const pathRegex = /\[([\d,]+)\]/g;
+    const fromToRegex = /"(from|displayFrom)":(\d+)|"(to|displayTo)":(\d+)/g;
+    let idMatches;
+    let pathMatches;
+    let fromToMatches;
+    let parsed = json.slice();
+    /* Replace node and edge template ids */
+    while ((idMatches = idRegex.exec(json)) !== null) {
+      const match = idMatches[0];
+      const templateId = idMatches[1] || idMatches[2];
+      const uuid = idMap[templateId] || vis.util.randomUUID();
+      const replaceString = idMatches[1] ? `"${uuid}"` : uuid;
+      const uuidString = match.replace(templateId, replaceString);
+      parsed = parsed.replace(match, uuidString);
+      if (!idMap[templateId]) idMap[templateId] = uuid;
+    }
+    /* Replace edge from and to template ids */
+    while ((fromToMatches = fromToRegex.exec(json)) !== null) {
+      const match = fromToMatches[0];
+      const isFrom = match.includes('"from"') || match.includes('"displayFrom"');
+      const templateId = isFrom ? fromToMatches[2] : fromToMatches[4];
+      const uuid = idMap[templateId];
+      const uuidString = match.replace(templateId, `"${uuid}"`);
+      parsed = parsed.replace(match, uuidString);
+    }
+    /* Replace input/output path template ids */
+    while ((pathMatches = pathRegex.exec(json)) !== null) {
+      const match = pathMatches[0];
+      const templateIds = pathMatches[1];
+      const uuids = templateIds
+        .split(',')
+        .map(id => `"${idMap[id]}"`)
+        .join(',');
+      const uuidString = match.replace(templateIds, uuids);
+      parsed = parsed.replace(match, uuidString);
+    }
+    return JSON.parse(parsed);
   }
 }
 
