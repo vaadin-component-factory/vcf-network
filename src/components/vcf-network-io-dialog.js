@@ -215,6 +215,9 @@ class VcfNetworkIODialog extends ThemableMixin(PolymerElement) {
           this[activeSelect] = this._createSelect(container, nodes, type);
           this[activeSelect].label = node.label;
           this[activeSelect].node = node;
+          if (nodes.length === 1) {
+            this[activeSelect].value = nodes[0];
+          }
         } else {
           const selectContainer = e.target.parentElement.querySelector('.select-container');
           if (selectContainer) selectContainer.remove();
