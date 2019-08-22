@@ -13,6 +13,7 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
           width: 240px;
           flex-shrink: 0;
           height: 100%;
+          transition: width 0.2s;
         }
         .panel-container.add-node-toggle .section-item.active {
           animation: active 5s linear infinite;

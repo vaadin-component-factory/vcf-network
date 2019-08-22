@@ -92,31 +92,24 @@ class VcfNetworkIODialog extends ThemableMixin(PolymerElement) {
           const inputNode = this._activeInputSelect.value;
           const component = this._activeInputSelect.node || this.toNode;
           const paths = component.inputs[inputNode.id] || [];
-          paths.push(this._getPathObj('input', edge.id));
+          paths.push(this._getIOPathObj('input', edge.id));
           edge.deepTo = inputNode.id;
-          edge.deepToPath = this._getDeepPath('input');
+          edge.deepToPath = this._getParentDeepPath('input');
           component.inputs[inputNode.id] = paths;
         }
         if (this.fromComponent) {
           const outputNode = this._activeOutputSelect.value;
           const component = this._activeOutputSelect.node || this.fromNode;
           const paths = component.outputs[outputNode.id] || [];
-          paths.push(this._getPathObj('output', edge.id));
+          paths.push(this._getIOPathObj('output', edge.id));
           edge.deepFrom = outputNode.id;
-          edge.deepFromPath = this._getDeepPath('output');
+          edge.deepFromPath = this._getParentDeepPath('output');
           component.outputs[outputNode.id] = paths;
         }
         this.main.addEdges(edge);
         this.close();
       }
     });
-    var style = document.createElement('style');
-    style.innerHTML = `
-      #target {
-      color: blueviolet;
-      }
-    `;
-    document.head.appendChild(style);
   }
 
   get isValid() {
@@ -237,28 +230,38 @@ class VcfNetworkIODialog extends ThemableMixin(PolymerElement) {
       slot.appendChild(textField);
       element = textField;
     }
+    element.classList.add('io-dialog-field');
     return element;
   }
 
-  _getPathObj(type, edgeId) {
+  _getIOPathObj(type, edgeId) {
     let path = [];
     const oppositeType = type === 'input' ? 'output' : 'input';
     const oppositeActiveSelect = this[`_active${oppositeType[0].toUpperCase() + oppositeType.slice(1)}Select`];
+    const container = oppositeType === 'input' ? this.$.content.$.to : this.$.content.$.from;
+    const fields = container.querySelectorAll('.io-dialog-field');
     const isComponent = oppositeType === 'input' ? this.toComponent : this.fromComponent;
     const parent = oppositeType === 'input' ? this.toNode : this.fromNode;
-    if (isComponent) path.push(parent.id);
     if (this.main.context) path = this.main.contextStack.map(context => context.component.id);
-    path.push(oppositeActiveSelect.value.id);
+    if (isComponent) path.push(parent.id);
+    if (typeof fields[0].value === 'string') {
+      path.push(oppositeActiveSelect.value.id);
+    } else {
+      fields.forEach(field => {
+        path.push(field.value.id);
+      });
+    }
     return { id: edgeId, path };
   }
 
-  _getDeepPath(type) {
+  _getParentDeepPath(type) {
     let path = [];
-    const content = type === 'input' ? this.$.content.$.to : this.$.content.$.from;
+    const container = type === 'input' ? this.$.content.$.to : this.$.content.$.from;
+    const fields = container.querySelectorAll('.io-dialog-field');
     const component = type === 'input' ? this.toNode : this.fromNode;
     if (this.main.context) path = this.main.contextStack.map(context => context.component.id);
     path.push(component.id);
-    content.querySelectorAll('vaadin-select').forEach(select => {
+    fields.forEach(select => {
       path.push(select.value.id);
     });
     path.pop();

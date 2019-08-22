@@ -11,6 +11,7 @@ import './components/vcf-network-io-dialog';
 import './components/vcf-network-io-option';
 import './components/vcf-network-io-panel';
 import './components/vcf-network-tool-panel';
+import './components/vcf-network-export-dialog';
 import '@polymer/iron-icons/iron-icons';
 import '@polymer/iron-icons/editor-icons';
 import '@polymer/iron-icons/hardware-icons';
@@ -78,6 +79,11 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
         </div>
       </vcf-network-info-panel>
       <vcf-network-io-dialog id="iodialog" from-node="[[_ioFromNode]]" to-node="[[_ioToNode]]"></vcf-network-io-dialog>
+      <vcf-network-export-dialog
+        id="exportdialog"
+        component="[[_exportComponent]]"
+        auto-export="[[_autoExport]]"
+      ></vcf-network-export-dialog>
     `;
   }
 
@@ -581,6 +587,9 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
           break;
         case 'c': // -> Create Component
           this.$.infopanel.$['create-component-button'].click();
+          break;
+        case 'e': // -> Export component
+          this.$.infopanel.$['export-button'].click();
           break;
       }
       if (handled) e.preventDefault();

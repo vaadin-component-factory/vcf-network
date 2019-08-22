@@ -20,6 +20,7 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
           width: 240px;
           flex-shrink: 0;
           box-shadow: inset 1px 0 0 0 var(--lumo-shade-10pct);
+          transition: width 0.2s;
         }
         span.selection {
           align-items: center;
@@ -239,11 +240,12 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
         } else {
           this._showNodeDetails();
         }
-        this.$['create-component-button'].disabled = false;
         this.$['export-button'].disabled = false;
+        this.$['create-component-button'].disabled = false;
         this.$['copy-button'].disabled = false;
         this.$['delete-button'].disabled = false;
       } else if (selection.nodes.length > 0) {
+        this.$['export-button'].disabled = false;
         this.$['create-component-button'].disabled = false;
         this.$['copy-button'].disabled = false;
         this.$['delete-button'].disabled = false;
@@ -251,6 +253,8 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
         this._selectedEdge = this.main.data.edges.get(this.selection.edges[0]);
         this._setEdgeDetails();
         this.$['delete-button'].disabled = false;
+      } else {
+        this._selectedNode = null;
       }
     } else {
       this._selectedNode = null;
@@ -311,15 +315,19 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
   }
 
   _exportComponent() {
-    const removeUIData = component => {
-      component.nodes = component.nodes.map(node => {
+    const data = {
+      nodes: this._getSelectedNodes(),
+      edges: this._getSelectedEdges()
+    };
+    const removeUIProperties = data => {
+      data.nodes = data.nodes.map(node => {
         let newNode = { ...node };
         if (newNode.type === 'component') {
-          newNode = removeUIData(newNode);
+          newNode = removeUIProperties(newNode);
         }
         return this._removeDisplayProperties(newNode);
       });
-      component.edges = component.edges.map(edge => {
+      data.edges = data.edges.map(edge => {
         const newEdge = { ...edge };
         if (newEdge.deepTo) {
           newEdge.to = newEdge.deepTo;
@@ -333,14 +341,18 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
         }
         return newEdge;
       });
-      return this._removeDisplayProperties({ ...component });
+      return this._removeDisplayProperties({ ...data });
     };
-    const obj = [removeUIData(this._selectedNode)];
-    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(obj));
-    const download = document.createElement('a');
-    download.setAttribute('href', dataStr);
-    download.setAttribute('download', 'component.json');
-    download.click();
+    let component;
+    if (this._selectedNode && this._selectedNode.type === 'component') {
+      component = this._selectedNode;
+      this.main._autoExport = true;
+    } else {
+      component = new ComponentNode(removeUIProperties(data));
+      this._createIONodes(component.nodes);
+    }
+    this.main._exportComponent = component;
+    this.main.$.exportdialog.open();
   }
 
   _createComponent() {
@@ -355,42 +367,7 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
       const posNode = this.main.data.nodes.get(nodeIds[0]);
       const nodes = this._getSelectedNodes();
       const edges = this._getConnectedEdges(nodeIds);
-      /* Generate I/O nodes */
-      const first = nodes[0];
-      let x0 = first.x;
-      let x1 = first.x;
-      let y0 = first.y;
-      let y1 = first.y;
-      let hasInput = false;
-      let hasOutput = false;
-      nodes.forEach((node, i) => {
-        if (node.x < x0) x0 = node.x;
-        if (node.x > x1) x1 = node.x;
-        if (node.y < y0) y0 = node.y;
-        if (node.y > y1) y1 = node.y;
-        if (node.type === 'input') hasInput = true;
-        if (node.type === 'output') hasOutput = true;
-      });
-      if (!hasInput) {
-        const inputNode = new IONode({
-          type: 'input',
-          label: this.main._getLabel('input'),
-          x: x0 - 100,
-          y: y0 + (y1 - y0) / 2
-        });
-        nodes.push(inputNode);
-        nodeIds.push(inputNode.id);
-      }
-      if (!hasOutput) {
-        const outputNode = new IONode({
-          type: 'output',
-          label: this.main._getLabel('output'),
-          x: x1 + 100,
-          y: y0 + (y1 - y0) / 2
-        });
-        nodes.push(outputNode);
-        nodeIds.push(outputNode.id);
-      }
+      this._createIONodes(nodes, nodeIds);
       /* Create component node */
       const newComponent = new ComponentNode({
         label: this.main._getLabel('component'),
@@ -441,6 +418,46 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
     }
   }
 
+  _createIONodes(nodes, nodeIds) {
+    /* Generate I/O nodes */
+    const first = nodes[0];
+    let x0 = first.x;
+    let x1 = first.x;
+    let y0 = first.y;
+    let y1 = first.y;
+    let hasInput = false;
+    let hasOutput = false;
+    nodes.forEach((node, i) => {
+      if (node.x < x0) x0 = node.x;
+      if (node.x > x1) x1 = node.x;
+      if (node.y < y0) y0 = node.y;
+      if (node.y > y1) y1 = node.y;
+      if (node.type === 'input') hasInput = true;
+      if (node.type === 'output') hasOutput = true;
+    });
+    if (!hasInput) {
+      const inputNode = new IONode({
+        type: 'input',
+        label: this.main._getLabel('input'),
+        x: x0 - 100,
+        y: y0 + (y1 - y0) / 2
+      });
+      nodes.push(inputNode);
+      if (nodeIds) nodeIds.push(inputNode.id);
+    }
+    if (!hasOutput) {
+      const outputNode = new IONode({
+        type: 'output',
+        label: this.main._getLabel('output'),
+        x: x1 + 100,
+        y: y0 + (y1 - y0) / 2
+      });
+      nodes.push(outputNode);
+      if (nodeIds) nodeIds.push(outputNode.id);
+    }
+    return nodes;
+  }
+
   _updateNode() {
     const label = this.$['node-name'].value;
     this.main._updateDataSet('nodes', {
@@ -488,6 +505,10 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
 
   _getSelectedNodes() {
     return this.selection.nodes.map(id => this.main.data.nodes.get(id));
+  }
+
+  _getSelectedEdges() {
+    return this.selection.edges.map(id => this.main.data.edges.get(id));
   }
 
   _getConnectedEdges(nodeIds) {
