@@ -223,9 +223,12 @@ class VcfNetworkIOPanel extends ThemableMixin(PolymerElement) {
       let type = '';
       let tooltip = 'Root > ';
       path.forEach((id, i) => {
-        const node = data instanceof vis.DataSet ? data.get(id) : data.filter(i => i.id === id)[0];
-        if (i < path.length - 1) data = node.nodes;
-        else {
+        let node;
+        if (data instanceof vis.DataSet) node = data.get(id);
+        else node = data.filter(i => i.id === id)[0];
+        if (i < path.length - 1) {
+          data = node.nodes;
+        } else {
           label = node.label;
           type = node.type || '';
         }
