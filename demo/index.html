@@ -9,19 +9,52 @@
       import '@polymer/iron-demo-helpers/demo-pages-shared-styles';
       import '@polymer/iron-demo-helpers/demo-snippet';
       import '../theme/lumo/vcf-network.js';
+      window.addEventListener('WebComponentsReady', () => document.querySelector('main').classList.remove('hidden'));
     </script>
     
     <custom-style>
-      <style is="custom-style" include="demo-pages-shared-styles"></style>
+      <style is="custom-style" include="demo-pages-shared-styles">
+        main {
+          opacity: 1;
+          transition: opacity 1s;
+        }
+        main.hidden {
+          opacity: 0;
+        }
+        .src {
+          font-family: monospace;
+        }
+        p {
+          margin-top: 0;
+        }
+        vcf-network {
+          height: 500px;
+        }
+      </style>
     </custom-style>
   </head>
   <body>
-    <div class="vertical-section-container">
+    <main class="vertical-section-container hidden">
+      <h3>Default</h3>
+      <demo-snippet>
+        <template>
+          <vcf-network></vcf-network>
+        </template>
+      </demo-snippet>
+      <h3>Import Network</h3>
+      <p><strong>External file:</strong> <a href="network.json" class="src">network.json</a></p>
+      <demo-snippet>
+        <template>
+          <vcf-network data-src="./network.json" scale="2" collapsed></vcf-network>
+        </template>
+      </demo-snippet>
+      <h3>Import Templates</h3>
+      <p><strong>External file:</strong> <a href="templates.json" class="src">templates.json</a></p>
       <demo-snippet>
         <template>
           <vcf-network template-src="./templates.json"></vcf-network>
         </template>
       </demo-snippet>
-    </div>
+    </main>
   </body>
 </html>

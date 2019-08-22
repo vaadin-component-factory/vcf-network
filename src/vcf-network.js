@@ -110,9 +110,9 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
         type: String,
         observer: '_templateSrcChanged'
       },
-      src: {
+      dataSrc: {
         type: String,
-        observer: '_srcChanged'
+        observer: '_dataSrcChanged'
       },
       contextStack: {
         type: Array,
@@ -139,6 +139,10 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       addNodeToggle: {
         type: Boolean,
         observer: '_addNodeToggleChanged'
+      },
+      collapsed: {
+        type: Boolean,
+        observer: '_collapsedChanged'
       }
     };
   }
@@ -365,8 +369,8 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   setData(data) {
     this.clearData();
     this.rootData = {
-      nodes: vis.DataSet(data.nodes),
-      edges: vis.DataSet(data.edges)
+      nodes: new vis.DataSet(data.nodes),
+      edges: new vis.DataSet(data.edges)
     };
     this.data = this.rootData;
     this._network.setData(this.data);
@@ -436,7 +440,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     this._manipulation = this._network.manipulation;
     this._canvas = this.shadowRoot.querySelector('canvas');
     this._ctx = this._canvas.getContext('2d');
-    this.scale = 2;
+    this.scale = this.scale || 2;
     if (!this.data.nodes.length) {
       this._restoreZoom();
     }
@@ -449,8 +453,8 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   _initEventListeners() {
     this.vis.addEventListener('mousemove', e => {
       this._cursorPos = this._network.DOMtoCanvas({
-        x: e.clientX - this.vis.offsetLeft,
-        y: e.clientY - this.vis.offsetTop
+        x: e.clientX - this.vis.offsetLeft + window.scrollX,
+        y: e.clientY - this.vis.offsetTop + window.scrollY
       });
     });
 
@@ -700,7 +704,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   _scaleChanged() {
-    this._restoreZoom();
+    if (this._network) this._restoreZoom();
   }
 
   _addNodeCallback(data, callback) {
@@ -770,8 +774,8 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   _addComponent(opt) {
     const coords = opt.event.center;
     const canvasCoords = this._network.DOMtoCanvas({
-      x: coords.x - this.vis.offsetLeft,
-      y: coords.y - this.vis.offsetTop
+      x: coords.x - this.vis.offsetLeft + window.scrollX,
+      y: coords.y - this.vis.offsetTop + window.scrollY
     });
     const template = this._componentTemplate;
     const componentInstance = this._createComponentCopy(template);
@@ -783,13 +787,17 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   _createComponentCopy(component) {
     component = this._removeDisplayPropertiesDeep([component])[0];
     let componentCopy = this._setUUIDs(component);
+    this._setDeepEdges(componentCopy);
+    componentCopy = this._setNodeStylesDeep([componentCopy])[0];
+    return componentCopy;
+  }
+
+  _setDeepEdges(componentRef, root = false) {
     const getDeepPath = (component, id1, id2, edge) => {
       let path = [];
       let ioNode = null;
-      if (this.context) {
-        path = this.contextStack.map(context => context.component.id);
-      }
-      path.push(component.id);
+      if (this.context) path = this.contextStack.map(context => context.component.id);
+      if (!root) path.push(component.id);
       component.nodes.forEach(node => {
         if (node.type === 'component') {
           ioNode = node.nodes.filter(node => node.id === id1)[0];
@@ -798,7 +806,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
             node[`${ioNode.type}s`] = node[`${ioNode.type}s`] || {};
             const io = node[`${ioNode.type}s`];
             io[ioNode.id] = io[ioNode.id] || [];
-            io[ioNode.id].push({ id: edge.id, path: getShallowPath(componentCopy, id2) });
+            io[ioNode.id].push({ id: edge.id, path: getShallowPath(componentRef, id2) });
           } else if (this._containsNode(node, id1)) {
             path = path.concat(getDeepPath(node, id1, id2, edge));
           }
@@ -809,10 +817,8 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     const getShallowPath = (component, id) => {
       let path = [];
       let outerNode = null;
-      if (this.context) {
-        path = this.contextStack.map(context => context.component.id);
-      }
-      path.push(component.id);
+      if (this.context) path = this.contextStack.map(context => context.component.id);
+      if (!root) path.push(component.id);
       component.nodes.forEach(node => {
         if (node.type === 'component') {
           outerNode = node.nodes.filter(node => node.id === id)[0];
@@ -822,22 +828,15 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
           } else if (this._containsNode(node, id)) {
             path = path.concat(getShallowPath(node, id));
           }
+        } else if (root && node.id === id) {
+          path.push(node.id);
         }
       });
       return path;
     };
-    const getDisplayId = (component, path) => {
-      let displayId;
-      path.forEach((id, i) => {
-        if (component.id === id) {
-          displayId = path[i + 1];
-        }
-      });
-      return displayId;
-    };
-    const setDeepEdges = component => {
+    const setDeepEdgesHelper = component => {
       component.nodes.forEach(node => {
-        if (node.type === 'component') setDeepEdges(node);
+        if (node.type === 'component') setDeepEdgesHelper(node);
       });
       component.edges.forEach(edge => {
         const fromNode = component.nodes.filter(node => node.id === edge.from)[0];
@@ -845,27 +844,18 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
         const from = edge.from;
         const to = edge.to;
         if (!fromNode) {
-          edge.deepFromPath = getDeepPath(componentCopy, from, to, edge);
+          edge.deepFromPath = getDeepPath(componentRef, from, to, edge);
           edge.deepFrom = from;
-          edge.from = getDisplayId(component, edge.deepFromPath);
+          edge.from = edge.deepFromPath[edge.deepFromPath.length - 1];
         }
         if (!toNode) {
-          edge.deepToPath = getDeepPath(componentCopy, to, from, edge);
+          edge.deepToPath = getDeepPath(componentRef, to, from, edge);
           edge.deepTo = to;
-          edge.to = getDisplayId(component, edge.deepToPath);
+          edge.to = edge.deepToPath[edge.deepToPath.length - 1];
         }
       });
     };
-    const setNodeStyles = nodes => {
-      return nodes.map(node => {
-        /* Recursively set styles on nested nodes */
-        if (node.type === 'component') node.nodes = setNodeStyles(node.nodes);
-        return this._wrapItemClass(node);
-      });
-    };
-    setDeepEdges(componentCopy);
-    componentCopy = setNodeStyles([componentCopy])[0];
-    return componentCopy;
+    setDeepEdgesHelper(componentRef);
   }
 
   _restoreZoom() {
@@ -1166,6 +1156,30 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       y: this._cursorPos.y
     });
     if (type) this._nodeType = storedType;
+  }
+
+  _dataSrcChanged(dataSrc) {
+    fetch(dataSrc)
+      .then(res => res.json())
+      .then(json => {
+        if (!json.nodes) {
+          throw new Error('Imported JSON has incorrect format. Should be object like: { nodes: [], edges: [] }');
+        }
+        json.nodes = this._setNodeStylesDeep(json.nodes);
+        this._setDeepEdges(json, true);
+        this.setData(json);
+        this._restoreZoom();
+      });
+  }
+
+  _collapsedChanged(collapsed) {
+    if (collapsed) {
+      this.$.toolpanel.closePanel();
+      this.$.infopanel.closePanel();
+    } else {
+      this.$.toolpanel.openPanel();
+      this.$.infopanel.openPanel();
+    }
   }
 }
 

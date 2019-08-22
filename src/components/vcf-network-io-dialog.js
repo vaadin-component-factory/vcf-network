@@ -127,7 +127,7 @@ class VcfNetworkIODialog extends ThemableMixin(PolymerElement) {
       this.$.dialog.opened = true;
       const overlay = document.querySelector('vaadin-dialog-overlay');
       const overlayPart = overlay.shadowRoot.querySelector('[part="overlay"]');
-      overlayPart.style.width = '510px';
+      overlayPart.style.width = 'calc(462px + 2 * var(--lumo-space-l))';
     }
   }
 

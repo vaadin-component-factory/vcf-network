@@ -155,5 +155,88 @@
     ],
     "type": "component",
     "componentColor": 5
+  },
+  {
+    "label": "Zero",
+    "id": "9bc463d9-7859-4a2f-9424-cfd73e43af1f",
+    "x": -430,
+    "y": -321,
+    "nodes": [
+      {
+        "label": "One.1",
+        "id": "48ecb507-9cfc-47d5-989c-205bd49e7185",
+        "x": -344,
+        "y": -215,
+        "nodes": [
+          { "label": "Node 2", "id": "7dff94de-16c2-4fda-b9ca-03e0fddbb335", "x": -406.5, "y": -185.75 },
+          {
+            "label": "Input 1",
+            "id": "e5f8953b-4be0-4914-969e-c78cac88adb2",
+            "type": "input",
+            "x": -506.5,
+            "y": -185.75
+          },
+          {
+            "label": "Output 1",
+            "id": "191b5e7f-8512-4127-bdb7-cb5eda589fe5",
+            "type": "output",
+            "x": -306.5,
+            "y": -185.75
+          }
+        ],
+        "edges": [],
+        "type": "component",
+        "componentColor": 0
+      },
+      {
+        "label": "One.2",
+        "id": "0e5d235f-e706-469b-b0af-fb3d77b7c471",
+        "x": -191,
+        "y": -133,
+        "nodes": [
+          { "label": "Node 1", "id": "3ffeadd7-fad8-4887-90ce-47709f4e8340", "x": -254, "y": -179.75 },
+          {
+            "label": "Input 2",
+            "id": "23ce3ed9-5e2d-4dbc-ab3c-177058e710c6",
+            "type": "input",
+            "x": -354,
+            "y": -179.75
+          },
+          {
+            "label": "Output 2",
+            "id": "7ede2734-383b-4771-8d81-99108e3e6c6f",
+            "type": "output",
+            "x": -154,
+            "y": -179.75
+          }
+        ],
+        "edges": [],
+        "type": "component",
+        "componentColor": 7
+      },
+      { "label": "Input 3", "id": "685aabc4-5e3f-4adf-81cf-90c657c053a9", "type": "input", "x": -444, "y": -174 },
+      { "label": "Output 3", "id": "98d6dcb5-7d27-4d37-a2e5-5ab26b78359d", "type": "output", "x": -91, "y": -174 },
+      { "label": "Node 3", "id": "c4e35682-4d2f-44a0-a31b-5e7df344c367", "x": -273, "y": -297 },
+      { "label": "Node 4", "id": "964dd1d8-ffbe-4c6c-b2b6-42dbb518882b", "x": -269, "y": -63 }
+    ],
+    "edges": [
+      {
+        "id": "aef705a4-6aaf-4f48-b06c-58d449fba540",
+        "from": "191b5e7f-8512-4127-bdb7-cb5eda589fe5",
+        "to": "23ce3ed9-5e2d-4dbc-ab3c-177058e710c6"
+      },
+      {
+        "id": "ed7e4236-5ed0-44d4-b1c3-a9e3123bec36",
+        "from": "964dd1d8-ffbe-4c6c-b2b6-42dbb518882b",
+        "to": "23ce3ed9-5e2d-4dbc-ab3c-177058e710c6"
+      },
+      {
+        "id": "b957d25b-a277-4fcb-88ff-6be4b5185f8b",
+        "from": "c4e35682-4d2f-44a0-a31b-5e7df344c367",
+        "to": "e5f8953b-4be0-4914-969e-c78cac88adb2"
+      }
+    ],
+    "type": "component",
+    "componentColor": 2
   }
 ]
