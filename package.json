@@ -23,7 +23,7 @@
   "scripts": {
     "test": "wct",
     "lint": "eslint src/*.js",
-    "start": "npm run build && polymer serve -o",
+    "start": "polymer serve -o",
     "build": "rollup -c && npm run build:minify",
     "build:minify": "uglifyjs src/lib/vis-network.es.js -c -m --source-map --output src/lib/vis-network.es.min.js",
     "prepublish": "npm run build"
@@ -44,6 +44,7 @@
     "@polymer/iron-icons": "^3.0.1",
     "@polymer/polymer": "^3.0.0",
     "@vaadin/vaadin-button": "^2.2.0",
+    "@vaadin/vaadin-confirm-dialog": "^1.1.4",
     "@vaadin/vaadin-element-mixin": "^2.1.3",
     "@vaadin/vaadin-lumo-styles": "^1.5.0",
     "@vaadin/vaadin-select": "^2.1.2",
