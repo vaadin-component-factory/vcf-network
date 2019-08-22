@@ -14,6 +14,21 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
           flex-shrink: 0;
           height: 100%;
         }
+        .panel-container.add-node-toggle .section-item.active {
+          animation: active 5s linear infinite;
+        }
+        @keyframes active {
+          0% {
+            box-shadow: inset 0px 0px 0px 1px var(--lumo-shade-10pct);
+          }
+          50% {
+            box-shadow: inset 0px 0px 20px 2px var(--lumo-shade-20pct);
+          }
+          100% {
+            box-shadow: inset 0px 0px 0px 1px var(--lumo-shade-10pct);
+          }
+        }
+
         :host([hidden]) {
           display: none !important;
         }
@@ -22,11 +37,9 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
         .section:not(.collapsed) {
           padding-bottom: var(--lumo-space-s);
         }
-
         .section:not(:last-child) {
           box-shadow: inset 0 -1px 0 0 var(--lumo-shade-10pct);
         }
-
         .section.collapsed .section-items {
           max-height: 0 !important;
         }
@@ -39,17 +52,14 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
           height: var(--lumo-size-l);
           padding: 0 var(--lumo-space-m);
         }
-
         .section-header h6 {
           color: var(--lumo-secondary-text-color);
           margin: 0 auto 0 0;
         }
-
         .section-header iron-icon {
           color: var(--lumo-secondary-text-color);
           transition: all 0.2s;
         }
-
         .section.collapsed .section-header iron-icon {
           transform: rotate(180deg);
         }
@@ -60,7 +70,6 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
           transform-origin: top;
           transition: all 0.2s;
         }
-
         .section-item {
           align-items: center;
           cursor: pointer;
@@ -69,51 +78,41 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
           padding-left: var(--lumo-space-m);
           transition: all 0.2s;
         }
-
         iron-icon.blue,
         iron-icon.green,
         iron-icon.red {
           margin-right: var(--lumo-space-m);
         }
-
         .section-item vcf-network-color-option {
           margin-right: var(--lumo-space-m);
         }
-
         .section-item span {
           color: var(--lumo-body-text-color);
           font-size: var(--lumo-font-size-s);
           transition: all 0.2s;
         }
-
         .section:first-child .section-item span::first-letter {
           text-decoration: underline;
         }
-
         .section-item:hover {
           background-color: var(--lumo-shade-5pct);
         }
-
         .section-item.active {
           background-color: var(--lumo-primary-color-10pct);
         }
-
         .section-item.active span {
           color: var(--lumo-primary-text-color);
           font-weight: 500;
         }
-
         iron-icon.blue {
           color: var(--lumo-primary-color);
         }
         iron-icon.green {
           color: var(--lumo-success-text-color);
         }
-
         iron-icon.red {
           color: var(--lumo-error-text-color);
         }
-
         .section-item {
           display: flex;
           align-items: center;
@@ -125,23 +124,22 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
         .hidden {
           display: none;
         }
-        .edit-hidden .edit-template {
+        .edit-hidden .edit-template,
+        .edit-hidden .delete-template {
           display: none;
         }
         .section-grow {
           flex-grow: 1;
         }
-
         .template-item {
           margin: var(--lumo-space-s) var(--lumo-space-m);
         }
-
         .section-footer {
           text-align: right;
           cursor: pointer;
         }
 
-        /** closed **/
+        /** Closed **/
         .panel-container.closed {
           width: 36px;
         }
@@ -170,7 +168,6 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
         .closed .section-footer {
           text-align: center;
         }
-        /** end closed **/
       </style>
       <div id="tool-panel" class="panel-container">
         <div class="section">
@@ -213,12 +210,17 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
                 >
                   <iron-icon icon="icons:create" slot="prefix"></iron-icon>
                 </vaadin-button>
-                <vaadin-button theme="tertiary error small" title="Delete template" on-click="_deleteTemplateListener">
+                <vaadin-button
+                  class="delete-template"
+                  theme="tertiary error small"
+                  title="Delete template"
+                  on-click="_deleteTemplateListener"
+                >
                   <iron-icon icon="icons:delete" slot="prefix"></iron-icon>
                 </vaadin-button>
               </div>
             </template>
-            <div class="template-item">
+            <div id="new-template-button" class="template-item hidden">
               <vaadin-button style="flex-grow:1;" title="Add template" on-click="_addTemplateListener">
                 <iron-icon icon="icons:add" slot="prefix"></iron-icon>
                 New template
@@ -240,9 +242,14 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
 
   static get properties() {
     return {
+      addNodeToggle: {
+        type: Boolean,
+        observer: '_addNodeToggleChanged'
+      },
       components: {
         type: Array,
-        default: []
+        value: [],
+        observer: '_componentsChanged'
       }
     };
   }
@@ -332,6 +339,11 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
     }
   }
 
+  _componentsChanged(components) {
+    if (!components.length) this.hideTemplatePanel();
+    else this.showTemplatePanel();
+  }
+
   /**
    * call new-template-event
    */
@@ -350,14 +362,11 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
    * Refresh the client model
    */
   confirmAddTemplate(component) {
-    if (this.components == null) {
-      this.components = [];
-    }
-    var components = this.components;
+    const components = this.components;
     this.components = [];
     components.push(component);
     this.components = components;
-    console.debug('template added');
+    console.info('template added');
   }
 
   /**
@@ -396,17 +405,18 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
   }
 
   confirmUpdateTemplate(component) {
-    var index = this.components.findIndex(item => item.id === component.id);
-    var components = this.components;
+    const index = this.components.findIndex(item => item.id === component.id);
+    const components = this.components;
     this.components.splice(index, 1, component);
     this.components = [];
     this.components = components;
-    console.debug(`template updated component=${component}`);
+    console.info(`template updated component=${component}`);
   }
 
   hideEditTemplateButton() {
     this.$['template-panel'].classList.add('edit-hidden');
   }
+
   showEditTemplateButton() {
     this.$['template-panel'].classList.remove('edit-hidden');
   }
@@ -414,14 +424,30 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
   hideTemplatePanel() {
     this.$['template-panel'].classList.add('hidden');
   }
+
   showTemplatePanel() {
     this.$['template-panel'].classList.remove('hidden');
   }
+
+  hideTemplateButton() {
+    this.$['new-template-button'].classList.add('hidden');
+  }
+
+  showTemplateButton() {
+    this.$['new-template-button'].classList.remove('hidden');
+  }
+
   closePanel() {
     this.$['tool-panel'].classList.add('closed');
   }
+
   openPanel() {
     this.$['tool-panel'].classList.remove('closed');
+  }
+
+  _addNodeToggleChanged(addNodeToggle) {
+    if (addNodeToggle) this.$['tool-panel'].classList.add('add-node-toggle');
+    else this.$['tool-panel'].classList.remove('add-node-toggle');
   }
 }
 
