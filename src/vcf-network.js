@@ -560,7 +560,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     });
 
     this.setAttribute('tabindex', '0');
-    this.addEventListener('mouseenter', () => this.focus());
+    this.addEventListener('click', () => this.focus());
     this.addEventListener('keyup', e => {
       if (e.defaultPrevented || e.path[0].tagName === 'INPUT' || e.path[0].tagName === 'TEXTAREA') {
         return;
@@ -668,7 +668,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
         selectNodesFromHighlight();
       }
     });
-    this.vis.oncontextmenu = () => false;
+    this.vis.oncontextmenu = e => false;
   }
 
   _addingNodeChanged() {
