@@ -1,12 +1,3 @@
 {
-  "npm": true,
-  "entrypoint": "demo/index.html",
-  "sources": ["demo/index.html", "theme/lumo/vcf-network.js"],
-  "extraDependencies": ["demo/*.js", "demo/*.json", "node_modules/@polymer/**", "node_modules/@webcomponents/**"],
-  "builds": [
-    {
-      "preset": "es6-unbundled",
-      "addServiceWorker": false
-    }
-  ]
+  "npm": true
 }

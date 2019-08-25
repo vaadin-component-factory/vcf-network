@@ -1,6 +1,6 @@
 import { html, PolymerElement } from '@polymer/polymer/polymer-element';
 import { ThemableMixin } from '@vaadin/vaadin-themable-mixin/vaadin-themable-mixin';
-import { addColorStyles, colorVars } from '../util/vcf-network-shared';
+import { addColorStyles, colorVars } from '../../utils/vcf-network-shared';
 
 class VcfNetworkColorOption extends ThemableMixin(PolymerElement) {
   static get template() {

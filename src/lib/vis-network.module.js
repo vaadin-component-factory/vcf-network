@@ -21,4 +21,4 @@ var visNetwork_min$1 = unwrapExports(visNetwork_min);
 var visNetwork_min_1 = visNetwork_min.vis;
 
 export default visNetwork_min$1;
-//# sourceMappingURL=vis-network.es.js.map
+//# sourceMappingURL=vis-network.module.js.map

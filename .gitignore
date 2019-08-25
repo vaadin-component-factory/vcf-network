@@ -1,5 +1,5 @@
 /node_modules/
-/build/
 /dist/
+/src/vendor/
 package-lock.json
 copy_webc.sh
