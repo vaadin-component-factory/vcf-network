@@ -1,6 +1,3 @@
 {
-  "npm": true,
-  "lint": {
-    "rules": ["polymer-3"]
-  }
+  "npm": true
 }

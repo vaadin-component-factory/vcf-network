@@ -1,4 +1,5 @@
 /node_modules/
+/dist/
+/src/vendor/
 package-lock.json
-vis-network.web.js
 copy_webc.sh

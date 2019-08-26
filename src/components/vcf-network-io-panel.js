@@ -1,5 +1,6 @@
 import { html, PolymerElement } from '@polymer/polymer/polymer-element';
 import { ThemableMixin } from '@vaadin/vaadin-themable-mixin/vaadin-themable-mixin';
+import vis from '../lib/vis-network.module.min.js';
 import tippy from 'tippy.js';
 
 class VcfNetworkIOPanel extends ThemableMixin(PolymerElement) {
@@ -11,10 +12,6 @@ class VcfNetworkIOPanel extends ThemableMixin(PolymerElement) {
           width: 120px;
           height: 100%;
           flex: 0 0 120px;
-          /*  position: absolute;
-          left: 240px;
-          top: 44px;
-          z-index: 1;*/
         }
 
         :host([hidden]) {
@@ -35,7 +32,7 @@ class VcfNetworkIOPanel extends ThemableMixin(PolymerElement) {
           height: 100%;
           border: 1px dashed var(--lumo-shade-10pct);
           border-width: 0 2px 0 0;
-          background: var(--lumo-shade-5pct);
+          background: hsla(214, 61%, 25%, 0.02);
         }
 
         .io-container.output {
@@ -226,9 +223,12 @@ class VcfNetworkIOPanel extends ThemableMixin(PolymerElement) {
       let type = '';
       let tooltip = 'Root > ';
       path.forEach((id, i) => {
-        const node = data instanceof vis.DataSet ? data.get(id) : data.filter(i => i.id === id)[0];
-        if (i < path.length - 1) data = node.nodes;
-        else {
+        let node;
+        if (data instanceof vis.DataSet) node = data.get(id);
+        else node = data.filter(i => i.id === id)[0];
+        if (i < path.length - 1) {
+          data = node.nodes;
+        } else {
           label = node.label;
           type = node.type || '';
         }
@@ -240,7 +240,7 @@ class VcfNetworkIOPanel extends ThemableMixin(PolymerElement) {
   }
 
   _selectEdge(e) {
-    console.log(e);
+    // TODO
   }
 }
 

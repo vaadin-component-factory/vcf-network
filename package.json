@@ -1,6 +1,6 @@
 {
   "name": "@vaadin-component-factory/vcf-network",
-  "version": "1.0.0-beta.2",
+  "version": "1.1.2",
   "description": "Hierarchical network visualizing web component",
   "main": "theme/lumo/vcf-network.js",
   "author": "Vaadin Ltd",
@@ -10,18 +10,23 @@
     "url": "git+https://github.com/vaadin-component-factory/vcf-network.git"
   },
   "keywords": [
-    "Vaadin",
-    "vaadin-incubator-element",
+    "vaadin",
     "vaadin-component-factory",
     "web-components",
     "web-component",
-    "polymer"
+    "polymer",
+    "flow-chart",
+    "vis",
+    "network",
+    "visualization"
   ],
   "scripts": {
     "test": "wct",
     "lint": "eslint src/*.js",
     "start": "polymer serve -o",
-    "postinstall": "browserify ./src/lib/vis-network.js -o ./src/lib/vis-network.web.js"
+    "build": "rollup -c && webpack --env production",
+    "build:minify": "uglifyjs src/lib/vis-network.module.js -c -m --source-map --output src/lib/vis-network.module.min.js",
+    "postinstall": "node utils/generate-helpers.js && npm run build"
   },
   "husky": {
     "hooks": {
@@ -39,37 +44,54 @@
     "@polymer/iron-icons": "^3.0.1",
     "@polymer/polymer": "^3.0.0",
     "@vaadin/vaadin-button": "^2.2.0",
+    "@vaadin/vaadin-confirm-dialog": "^1.1.4",
     "@vaadin/vaadin-element-mixin": "^2.1.3",
     "@vaadin/vaadin-lumo-styles": "^1.5.0",
     "@vaadin/vaadin-select": "^2.1.2",
     "@vaadin/vaadin-text-field": "^2.4.4",
     "@vaadin/vaadin-themable-mixin": "^1.4.4",
-    "browserify": "^16.2.3",
     "tippy.js": "^4.3.4",
     "vis": "^4.21.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.5.5",
+    "@babel/plugin-proposal-class-properties": "^7.3.4",
+    "@babel/preset-env": "^7.5.5",
     "@polymer/iron-demo-helpers": "^3.0.0-pre.19",
     "@polymer/test-fixture": "^4.0.2",
     "@types/vis": "^4.21.16",
     "@webcomponents/webcomponentsjs": "^2.0.0",
-    "babel-eslint": "^10.0.1",
-    "chai": "^4.2.0",
+    "@babel/plugin-external-helpers": "^7.2.0",
+    "babel-eslint": "^10.0.2",
+    "babel-loader": "^8.0.6",
+    "babel-plugin-template-html-minifier": "^3.1.0",
+    "babel-plugin-transform-custom-element-classes": "^0.1.0",
+    "babel-preset-minify": "^0.5.1",
+    "brotli-webpack-plugin": "^1.1.0",
+    "clean-webpack-plugin": "^3.0.0",
+    "compression-webpack-plugin": "^3.0.0",
+    "copy-webpack-plugin": "^5.0.4",
     "eslint": "^5.16.0",
-    "eslint-config-prettier": "^4.3.0",
-    "eslint-config-vaadin": "latest",
+    "eslint-config-prettier": "^6.0.0",
+    "eslint-config-vaadin": "^0.2.7",
+    "eslint-plugin-html": "^6.0.0",
     "husky": "^2.3.0",
     "lint-staged": "^8.1.7",
     "mocha": "^5.2.0",
     "polymer-cli": "^1.9.10",
     "prettier": "^1.17.1",
-    "wct-mocha": "^1.0.0"
-  },
-  "bugs": {
-    "url": "https://github.com/vaadin-component-factory/vcf-network/issues"
-  },
-  "homepage": "https://github.com/vaadin-component-factory/vcf-network#readme",
-  "directories": {
-    "test": "test"
+    "rollup": "^1.19.4",
+    "rollup-plugin-babel": "^4.3.3",
+    "rollup-plugin-commonjs": "^10.0.2",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "uglify-es": "^3.3.9",
+    "uglify-template-string-loader": "^1.1.1",
+    "terser-webpack-plugin": "^1.4.1",
+    "wct-mocha": "^1.0.0",
+    "webpack": "^4.39.2",
+    "webpack-babel-multi-target-plugin": "^2.3.0",
+    "webpack-cli": "^3.3.7",
+    "webpack-dev-server": "^3.8.0",
+    "webpack-merge": "^4.2.1"
   }
 }
