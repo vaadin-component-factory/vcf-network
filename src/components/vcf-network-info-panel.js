@@ -346,12 +346,17 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
     let component;
     if (this._selectedNode && this._selectedNode.type === 'component') {
       component = this._selectedNode;
-      this.main._autoExport = true;
     } else {
-      component = new ComponentNode(removeUIProperties(data));
+      component = new ComponentNode(
+        removeUIProperties({
+          nodes: data.nodes.slice(),
+          edges: data.edges.slice()
+        })
+      );
       this._createIONodes(component.nodes);
     }
     this.main._exportComponent = component;
+    this.main._exportNetwork = data;
     this.main.$.exportdialog.open();
   }
 

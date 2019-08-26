@@ -14,6 +14,10 @@ class VcfNetworkColorOption extends ThemableMixin(PolymerElement) {
           height: var(--lumo-icon-size-m);
           width: var(--lumo-icon-size-m);
         }
+
+        :host([disabled]) {
+          opacity: 0.5;
+        }
       </style>
     `;
   }
@@ -27,6 +31,11 @@ class VcfNetworkColorOption extends ThemableMixin(PolymerElement) {
       color: {
         type: String,
         observer: '_colorChanged'
+      },
+      disabled: {
+        type: Boolean,
+        value: false,
+        reflectToAttribute: true
       }
     };
   }

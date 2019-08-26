@@ -19,6 +19,9 @@ import '@polymer/iron-icons/social-icons';
 import '@vaadin/vaadin-button';
 import '@vaadin/vaadin-select';
 import '@vaadin/vaadin-text-field';
+import '@vaadin/vaadin-confirm-dialog';
+import '@vaadin/vaadin-radio-button';
+import '@vaadin/vaadin-radio-button/vaadin-radio-group';
 
 /**
  * @class VcfNetwork
@@ -82,6 +85,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       <vcf-network-export-dialog
         id="exportdialog"
         component="[[_exportComponent]]"
+        network="[[_exportNetwork]]"
         auto-export="[[_autoExport]]"
       ></vcf-network-export-dialog>
     `;
@@ -560,7 +564,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     });
 
     this.setAttribute('tabindex', '0');
-    this.addEventListener('click', () => this.focus());
+    this.vis.addEventListener('click', () => this.focus());
     this.addEventListener('keyup', e => {
       if (e.defaultPrevented || e.path[0].tagName === 'INPUT' || e.path[0].tagName === 'TEXTAREA') {
         return;
@@ -1162,6 +1166,9 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     fetch(dataSrc)
       .then(res => res.json())
       .then(json => {
+        if (Array.isArray(json)) {
+          json = json[0];
+        }
         if (!json.nodes) {
           throw new Error('Imported JSON has incorrect format. Should be object like: { nodes: [], edges: [] }');
         }
