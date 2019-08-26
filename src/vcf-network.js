@@ -213,6 +213,15 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
    * @param {Node | Node[]} nodes
    */
   confirmAddNodes(nodes) {
+    if (Array.isArray(nodes)) {
+      nodes.forEach(node => {
+        if (node.type === 'component') {
+          this._setDeepEdges(node);
+        }
+      });
+    } else if (nodes.type === 'component') {
+      this._setDeepEdges(nodes);
+    }
     this._confirmAddToDataSet('nodes', nodes);
   }
 
@@ -1172,11 +1181,15 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
         if (!json.nodes) {
           throw new Error('Imported JSON has incorrect format. Should be object like: { nodes: [], edges: [] }');
         }
-        json.nodes = this._setNodeStylesDeep(json.nodes);
-        this._setDeepEdges(json, true);
-        this.setData(json);
-        this._restoreZoom();
+        this.setRootData(json);
       });
+  }
+
+  setRootData(data) {
+    data.nodes = this._setNodeStylesDeep(data.nodes);
+    this._setDeepEdges(data, true);
+    this.setData(data);
+    this._restoreZoom();
   }
 
   _collapsedChanged(collapsed) {
