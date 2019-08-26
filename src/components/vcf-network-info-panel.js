@@ -387,33 +387,47 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
       /* Update edges */
       this.main._removeFromDataSet('edges', newComponent.edges);
       /* Update IO */
-      if (!this.main.context) {
-        const adjustPaths = component => {
-          component.nodes = component.nodes.map(node => {
-            if (node.type === 'component') {
-              node = adjustPaths(node);
-              if (node.inputs) {
-                Object.values(node.inputs).forEach(input => {
+
+      const adjustPaths = component => {
+        component.nodes = component.nodes.map(node => {
+          if (node.type === 'component') {
+            node = adjustPaths(node);
+            if (node.inputs) {
+              Object.values(node.inputs).forEach(input => {
+                if (!this.main.context) {
                   input.forEach(pathObj => pathObj.path.unshift(newComponent.id));
-                });
-              }
-              if (node.outputs) {
-                Object.values(node.outputs).forEach(output => {
-                  output.forEach(pathObj => pathObj.path.unshift(newComponent.id));
-                });
-              }
+                } else {
+                  input.forEach(pathObj => {
+                    const contextComponentPathId = pathObj.path.indexOf(this.main.context.component.id);
+                    pathObj.path.splice(contextComponentPathId + 1, 0, newComponent.id);
+                  });
+                }
+              });
             }
-            return node;
-          });
-          component.edges = component.edges.map(edge => {
-            if (edge.deepToPath) edge.deepToPath.unshift(newComponent.id);
-            if (edge.deepFromPath) edge.deepFromPath.unshift(newComponent.id);
-            return edge;
-          });
-          return component;
-        };
-        adjustPaths(newComponent);
-      }
+            if (node.outputs) {
+              Object.values(node.outputs).forEach(output => {
+                if (!this.main.context) {
+                  output.forEach(pathObj => pathObj.path.unshift(newComponent.id));
+                } else {
+                  output.forEach(pathObj => {
+                    const contextComponentPathId = pathObj.path.indexOf(this.main.context.component.id);
+                    pathObj.path.splice(contextComponentPathId + 1, 0, newComponent.id);
+                  });
+                }
+              });
+            }
+          }
+          return node;
+        });
+        component.edges = component.edges.map(edge => {
+          if (edge.deepToPath) edge.deepToPath.unshift(newComponent.id);
+          if (edge.deepFromPath) edge.deepFromPath.unshift(newComponent.id);
+          return edge;
+        });
+        return component;
+      };
+      adjustPaths(newComponent);
+      /* Finish creating component */
       this.main.creatingComponent = false;
     }
   }
