@@ -1,6 +1,6 @@
 import { html, PolymerElement } from '@polymer/polymer/polymer-element';
 import { ThemableMixin } from '@vaadin/vaadin-themable-mixin/vaadin-themable-mixin';
-import { colorVars, ComponentNode, IONode } from '../../utils/vcf-network-shared';
+import { colorVars, ComponentNode, IONode } from '../utils/vcf-network-shared';
 import vis from '../lib/vis-network.module.min.js';
 
 /**
