@@ -1,4 +1,4 @@
-import styleModule from '../../utils/style-module';
+import styleModule from '../../src/utils/style-module';
 import '@vaadin/vaadin-lumo-styles/color';
 import '@vaadin/vaadin-lumo-styles/sizing';
 import '@vaadin/vaadin-lumo-styles/spacing';

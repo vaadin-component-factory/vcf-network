@@ -9,7 +9,6 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
 const TerserWebpackPlugin = require('terser-webpack-plugin');
 const BrotliPlugin = require('brotli-webpack-plugin');
-const helperWhitelist = require('./utils/helper-whitelist');
 
 const OUTPUT_PATH = resolve('dist');
 const INDEX_TEMPLATE = resolve('./demo/index.html');
@@ -26,17 +25,6 @@ const polyfills = [
     from: resolve(`${webcomponentsjs}/bundles/*.{js,map}`),
     to: join(OUTPUT_PATH, 'vendor', 'bundles'),
     flatten: true
-  }
-];
-
-const helpers = [
-  {
-    from: resolve('./src/vendor/babel-helpers.min.js'),
-    to: join(OUTPUT_PATH, 'vendor')
-  },
-  {
-    from: resolve('./src/vendor/regenerator-runtime.min.js'),
-    to: join(OUTPUT_PATH, 'vendor')
   }
 ];
 
@@ -67,19 +55,9 @@ const commonConfig = merge([
       ]
     },
     plugins: [
-      // Babel configuration for multiple output bundles targeting different sets
-      // of browsers
       new BabelMultiTargetPlugin({
         babel: {
           plugins: [
-            [
-              require('@babel/plugin-external-helpers'),
-              {
-                whitelist: helperWhitelist
-              }
-            ],
-
-            // Minify HTML and CSS in tagged template literals
             [
               require('babel-plugin-template-html-minifier'),
               {
@@ -94,28 +72,9 @@ const commonConfig = merge([
               }
             ]
           ],
-
-          // @babel/preset-env options common for all bundles
-          presetOptions: {
-            // Don’t add polyfills, they are provided from webcomponents-loader.js
-            useBuiltIns: false
-          }
+          presetOptions: { useBuiltIns: false }
         },
-
-        // Modules excluded from targeting into different bundles
-        doNotTarget: [
-          // Array of RegExp patterns
-        ],
-
-        // Modules that should not be transpiled
-        exclude: [
-          // Array of RegExp patterns
-        ],
-
-        // Fix for `nomodule` attribute to work correctly in Safari 10.1
         safari10NoModuleFix: 'inline-data-base64',
-
-        // Target browsers with and without ES modules support
         targets: {
           es6: {
             browsers: [
@@ -123,17 +82,14 @@ const commonConfig = merge([
               'last 2 ChromeAndroid major versions',
               'last 2 Edge major versions',
               'last 2 Firefox major versions'
-              // FIXME(web-padawan): template-literals transform is used in Safari 12
-              // 'last 3 Safari major versions',
-              // 'last 3 iOS major versions'
             ],
-            tagAssetsWithKey: false, // don’t append a suffix to the file name
-            esModule: true // marks the bundle used with <script type="module">
+            tagAssetsWithKey: false,
+            esModule: true
           },
           es5: {
             browsers: ['ie 11'],
-            tagAssetsWithKey: true, // append a suffix to the file name
-            noModule: true // marks the bundle included without `type="module"`
+            tagAssetsWithKey: true,
+            noModule: true
           }
         }
       })
@@ -159,7 +115,7 @@ const productionConfig = merge([
     },
     plugins: [
       new CleanWebpackPlugin(),
-      new CopyWebpackPlugin([...polyfills, ...helpers, ...assets]),
+      new CopyWebpackPlugin([...polyfills, ...assets]),
       new HtmlWebpackPlugin({
         template: INDEX_TEMPLATE,
         minify: {
