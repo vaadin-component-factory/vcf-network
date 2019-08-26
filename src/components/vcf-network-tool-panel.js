@@ -126,7 +126,8 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
           display: none;
         }
         .edit-hidden .edit-template,
-        .edit-hidden .delete-template {
+        .edit-hidden .delete-template,
+        .edit-hidden #new-template-button {
           display: none;
         }
         .section-grow {
@@ -139,7 +140,10 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
           text-align: right;
           cursor: pointer;
         }
-
+        .no-templates {
+          margin: var(--lumo-space-s) var(--lumo-space-m);
+          color: var(--lumo-disabled-text-color);
+        }
         /** Closed **/
         .panel-container.closed {
           width: 36px;
@@ -197,31 +201,36 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
             <iron-icon icon="hardware:keyboard-arrow-down"></iron-icon>
           </div>
           <div class="section-items" id="custom">
-            <template is="dom-repeat" items="[[components]]" on-dom-change="_initToolbar">
-              <div class="section-item">
-                <div on-click="_addComponentListener">
-                  <vcf-network-color-option color="[[item.componentColor]]" class="icon"></vcf-network-color-option>
-                  <span>[[item.label]]</span>
+            <template is="dom-if" if="[[components.length]]">
+              <template is="dom-repeat" items="[[components]]" on-dom-change="_initToolbar">
+                <div class="section-item">
+                  <div on-click="_addComponentListener">
+                    <vcf-network-color-option color="[[item.componentColor]]" class="icon"></vcf-network-color-option>
+                    <span>[[item.label]]</span>
+                  </div>
+                  <vaadin-button
+                    class="edit-template"
+                    theme="tertiary small"
+                    title="Edit template"
+                    on-click="_updateTemplateListener"
+                  >
+                    <iron-icon icon="icons:create" slot="prefix"></iron-icon>
+                  </vaadin-button>
+                  <vaadin-button
+                    class="delete-template"
+                    theme="tertiary error small"
+                    title="Delete template"
+                    on-click="_deleteTemplateListener"
+                  >
+                    <iron-icon icon="icons:delete" slot="prefix"></iron-icon>
+                  </vaadin-button>
                 </div>
-                <vaadin-button
-                  class="edit-template"
-                  theme="tertiary small"
-                  title="Edit template"
-                  on-click="_updateTemplateListener"
-                >
-                  <iron-icon icon="icons:create" slot="prefix"></iron-icon>
-                </vaadin-button>
-                <vaadin-button
-                  class="delete-template"
-                  theme="tertiary error small"
-                  title="Delete template"
-                  on-click="_deleteTemplateListener"
-                >
-                  <iron-icon icon="icons:delete" slot="prefix"></iron-icon>
-                </vaadin-button>
-              </div>
+              </template>
             </template>
-            <div id="new-template-button" class="template-item hidden">
+            <template is="dom-if" if="[[!components.length]]" on-dom-change="_initToolbar">
+              <div class="no-templates">No templates</div>
+            </template>
+            <div id="new-template-button" class="template-item">
               <vaadin-button style="flex-grow:1;" title="Add template" on-click="_addTemplateListener">
                 <iron-icon icon="icons:add" slot="prefix"></iron-icon>
                 New template
@@ -249,8 +258,7 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
       },
       components: {
         type: Array,
-        value: [],
-        observer: '_componentsChanged'
+        value: []
       }
     };
   }
@@ -340,11 +348,6 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
     }
   }
 
-  _componentsChanged(components) {
-    if (!components.length) this.hideTemplatePanel();
-    else this.showTemplatePanel();
-  }
-
   /**
    * call new-template-event
    */
@@ -428,14 +431,6 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
 
   showTemplatePanel() {
     this.$['template-panel'].classList.remove('hidden');
-  }
-
-  hideTemplateButton() {
-    this.$['new-template-button'].classList.add('hidden');
-  }
-
-  showTemplateButton() {
-    this.$['new-template-button'].classList.remove('hidden');
   }
 
   closePanel() {
