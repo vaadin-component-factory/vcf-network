@@ -1,7 +1,6 @@
 import { html, PolymerElement } from '@polymer/polymer/polymer-element';
 import { ThemableMixin } from '@vaadin/vaadin-themable-mixin/vaadin-themable-mixin';
 import { colorVars } from '../utils/vcf-network-shared';
-import '@vaadin/vaadin-confirm-dialog';
 
 class VcfNetworkExportDialog extends ThemableMixin(PolymerElement) {
   static get template() {
@@ -11,15 +10,25 @@ class VcfNetworkExportDialog extends ThemableMixin(PolymerElement) {
           display: none;
         }
       </style>
-      <vaadin-confirm-dialog id="dialog" header="Export Component" cancel confirm-text="Export">
+      <vaadin-confirm-dialog id="dialog" header="Export Selection As" cancel confirm-text="Export">
         <div id="content">
-          <vaadin-text-field id="name" label="Name" required>[[label]]</vaadin-text-field>
-          <vaadin-select id="color" label="Color" required>
+          <vaadin-radio-group id="export-type" name="radio-group" value="{{exportType}}">
+            <vaadin-radio-button value="network">Network</vaadin-radio-button>
+            <vaadin-radio-button value="template">Template Component</vaadin-radio-button>
+          </vaadin-radio-group>
+          <vaadin-text-field id="name" label="Name" required disabled="[[_isNetworkExport(exportType)]]">
+            [[label]]
+          </vaadin-text-field>
+          <vaadin-select id="color" label="Color" required disabled="[[_isNetworkExport(exportType)]]">
             <template>
               <vaadin-list-box>
                 <template is="dom-repeat" items="[[_colors]]">
                   <vaadin-item>
-                    <vcf-network-color-option color="[[index]]" selected="{{index === color}}">
+                    <vcf-network-color-option
+                      color="[[index]]"
+                      selected="{{index === color}}"
+                      disabled="[[_isNetworkExport(exportType)]]"
+                    >
                       [[index]]
                     </vcf-network-color-option>
                   </vaadin-item>
@@ -44,13 +53,15 @@ class VcfNetworkExportDialog extends ThemableMixin(PolymerElement) {
 
   static get properties() {
     return {
-      component: {
-        type: Object,
-        observer: '_componentChanged'
-      },
+      component: Object,
+      network: Object,
       autoExport: {
         type: Boolean,
         value: false
+      },
+      exportType: {
+        type: String,
+        value: 'network'
       }
     };
   }
@@ -61,11 +72,12 @@ class VcfNetworkExportDialog extends ThemableMixin(PolymerElement) {
     this.$.cancel.addEventListener('click', () => this.close());
     this.$.export.addEventListener('click', () => {
       if (this.isValid) {
-        const obj = [this.component];
+        const filename = `${this.exportType}.json`;
+        const obj = this.exportType === 'network' ? this.network : this.component;
         const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(obj));
         const download = document.createElement('a');
         download.setAttribute('href', dataStr);
-        download.setAttribute('download', 'component.json');
+        download.setAttribute('download', filename);
         download.click();
         this.close();
       }
@@ -79,7 +91,7 @@ class VcfNetworkExportDialog extends ThemableMixin(PolymerElement) {
     let colorValid = true;
     nameValid = this.$.name.validate();
     colorValid = this.$.color.validate();
-    return nameValid && colorValid;
+    return this._isNetworkExport() || (nameValid && colorValid);
   }
 
   open() {
@@ -100,6 +112,11 @@ class VcfNetworkExportDialog extends ThemableMixin(PolymerElement) {
   close() {
     this.$.dialog.opened = false;
     this.autoExport = false;
+    this.exportType = 'network';
+  }
+
+  _isNetworkExport(exportType = this.exportType) {
+    return exportType === 'network';
   }
 }
 
