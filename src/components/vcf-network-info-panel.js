@@ -356,7 +356,7 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
       this._createIONodes(component.nodes);
     }
     this.main._exportComponent = component;
-    this.main._exportNetwork = data;
+    this.main._exportNetwork = removeUIProperties(data);
     this.main.$.exportdialog.open();
   }
 
