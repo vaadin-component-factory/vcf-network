@@ -9,7 +9,6 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
 const TerserWebpackPlugin = require('terser-webpack-plugin');
 const BrotliPlugin = require('brotli-webpack-plugin');
-const helperWhitelist = require('./utils/helper-whitelist');
 
 const OUTPUT_PATH = resolve('dist');
 const INDEX_TEMPLATE = resolve('./demo/index.html');
@@ -26,17 +25,6 @@ const polyfills = [
     from: resolve(`${webcomponentsjs}/bundles/*.{js,map}`),
     to: join(OUTPUT_PATH, 'vendor', 'bundles'),
     flatten: true
-  }
-];
-
-const helpers = [
-  {
-    from: resolve('./src/vendor/babel-helpers.min.js'),
-    to: join(OUTPUT_PATH, 'vendor')
-  },
-  {
-    from: resolve('./src/vendor/regenerator-runtime.min.js'),
-    to: join(OUTPUT_PATH, 'vendor')
   }
 ];
 
@@ -72,13 +60,6 @@ const commonConfig = merge([
       new BabelMultiTargetPlugin({
         babel: {
           plugins: [
-            [
-              require('@babel/plugin-external-helpers'),
-              {
-                whitelist: helperWhitelist
-              }
-            ],
-
             // Minify HTML and CSS in tagged template literals
             [
               require('babel-plugin-template-html-minifier'),
@@ -159,7 +140,7 @@ const productionConfig = merge([
     },
     plugins: [
       new CleanWebpackPlugin(),
-      new CopyWebpackPlugin([...polyfills, ...helpers, ...assets]),
+      new CopyWebpackPlugin([...polyfills, ...assets]),
       new HtmlWebpackPlugin({
         template: INDEX_TEMPLATE,
         minify: {

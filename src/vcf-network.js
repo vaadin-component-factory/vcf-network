@@ -1,7 +1,7 @@
 import { html, PolymerElement } from '@polymer/polymer/polymer-element';
 import { ThemableMixin } from '@vaadin/vaadin-themable-mixin';
 import { ElementMixin } from '@vaadin/vaadin-element-mixin';
-import { Node, Edge, IONode, ComponentNode } from '../utils/vcf-network-shared';
+import { Node, Edge, IONode, ComponentNode } from './utils/vcf-network-shared';
 import vis from './lib/vis-network.module.min.js';
 
 import './components/vcf-network-breadcrumbs';
@@ -92,7 +92,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   static get version() {
-    return '1.1.2';
+    return '1.1.3';
   }
 
   static get properties() {

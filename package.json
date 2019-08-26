@@ -24,9 +24,10 @@
     "test": "wct",
     "lint": "eslint src/*.js",
     "start": "polymer serve -o",
-    "build": "rollup -c && webpack --env production",
+    "build": "rollup -c",
+    "build:demo": "webpack --env production",
     "build:minify": "uglifyjs src/lib/vis-network.module.js -c -m --source-map --output src/lib/vis-network.module.min.js",
-    "postinstall": "node utils/generate-helpers.js && npm run build"
+    "prepare": "npm run build"
   },
   "husky": {
     "hooks": {
@@ -61,7 +62,6 @@
     "@polymer/test-fixture": "^4.0.2",
     "@types/vis": "^4.21.16",
     "@webcomponents/webcomponentsjs": "^2.0.0",
-    "@babel/plugin-external-helpers": "^7.2.0",
     "babel-eslint": "^10.0.2",
     "babel-loader": "^8.0.6",
     "babel-plugin-template-html-minifier": "^3.1.0",

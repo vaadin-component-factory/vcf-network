@@ -1,6 +1,6 @@
 import { html, PolymerElement } from '@polymer/polymer/polymer-element';
 import { ThemableMixin } from '@vaadin/vaadin-themable-mixin/vaadin-themable-mixin';
-import { Edge } from '../../utils/vcf-network-shared';
+import { Edge } from '../utils/vcf-network-shared';
 import '@vaadin/vaadin-confirm-dialog';
 
 class VcfNetworkIODialog extends ThemableMixin(PolymerElement) {
