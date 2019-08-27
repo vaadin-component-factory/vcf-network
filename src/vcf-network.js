@@ -819,7 +819,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
             node[`${ioNode.type}s`] = node[`${ioNode.type}s`] || {};
             const io = node[`${ioNode.type}s`];
             io[ioNode.id] = io[ioNode.id] || [];
-            io[ioNode.id].push({ id: edge.id, path: getShallowPath(componentRef, id2) });
+            io[ioNode.id].push({ id: edge.id, path: getShallowPath(componentRef, id2, root) });
           } else if (this._containsNode(node, id1)) {
             path = path.concat(getDeepPath(node, id1, id2, edge));
           }
@@ -827,7 +827,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       });
       return path;
     };
-    const getShallowPath = (component, id) => {
+    const getShallowPath = (component, id, root = false) => {
       let path = [];
       let outerNode = null;
       if (this.context) path = this.contextStack.map(context => context.component.id);
