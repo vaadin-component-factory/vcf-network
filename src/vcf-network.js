@@ -747,11 +747,11 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   _addEdgeCallback(data, callback) {
-    const newEdge = {
+    const newEdge = new Edge({
       id: vis.util.randomUUID(),
       from: data.from,
       to: data.to
-    };
+    });
     this._addToDataSet('edges', newEdge);
     this._canvas.style.cursor = 'default';
   }
@@ -852,19 +852,19 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
         if (node.type === 'component') setDeepEdgesHelper(node);
       });
       component.edges.forEach(edge => {
-        const fromNode = component.nodes.filter(node => node.id === edge.from)[0];
-        const toNode = component.nodes.filter(node => node.id === edge.to)[0];
-        const from = edge.from;
-        const to = edge.to;
+        const fromNode = component.nodes.filter(node => node.id === edge.modelFrom)[0];
+        const toNode = component.nodes.filter(node => node.id === edge.modelTo)[0];
+        const from = edge.modelFrom;
+        const to = edge.modelTo;
+        edge.from = edge.modelFrom;
+        edge.to = edge.modelTo;
         if (!fromNode) {
-          edge.deepFromPath = getDeepPath(componentRef, from, to, edge);
-          edge.deepFrom = from;
-          edge.from = edge.deepFromPath[edge.deepFromPath.length - 1];
+          edge.modelFromPath = getDeepPath(componentRef, from, to, edge);
+          edge.from = edge.modelFromPath[edge.modelFromPath.length - 1];
         }
         if (!toNode) {
-          edge.deepToPath = getDeepPath(componentRef, to, from, edge);
-          edge.deepTo = to;
-          edge.to = edge.deepToPath[edge.deepToPath.length - 1];
+          edge.modelToPath = getDeepPath(componentRef, to, from, edge);
+          edge.to = edge.modelToPath[edge.modelToPath.length - 1];
         }
       });
     };
@@ -969,19 +969,19 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   _removeIO(edgeIds) {
     edgeIds.forEach(edgeId => {
       const edge = this.data.edges.get(edgeId);
-      if (edge && edge.deepFrom) {
-        const path = edge.deepFromPath;
+      if (edge && edge.modelFrom) {
+        const path = edge.modelFromPath;
         let component = this.rootData.nodes.get(path.shift());
         path.forEach(id => (component = component.nodes.filter(node => node.id === id)[0]));
-        component.outputs[edge.deepFrom] = component.outputs[edge.deepFrom].filter(pathObj => pathObj.id !== edge.id);
-        if (!component.outputs[edge.deepFrom].length) delete component.outputs[edge.deepFrom];
+        component.outputs[edge.modelFrom] = component.outputs[edge.modelFrom].filter(pathObj => pathObj.id !== edge.id);
+        if (!component.outputs[edge.modelFrom].length) delete component.outputs[edge.modelFrom];
       }
-      if (edge && edge.deepTo) {
-        const path = edge.deepToPath;
+      if (edge && edge.modelTo) {
+        const path = edge.modelToPath;
         let component = this.rootData.nodes.get(path.shift());
         path.forEach(id => (component = component.nodes.filter(node => node.id === id)[0]));
-        component.inputs[edge.deepTo] = component.inputs[edge.deepTo].filter(pathObj => pathObj.id !== edge.id);
-        if (!component.inputs[edge.deepTo].length) delete component.inputs[edge.deepTo];
+        component.inputs[edge.modelTo] = component.inputs[edge.modelTo].filter(pathObj => pathObj.id !== edge.id);
+        if (!component.inputs[edge.modelTo].length) delete component.inputs[edge.modelTo];
       }
     });
   }
@@ -1087,7 +1087,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     const json = JSON.stringify(data);
     const idMap = {};
     const idRegex = /"id":"([a-f\d-]+)"/g;
-    const fromToRegex = /"from":"([a-f\d-]+)"|"to":"([a-f\d-]+)"/g;
+    const fromToRegex = /From":"([a-f\d-]+)"|To":"([a-f\d-]+)"/g;
     let idMatches;
     let fromToMatches;
     let parsed = json.slice();
@@ -1103,7 +1103,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     /* Replace edge from and to template ids */
     while ((fromToMatches = fromToRegex.exec(json)) !== null) {
       const match = fromToMatches[0];
-      const isFrom = match.includes('"from"');
+      const isFrom = match.includes('From"');
       const templateId = isFrom ? fromToMatches[1] : fromToMatches[2];
       const uuid = idMap[templateId];
       const uuidString = match.replace(templateId, uuid);

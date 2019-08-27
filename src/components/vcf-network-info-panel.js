@@ -329,15 +329,13 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
       });
       data.edges = data.edges.map(edge => {
         const newEdge = { ...edge };
-        if (newEdge.deepTo) {
-          newEdge.to = newEdge.deepTo;
-          delete newEdge.deepTo;
-          delete newEdge.deepToPath;
+        if (newEdge.modelTo) {
+          delete newEdge.to;
+          delete newEdge.modelToPath;
         }
-        if (newEdge.deepFrom) {
-          newEdge.from = newEdge.deepFrom;
-          delete newEdge.deepFrom;
-          delete newEdge.deepFromPath;
+        if (newEdge.modelFrom) {
+          delete newEdge.from;
+          delete newEdge.modelFromPath;
         }
         return newEdge;
       });
@@ -425,8 +423,8 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
           return node;
         });
         component.edges = component.edges.map(edge => {
-          if (edge.deepToPath) edge.deepToPath.unshift(newComponent.id);
-          if (edge.deepFromPath) edge.deepFromPath.unshift(newComponent.id);
+          if (edge.modelToPath) edge.modelToPath.unshift(newComponent.id);
+          if (edge.modelFromPath) edge.modelFromPath.unshift(newComponent.id);
           return edge;
         });
         return component;

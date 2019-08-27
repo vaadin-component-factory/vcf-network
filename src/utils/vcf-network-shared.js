@@ -42,8 +42,8 @@ export class Edge {
     if (!options.from) throw new Error("'from' is required to create an edge");
     if (!options.to) throw new Error("'to' is required to create an edge");
     this.id = options.id || vis.util.randomUUID();
-    this.from = options.from;
-    this.to = options.to;
+    this.modelFrom = this.from = options.from;
+    this.modelTo = this.to = options.to;
     Object.assign(this, options);
   }
 }

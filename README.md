@@ -6,7 +6,21 @@
 
 [Live Demo ↗](https://incubator.app.fi/vcf-network-demo/)
 
+## Installation
+
+Install `vcf-network`:
+
+```sh
+npm i @vaadin-component-factory/vcf-network --save
+```
+
 ## Usage
+
+Once installed, import it in your application:
+
+```js
+import '@vaadin-component-factory/vcf-network/vcf-network.js';
+```
 
 Add `<vcf-network>` element to the page.
 
@@ -50,20 +64,6 @@ In order to create components you must first select the nodes that will be in th
 - **D:** Duplicate current selection
 - **E:** Export current selection
 - **Backspace:** Delete current selection
-
-## Installation
-
-Install `vcf-network`:
-
-```sh
-npm i @vaadin-component-factory/vcf-network --save
-```
-
-Once installed, import it in your application:
-
-```js
-import '@vaadin-component-factory/vcf-network/vcf-network.js';
-```
 
 ## Running demo
 

@@ -93,8 +93,8 @@ class VcfNetworkIODialog extends ThemableMixin(PolymerElement) {
           const component = this._activeInputSelect.node || this.toNode;
           const paths = component.inputs[inputNode.id] || [];
           paths.push(this._getIOPathObj('input', edge.id));
-          edge.deepTo = inputNode.id;
-          edge.deepToPath = this._getParentDeepPath('input');
+          edge.modelTo = inputNode.id;
+          edge.modelToPath = this._getParentDeepPath('input');
           component.inputs[inputNode.id] = paths;
         }
         if (this.fromComponent) {
@@ -102,8 +102,8 @@ class VcfNetworkIODialog extends ThemableMixin(PolymerElement) {
           const component = this._activeOutputSelect.node || this.fromNode;
           const paths = component.outputs[outputNode.id] || [];
           paths.push(this._getIOPathObj('output', edge.id));
-          edge.deepFrom = outputNode.id;
-          edge.deepFromPath = this._getParentDeepPath('output');
+          edge.modelFrom = outputNode.id;
+          edge.modelFromPath = this._getParentDeepPath('output');
           component.outputs[outputNode.id] = paths;
         }
         this.main.addEdges(edge);
