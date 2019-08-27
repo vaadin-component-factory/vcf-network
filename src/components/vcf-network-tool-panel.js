@@ -201,34 +201,29 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
             <iron-icon icon="hardware:keyboard-arrow-down"></iron-icon>
           </div>
           <div class="section-items" id="custom">
-            <template is="dom-if" if="[[components.length]]">
-              <template is="dom-repeat" items="[[components]]" on-dom-change="_initToolbar">
-                <div class="section-item">
-                  <div on-click="_addComponentListener">
-                    <vcf-network-color-option color="[[item.componentColor]]" class="icon"></vcf-network-color-option>
-                    <span>[[item.label]]</span>
-                  </div>
-                  <vaadin-button
-                    class="edit-template"
-                    theme="tertiary small"
-                    title="Edit template"
-                    on-click="_updateTemplateListener"
-                  >
-                    <iron-icon icon="icons:create" slot="prefix"></iron-icon>
-                  </vaadin-button>
-                  <vaadin-button
-                    class="delete-template"
-                    theme="tertiary error small"
-                    title="Delete template"
-                    on-click="_deleteTemplateListener"
-                  >
-                    <iron-icon icon="icons:delete" slot="prefix"></iron-icon>
-                  </vaadin-button>
+            <template is="dom-repeat" items="[[components]]" on-dom-change="_initToolbar">
+              <div class="section-item">
+                <div on-click="_addComponentListener">
+                  <vcf-network-color-option color="[[item.componentColor]]" class="icon"></vcf-network-color-option>
+                  <span>[[item.label]]</span>
                 </div>
-              </template>
-            </template>
-            <template is="dom-if" if="[[!components.length]]" on-dom-change="_initToolbar">
-              <div class="no-templates">No templates</div>
+                <vaadin-button
+                  class="edit-template"
+                  theme="tertiary small"
+                  title="Edit template"
+                  on-click="_updateTemplateListener"
+                >
+                  <iron-icon icon="icons:create" slot="prefix"></iron-icon>
+                </vaadin-button>
+                <vaadin-button
+                  class="delete-template"
+                  theme="tertiary error small"
+                  title="Delete template"
+                  on-click="_deleteTemplateListener"
+                >
+                  <iron-icon icon="icons:delete" slot="prefix"></iron-icon>
+                </vaadin-button>
+              </div>
             </template>
             <div id="new-template-button" class="template-item">
               <vaadin-button style="flex-grow:1;" title="Add template" on-click="_addTemplateListener">
