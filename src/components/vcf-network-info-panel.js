@@ -330,12 +330,12 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
       data.edges = data.edges.map(edge => {
         const newEdge = { ...edge };
         if (newEdge.deepTo) {
-          newEdge.to = newEdge.deepTo;
+        //  newEdge.to = newEdge.deepTo;
           delete newEdge.deepTo;
           delete newEdge.deepToPath;
         }
         if (newEdge.deepFrom) {
-          newEdge.from = newEdge.deepFrom;
+        //  newEdge.from = newEdge.deepFrom;
           delete newEdge.deepFrom;
           delete newEdge.deepFromPath;
         }

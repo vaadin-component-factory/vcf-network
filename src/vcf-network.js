@@ -264,6 +264,8 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
    * @param {Edge | Edge[]} edges
    */
   confirmAddEdges(edges) {
+    // calculate deepTo and deepFrom
+
     this._confirmAddToDataSet('edges', edges);
   }
 
@@ -858,13 +860,15 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
         const to = edge.to;
         if (!fromNode) {
           edge.deepFromPath = getDeepPath(componentRef, from, to, edge);
-          edge.deepFrom = from;
-          edge.from = edge.deepFromPath[edge.deepFromPath.length - 1];
+          // edge.deepFrom = from;
+          // edge.from = edge.deepFromPath[edge.deepFromPath.length - 1];
+          edge.deepFrom = edge.deepFromPath[edge.deepFromPath.length - 1];
         }
         if (!toNode) {
           edge.deepToPath = getDeepPath(componentRef, to, from, edge);
-          edge.deepTo = to;
-          edge.to = edge.deepToPath[edge.deepToPath.length - 1];
+          // edge.deepTo = to;
+          // edge.to = edge.deepToPath[edge.deepToPath.length - 1];
+          edge.deepTo = edge.deepToPath[edge.deepToPath.length - 1];
         }
       });
     };
@@ -973,15 +977,19 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
         const path = edge.deepFromPath;
         let component = this.rootData.nodes.get(path.shift());
         path.forEach(id => (component = component.nodes.filter(node => node.id === id)[0]));
-        component.outputs[edge.deepFrom] = component.outputs[edge.deepFrom].filter(pathObj => pathObj.id !== edge.id);
-        if (!component.outputs[edge.deepFrom].length) delete component.outputs[edge.deepFrom];
+        //    component.outputs[edge.deepFrom] = component.outputs[edge.deepFrom].filter(pathObj => pathObj.id !== edge.id);
+        //    if (!component.outputs[edge.deepFrom].length) delete component.outputs[edge.deepFrom];
+        component.outputs[edge.from] = component.outputs[edge.from].filter(pathObj => pathObj.id !== edge.id);
+        if (!component.outputs[edge.from].length) delete component.outputs[edge.from];
       }
       if (edge && edge.deepTo) {
         const path = edge.deepToPath;
         let component = this.rootData.nodes.get(path.shift());
         path.forEach(id => (component = component.nodes.filter(node => node.id === id)[0]));
-        component.inputs[edge.deepTo] = component.inputs[edge.deepTo].filter(pathObj => pathObj.id !== edge.id);
-        if (!component.inputs[edge.deepTo].length) delete component.inputs[edge.deepTo];
+        // component.inputs[edge.deepTo] = component.inputs[edge.deepTo].filter(pathObj => pathObj.id !== edge.id);
+        // if (!component.inputs[edge.deepTo].length) delete component.inputs[edge.deepTo];
+        component.inputs[edge.to] = component.inputs[edge.to].filter(pathObj => pathObj.id !== edge.id);
+        if (!component.inputs[edge.to].length) delete component.inputs[edge.to];
       }
     });
   }
