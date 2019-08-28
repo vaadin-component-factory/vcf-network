@@ -264,6 +264,10 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
    * @param {Edge | Edge[]} edges
    */
   confirmAddEdges(edges) {
+    this._setDeepEdges({
+      nodes: this.nodes,
+      edges: Array.isArray(edges) ? edges : [edges]
+    });
     this._confirmAddToDataSet('edges', edges);
   }
 
