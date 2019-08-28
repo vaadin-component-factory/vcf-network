@@ -395,7 +395,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
 
   _initNetwork() {
     this.vis = this.shadowRoot.querySelector('.vis-network-container');
-    this._options = {
+    this.options = {
       physics: false,
       nodes: {
         fixed: false,
@@ -446,13 +446,14 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
         }
       },
       interaction: {
+        zoomView: false,
         multiselect: false,
         selectConnectedEdges: false,
         dragNodes: true,
         hover: true
       }
     };
-    this._network = new vis.Network(this.vis, this.rootData, this._options);
+    this._network = new vis.Network(this.vis, this.rootData, this.options);
     this.contextStack = [];
     this._manipulation = this._network.manipulation;
     this._canvas = this.shadowRoot.querySelector('canvas');
@@ -578,6 +579,14 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
 
     this.setAttribute('tabindex', '0');
     this.vis.addEventListener('click', () => this.focus());
+    this.addEventListener('focus', () => {
+      this.options.interaction.zoomView = true;
+      this._network.setOptions(this.options);
+    });
+    this.addEventListener('blur', () => {
+      this.set('options.interaction.zoomView', false);
+      this._network.setOptions(this.options);
+    });
     this.addEventListener('keyup', e => {
       if (e.defaultPrevented || e.path[0].tagName === 'INPUT' || e.path[0].tagName === 'TEXTAREA') {
         return;
