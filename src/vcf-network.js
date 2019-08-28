@@ -982,14 +982,14 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   _removeIO(edgeIds) {
     edgeIds.forEach(edgeId => {
       const edge = this.data.edges.get(edgeId);
-      if (edge && edge.modelFrom) {
+      if (edge && edge.modelFromPath) {
         const path = edge.modelFromPath;
         let component = this.rootData.nodes.get(path.shift());
         path.forEach(id => (component = component.nodes.filter(node => node.id === id)[0]));
         component.outputs[edge.modelFrom] = component.outputs[edge.modelFrom].filter(pathObj => pathObj.id !== edge.id);
         if (!component.outputs[edge.modelFrom].length) delete component.outputs[edge.modelFrom];
       }
-      if (edge && edge.modelTo) {
+      if (edge && edge.modelToPath) {
         const path = edge.modelToPath;
         let component = this.rootData.nodes.get(path.shift());
         path.forEach(id => (component = component.nodes.filter(node => node.id === id)[0]));
