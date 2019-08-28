@@ -68,6 +68,19 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
           height: 100%;
           width: 100%;
         }
+
+        :host(:focus) {
+          outline: none;
+        }
+
+        :host(:focus) .vis-network {
+          box-shadow: inset 0px 0px 4px 1px var(--lumo-primary-color-50pct);
+        }
+
+        .vis-network:focus {
+          outline: none;
+          box-shadow: inset 0px 0px 4px 1px var(--lumo-primary-color-50pct);
+        }
       </style>
       <vcf-network-tool-panel id="toolpanel"></vcf-network-tool-panel>
       <vcf-network-io-panel input id="inputs" context-stack="[[contextStack]]"></vcf-network-io-panel>
@@ -250,6 +263,15 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
    * @param {Node | Node[]} nodes
    */
   confirmUpdateNodes(nodes) {
+    if (Array.isArray(nodes)) {
+      nodes.forEach(node => {
+        if (node.type === 'component') {
+          this._setDeepEdges(node);
+        }
+      });
+    } else if (nodes.type === 'component') {
+      this._setDeepEdges(nodes);
+    }
     this._confirmUpdateDataSet('nodes', nodes);
   }
 
@@ -296,6 +318,10 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
    * @param {Edge | Edge[]} edges
    */
   confirmUpdateEdges(edges) {
+    this._setDeepEdges({
+      nodes: this.nodes,
+      edges: Array.isArray(edges) ? edges : [edges]
+    });
     this._confirmUpdateDataSet('edges', edges);
   }
 
