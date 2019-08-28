@@ -90,21 +90,11 @@ class VcfNetworkIODialog extends ThemableMixin(PolymerElement) {
         const edge = new Edge({ from: this.fromNode.id, to: this.toNode.id });
         if (this.toComponent) {
           const inputNode = this._activeInputSelect.value;
-          const component = this._activeInputSelect.node || this.toNode;
-          const paths = component.inputs[inputNode.id] || [];
-          paths.push(this._getIOPathObj('input', edge.id));
           edge.modelTo = inputNode.id;
-          edge.modelToPath = this._getParentDeepPath('input');
-          component.inputs[inputNode.id] = paths;
         }
         if (this.fromComponent) {
           const outputNode = this._activeOutputSelect.value;
-          const component = this._activeOutputSelect.node || this.fromNode;
-          const paths = component.outputs[outputNode.id] || [];
-          paths.push(this._getIOPathObj('output', edge.id));
           edge.modelFrom = outputNode.id;
-          edge.modelFromPath = this._getParentDeepPath('output');
-          component.outputs[outputNode.id] = paths;
         }
         this.main.addEdges(edge);
         this.close();

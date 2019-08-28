@@ -65,8 +65,21 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
 
         .vis-network-container {
           background-color: var(--lumo-contrast-5pct);
-          height: 100%;
+          height: calc(100% - 44px);
           width: 100%;
+        }
+
+        :host(:focus) {
+          outline: none;
+        }
+
+        :host(:focus) .vis-network {
+          box-shadow: inset 0px 0px 4px 1px var(--lumo-primary-color-50pct);
+        }
+
+        .vis-network:focus {
+          outline: none;
+          box-shadow: inset 0px 0px 4px 1px var(--lumo-primary-color-50pct);
         }
       </style>
       <vcf-network-tool-panel id="toolpanel"></vcf-network-tool-panel>
@@ -250,6 +263,15 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
    * @param {Node | Node[]} nodes
    */
   confirmUpdateNodes(nodes) {
+    if (Array.isArray(nodes)) {
+      nodes.forEach(node => {
+        if (node.type === 'component') {
+          this._setDeepEdges(node);
+        }
+      });
+    } else if (nodes.type === 'component') {
+      this._setDeepEdges(nodes);
+    }
     this._confirmUpdateDataSet('nodes', nodes);
   }
 
@@ -264,10 +286,11 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
    * @param {Edge | Edge[]} edges
    */
   confirmAddEdges(edges) {
-    this._setDeepEdges({
+    const data = {
       nodes: this.nodes,
       edges: Array.isArray(edges) ? edges : [edges]
-    });
+    };
+    this._setDeepEdges(data, true);
     this._confirmAddToDataSet('edges', edges);
   }
 
@@ -296,6 +319,11 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
    * @param {Edge | Edge[]} edges
    */
   confirmUpdateEdges(edges) {
+    const data = {
+      nodes: this.nodes,
+      edges: Array.isArray(edges) ? edges : [edges]
+    };
+    this._setDeepEdges(data, true);
     this._confirmUpdateDataSet('edges', edges);
   }
 
@@ -819,11 +847,11 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   _setDeepEdges(componentRef, root = false) {
-    const getDeepPath = (component, id1, id2, edge) => {
+    const getDeepPath = (component, id1, id2, edge, innerRoot = false) => {
       let path = [];
       let ioNode = null;
       if (this.context) path = this.contextStack.map(context => context.component.id);
-      if (!root) path.push(component.id);
+      if (!innerRoot) path.push(component.id);
       component.nodes.forEach(node => {
         if (node.type === 'component') {
           ioNode = node.nodes.filter(node => node.id === id1)[0];
@@ -865,19 +893,25 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
         if (node.type === 'component') setDeepEdgesHelper(node);
       });
       component.edges.forEach(edge => {
-        const fromNode = component.nodes.filter(node => node.id === edge.modelFrom)[0];
-        const toNode = component.nodes.filter(node => node.id === edge.modelTo)[0];
-        const from = edge.modelFrom;
-        const to = edge.modelTo;
-        edge.from = edge.modelFrom;
-        edge.to = edge.modelTo;
-        if (!fromNode) {
-          edge.modelFromPath = getDeepPath(componentRef, from, to, edge);
-          edge.from = edge.modelFromPath[edge.modelFromPath.length - 1];
-        }
-        if (!toNode) {
-          edge.modelToPath = getDeepPath(componentRef, to, from, edge);
-          edge.to = edge.modelToPath[edge.modelToPath.length - 1];
+        if (!(edge.modelFromPath || edge.modelToPath)) {
+          const fromNode = component.nodes.filter(node => node.id === edge.modelFrom)[0];
+          const toNode = component.nodes.filter(node => node.id === edge.modelTo)[0];
+          const from = edge.modelFrom;
+          const to = edge.modelTo;
+          edge.from = edge.modelFrom;
+          edge.to = edge.modelTo;
+          if (!fromNode) {
+            const path = getDeepPath(componentRef, from, to, edge, root);
+            const fromIndex = this.context ? path.indexOf(this.context.component.id) + 1 : 0;
+            edge.modelFromPath = path;
+            edge.from = edge.modelFromPath[fromIndex];
+          }
+          if (!toNode) {
+            const path = getDeepPath(componentRef, to, from, edge, root);
+            const toIndex = this.context ? path.indexOf(this.context.component.id) + 1 : 0;
+            edge.modelToPath = path;
+            edge.to = edge.modelToPath[toIndex];
+          }
         }
       });
     };
@@ -913,7 +947,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     const evt = new CustomEvent(`vcf-network-new-${dataset}`, { detail: { items }, cancelable: true });
     const cancelled = !this.dispatchEvent(evt);
     if (!cancelled) {
-      this._confirmAddToDataSet(dataset, items);
+      this[`confirmAdd${dataset[0].toUpperCase() + dataset.slice(1)}`](items);
       this.dispatchEvent(new CustomEvent(`vcf-network-after-new-${dataset}`, { detail: { items } }));
     }
   }
