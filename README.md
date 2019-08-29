@@ -36,19 +36,19 @@ The hierarchical network visualization consists of nodes, edges and components. 
 
 Click the button for the node type you would like to add on the left tool panel. This will activate the "Add node mode" for this node type. You can then click anywhere on the middle canvas area to create a node at that position.
 
-![vcf-network-add-nodes](https://user-images.githubusercontent.com/3392815/63554015-e744bb00-c544-11e9-8d8f-e24811eccc9d.gif)
+![add-nodes](https://user-images.githubusercontent.com/3392815/63940106-7e43d280-ca71-11e9-84b0-74fc0fad6a81.gif)
 
 #### Add edges
 
 To add an edge between two nodes, first click and hold on the node you would like the edge to begin from. The cursor will change and you will be able to drag an edge to another node. When you release the mouse button over another node, an edge will be created.
 
-![vcf-network-add-edges](https://user-images.githubusercontent.com/3392815/63554051-02172f80-c545-11e9-9ac5-3a48a2a70424.gif)
+![add-edges](https://user-images.githubusercontent.com/3392815/63940134-8dc31b80-ca71-11e9-80e0-fa386c052167.gif)
 
 #### Creating components
 
 In order to create components you must first select the nodes that will be in that component. You can select a single node by clicking with the left mouse button but to select multiple nodes, you must click and drag with the **right mouse button**. Once you have selected nodes, click the Create Component button on the right panel. You can then edit the components name and color using the fields also found on the right panel.
 
-![vcf-network-create-component](https://user-images.githubusercontent.com/3392815/63554069-12c7a580-c545-11e9-928d-e769ef192afb.gif)
+![create-components](https://user-images.githubusercontent.com/3392815/63940164-99164700-ca71-11e9-9a7e-703da4c5e28a.gif)
 
 ## Hotkeys
 
