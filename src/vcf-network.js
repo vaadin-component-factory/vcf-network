@@ -268,10 +268,12 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     if (Array.isArray(nodes)) {
       updatedNode = [];
       nodes.forEach(node => {
+        if (node.type === 'component') this._setDeepEdges(node);
         const updateNode = this.nodes.filter(n => n.id === node.id)[0];
         updatedNode.push(Object.assign(updateNode, node));
       });
     } else {
+      if (nodes.type === 'component') this._setDeepEdges(nodes);
       const updateNode = this.nodes.filter(node => node.id === nodes.id)[0];
       updatedNode = Object.assign(updateNode, nodes);
     }
