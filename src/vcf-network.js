@@ -888,7 +888,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
           } else if (this._containsNode(node, id)) {
             path = path.concat(getShallowPath(node, id));
           }
-        } else if (root && node.id === id) {
+        } else if (node.id === id) {
           path.push(node.id);
         }
       });
@@ -907,19 +907,25 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
           edge.from = edge.modelFrom;
           edge.to = edge.modelTo;
           if (!fromNode) {
-            const path = getDeepPath(componentRef, from, to, edge, root);
-            const fromIndex = this.context ? path.indexOf(this.context.component.id) + 1 : 0;
-            edge.modelFromPath = path;
-            edge.from = edge.modelFromPath[fromIndex];
+            edge.modelFromPath = getDeepPath(componentRef, from, to, edge, root);
+            edge.from = getDisplayIdFromPath(component, edge.modelFromPath);
           }
           if (!toNode) {
-            const path = getDeepPath(componentRef, to, from, edge, root);
-            const toIndex = this.context ? path.indexOf(this.context.component.id) + 1 : 0;
-            edge.modelToPath = path;
-            edge.to = edge.modelToPath[toIndex];
+            edge.modelToPath = getDeepPath(componentRef, to, from, edge, root);
+            edge.to = getDisplayIdFromPath(component, edge.modelToPath);
           }
         }
       });
+    };
+    const getDisplayIdFromPath = (component, path) => {
+      let index = 0;
+      for (let i = 0; i < path.length; i++) {
+        if (component.nodes.findIndex(item => item.id === path[i]) > -1) {
+          index = i;
+          break;
+        }
+      }
+      return path[index];
     };
     setDeepEdgesHelper(componentRef);
   }
