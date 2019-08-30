@@ -2,7 +2,7 @@ import { html, PolymerElement } from '@polymer/polymer/polymer-element';
 import { ThemableMixin } from '@vaadin/vaadin-themable-mixin';
 import { ElementMixin } from '@vaadin/vaadin-element-mixin';
 import { Node, Edge, IONode, ComponentNode } from './utils/vcf-network-shared';
-import vis from './lib/vis-network.module.min.js';
+import vis from 'vis-network/dist/vis-network.esm';
 
 import './components/vcf-network-breadcrumbs';
 import './components/vcf-network-color-option';
@@ -1263,3 +1263,12 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
 }
 
 customElements.define(VcfNetwork.is, VcfNetwork);
+
+/**
+ * @namespace Vaadin
+ */
+window.Vaadin.VcfNetwork = VcfNetwork;
+
+if (window.Vaadin.runIfDevelopmentMode) {
+  window.Vaadin.runIfDevelopmentMode('vaadin-license-checker', VcfNetwork);
+}

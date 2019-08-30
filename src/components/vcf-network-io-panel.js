@@ -1,6 +1,6 @@
 import { html, PolymerElement } from '@polymer/polymer/polymer-element';
 import { ThemableMixin } from '@vaadin/vaadin-themable-mixin/vaadin-themable-mixin';
-import vis from '../lib/vis-network.module.min.js';
+import vis from 'vis-network/dist/vis-network.esm';
 import tippy from 'tippy.js';
 
 class VcfNetworkIOPanel extends ThemableMixin(PolymerElement) {

@@ -53,10 +53,12 @@ In order to create components you must first select the nodes that will be in th
 ## Hotkeys
 
 #### Mouse
+
 - **Double Click:** Create node if on empty space
 - **Right Click:** Right click and drag to create selection rectangle
 
 #### Keyboard
+
 - **N:** Create normal node at cursor position or activate add node mode if add-node-toggle is enabled
 - **I:** Create input node at cursor position or activate add node mode if add-node-toggle is enabled
 - **O:** Create output node at cursor position or activate add node mode if add-node-toggle is enabled
@@ -77,7 +79,11 @@ In order to create components you must first select the nodes that will be in th
 
 ## Contributing
 
-  To contribute to the component, please read [the guideline](https://github.com/vaadin/vaadin-core/blob/master/CONTRIBUTING.md) first.
+To contribute to the component, please read [the guideline](https://github.com/vaadin/vaadin-core/blob/master/CONTRIBUTING.md) first.
+  
+## Vaadin Prime
+
+This component is available in Vaadin Prime subscription. It is still open source, but you need to have a valid CVAL license in order to use it. Read more at: https://vaadin.com/pricing
 
 ## License
 

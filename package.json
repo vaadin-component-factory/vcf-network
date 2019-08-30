@@ -24,10 +24,7 @@
     "test": "wct",
     "lint": "eslint src/*.js",
     "start": "polymer serve -o",
-    "build": "rollup -c",
-    "build:demo": "webpack",
-    "build:minify": "uglifyjs src/lib/vis-network.module.js -c -m --source-map --output src/lib/vis-network.module.min.js",
-    "prepare": "npm run build"
+    "build": "webpack"
   },
   "husky": {
     "hooks": {
@@ -53,7 +50,8 @@
     "@vaadin/vaadin-text-field": "^2.4.4",
     "@vaadin/vaadin-themable-mixin": "^1.4.4",
     "tippy.js": "^4.3.4",
-    "vis": "^4.21.0"
+    "vis": "^4.21.0",
+    "vis-network": "^5.2.4"
   },
   "devDependencies": {
     "@babel/core": "^7.5.5",
@@ -61,7 +59,7 @@
     "@babel/preset-env": "^7.5.5",
     "@polymer/iron-demo-helpers": "^3.0.0-pre.19",
     "@polymer/test-fixture": "^4.0.2",
-    "@types/vis": "^4.21.16",
+    "@types/vis": "^4.21.19",
     "@webcomponents/webcomponentsjs": "^2.0.0",
     "babel-eslint": "^10.0.2",
     "babel-loader": "^8.0.6",
@@ -85,9 +83,9 @@
     "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-commonjs": "^10.0.2",
     "rollup-plugin-node-resolve": "^5.2.0",
+    "terser-webpack-plugin": "^1.4.1",
     "uglify-es": "^3.3.9",
     "uglify-template-string-loader": "^1.1.1",
-    "terser-webpack-plugin": "^1.4.1",
     "wct-mocha": "^1.0.0",
     "webpack": "^4.39.2",
     "webpack-babel-multi-target-plugin": "^2.3.0",

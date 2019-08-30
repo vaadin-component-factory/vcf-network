@@ -1,6 +1,6 @@
 import styleModule from './style-module';
 import { pSBC } from './pSBC';
-import vis from '../lib/vis-network.module.min.js';
+import vis from 'vis-network/dist/vis-network.esm';
 
 export const colorVars = [
   { name: '--vcf-network-red', value: 'rgb(208,2,28)' },
