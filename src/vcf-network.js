@@ -518,18 +518,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
         this._manipulation._handleConnect(opt.event);
         this._manipulation._temporaryBindUI('onRelease', e => {
           const node = this._detectNode(e);
-          if (node && node.id !== startNodeId) {
-            const fromNode = this.data.nodes.get(startNodeId);
-            const toNode = this.data.nodes.get(node.id);
-            if (toNode.type === 'component' || fromNode.type === 'component') {
-              this._clearDataManipulation();
-              this._ioFromNode = fromNode;
-              this._ioToNode = toNode;
-              this.$.iodialog.open();
-            } else {
-              this._manipulation._finishConnect(e);
-            }
-          } else {
+          if (!node || (node && node.id === startNodeId)) {
             this._clearDataManipulation();
           }
         });
@@ -799,7 +788,20 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       from: data.from,
       to: data.to
     });
-    this._addToDataSet('edges', newEdge);
+    const fromNode = this.data.nodes.get(data.from);
+    const toNode = this.data.nodes.get(data.to);
+    if (data.from !== data.to) {
+      if (toNode.type === 'component' || fromNode.type === 'component') {
+        this._clearDataManipulation();
+        this._ioFromNode = fromNode;
+        this._ioToNode = toNode;
+        this.$.iodialog.open();
+      } else {
+        this._addToDataSet('edges', newEdge);
+      }
+    } else {
+      this._clearDataManipulation();
+    }
     this._canvas.style.cursor = 'default';
   }
 

@@ -278,7 +278,7 @@ class VcfNetworkIODialogContent extends ThemableMixin(PolymerElement) {
         }
 
         .arrow-right {
-          margin: auto var(--lumo-space-l);
+          margin: 61px var(--lumo-space-l) auto var(--lumo-space-l);
         }
 
         .arrow-right::before {
