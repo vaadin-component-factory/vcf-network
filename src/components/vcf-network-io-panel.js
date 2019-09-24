@@ -14,7 +14,6 @@ import tippy from 'tippy.js';
 /**
  * Panels on either side of the main canvas area.
  * Only visible when the context component contains inputs/outputs.
- * @private
  */
 class VcfNetworkIOPanel extends ThemableMixin(PolymerElement) {
   static get template() {

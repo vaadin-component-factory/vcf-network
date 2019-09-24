@@ -14,7 +14,6 @@ import vis from 'vis-network/dist/vis-network.esm';
 /**
  * Right side panel of VCF Network.
  * Contains buttons for CRUD operations and shows info for the currently selected items.
- * @private
  */
 class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
   static get template() {

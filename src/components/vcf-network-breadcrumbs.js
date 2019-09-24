@@ -13,7 +13,6 @@ import { ThemableMixin } from '@vaadin/vaadin-themable-mixin/vaadin-themable-mix
  * Top bar of VCF Network.
  * Displays breadcrumb links for context/hierarchy levels.
  * A new breadcrumb is added every time you enter a nested component.
- * @private
  */
 class VcfNetworkBreadcrumbs extends ThemableMixin(PolymerElement) {
   static get template() {

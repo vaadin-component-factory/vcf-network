@@ -11,7 +11,6 @@ import { ThemableMixin } from '@vaadin/vaadin-themable-mixin/vaadin-themable-mix
 
 /**
  * Used for displaying node options in the `vcf-network-io-dialog`.
- * @private
  */
 class VcfNetworkIOOption extends ThemableMixin(PolymerElement) {
   static get template() {

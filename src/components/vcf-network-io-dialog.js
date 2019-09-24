@@ -13,7 +13,6 @@ import '@vaadin/vaadin-confirm-dialog';
 
 /**
  * Dialog for selecting an IO node to connect edge to/from if component contains multiple inputs/outputs.
- * @private
  */
 class VcfNetworkIODialog extends ThemableMixin(PolymerElement) {
   static get template() {
@@ -276,6 +275,9 @@ class VcfNetworkIODialog extends ThemableMixin(PolymerElement) {
 
 customElements.define(VcfNetworkIODialog.is, VcfNetworkIODialog);
 
+/**
+ * Content for IO dialog.
+ */
 class VcfNetworkIODialogContent extends ThemableMixin(PolymerElement) {
   static get template() {
     return html`

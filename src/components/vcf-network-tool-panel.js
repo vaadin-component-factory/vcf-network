@@ -13,7 +13,6 @@ import vis from 'vis-network/dist/vis-network.esm';
 /**
  * Right side panel of VCF Network.
  * Contains buttons for adding nodes and custom component templates.
- * @private
  */
 class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
   static get template() {

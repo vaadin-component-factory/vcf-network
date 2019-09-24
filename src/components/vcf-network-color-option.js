@@ -13,7 +13,6 @@ import { addColorStyles, colorVars } from '../utils/vcf-network-shared';
 /**
  * Displays component color option.
  * Used in drop downs or for displaying color of component templates.
- * @private
  */
 class VcfNetworkColorOption extends ThemableMixin(PolymerElement) {
   static get template() {

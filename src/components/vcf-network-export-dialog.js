@@ -13,7 +13,6 @@ import { colorVars } from '../utils/vcf-network-shared';
 /**
  * Dialog for selecting export options.
  * Current selection may be exported as a network or component template.
- * @private
  */
 class VcfNetworkExportDialog extends ThemableMixin(PolymerElement) {
   static get template() {

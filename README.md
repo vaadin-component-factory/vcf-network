@@ -4,7 +4,9 @@
 [![npm version](https://badgen.net/npm/v/@vaadin-component-factory/vcf-network)](https://www.npmjs.com/package/@vaadin-component-factory/vcf-network)
 [![Published on Vaadin Directory](https://img.shields.io/badge/Vaadin%20Directory-published-00b4f0.svg)](https://vaadin.com/directory/component/vaadin-component-factoryvcf-network)
 
-[Live Demo ↗](https://incubator.app.fi/vcf-network-demo/)
+[Live Demo ↗](https://vcf-network.netlify.com)
+|
+[API documentation ↗](https://vcf-network.netlify.com/api/#/elements/Vaadin.VcfNetwork)
 
 ## Installation
 
@@ -80,7 +82,7 @@ In order to create components you must first select the nodes that will be in th
 ## Contributing
 
 To contribute to the component, please read [the guideline](https://github.com/vaadin/vaadin-core/blob/master/CONTRIBUTING.md) first.
-  
+
 ## Vaadin Prime
 
 This component is available in the Vaadin Prime subscription. It is still open source, but you need to have a valid CVAL license in order to use it. Read more at: https://vaadin.com/pricing
