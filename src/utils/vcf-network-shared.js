@@ -1,3 +1,11 @@
+/**
+ * @license
+ * Copyright (C) 2015 Vaadin Ltd.
+ * This program is available under Commercial Vaadin Add-On License 3.0 (CVALv3).
+ * See the file LICENSE.md distributed with this software for more information about licensing.
+ * See [the website]{@link https://vaadin.com/license/cval-3} for the complete license.
+ */
+
 import styleModule from './style-module';
 import { pSBC } from './pSBC';
 import vis from 'vis-network/dist/vis-network.esm';
@@ -30,33 +38,70 @@ export const randomColor = () => {
 };
 
 export class Node {
+  /**
+   * @param {Object} options Object containing `label`, `id` and any other data to be contained in this node.
+   */
   constructor(options = {}) {
+    /**
+     * @property {String} label Text displayed on the node.
+     */
     this.label = options.label || 'Node';
+    /**
+     * @property {String} id Unique ID of the node.
+     */
     this.id = options.id || vis.util.randomUUID();
     Object.assign(this, options);
   }
 }
 
 export class Edge {
+  /**
+   * @param {Object} options Object containing `from`, `to` and any other data to be contained in this edge.
+   */
   constructor(options = {}) {
     if (!options.from) throw new Error("'from' is required to create an edge");
     if (!options.to) throw new Error("'to' is required to create an edge");
+    /**
+     * @property {String} from Unique ID of the edge
+     */
     this.id = options.id || vis.util.randomUUID();
-    this.modelFrom = this.from = options.from;
-    this.modelTo = this.to = options.to;
+    /**
+     * @property {String} from ID of node this edge comes from.
+     */
+    this.from = options.from;
+    /**
+     * @property {String} to ID of node this edge goes to.
+     */
+    this.to = options.to;
+    this.modelFrom = this.from;
+    this.modelTo = this.to;
     Object.assign(this, options);
   }
 }
 
 export class ComponentNode extends Node {
+  /**
+   * @param {Object} options
+   * Object containing `label`, `edges`, `nodes` and any other data to be contained in this component.
+   */
   constructor(options = {}) {
     super(options);
     this.type = 'component';
     this.label = options.label || 'Component';
+    /**
+     * @property {Node[]} nodes Array of nodes in this component.
+     */
     this.nodes = options.nodes || [];
+    /**
+     * @property {Edge[]} edges Array of edges in this component.
+     */
     this.edges = options.edges || [];
     this.inputs = options.inputs || {};
     this.outputs = options.outputs || {};
+    /**
+     * @property {number} componentColor Number from 0-8. Sets color of this component.
+     */
+    this.componentColor = options.componentColor;
     this.setComponentColor(options.componentColor);
     Object.assign(this, ComponentNode.getComponentNodeStyles(this.componentColor));
   }
