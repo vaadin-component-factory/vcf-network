@@ -1,3 +1,11 @@
+/**
+ * @license
+ * Copyright (C) 2015 Vaadin Ltd.
+ * This program is available under Commercial Vaadin Add-On License 3.0 (CVALv3).
+ * See the file LICENSE.md distributed with this software for more information about licensing.
+ * See [the website]{@link https://vaadin.com/license/cval-3} for the complete license.
+ */
+
 import { html, PolymerElement } from '@polymer/polymer/polymer-element';
 import { ThemableMixin } from '@vaadin/vaadin-themable-mixin';
 import { ElementMixin } from '@vaadin/vaadin-element-mixin';
@@ -24,10 +32,62 @@ import '@vaadin/vaadin-radio-button';
 import '@vaadin/vaadin-radio-button/vaadin-radio-group';
 
 /**
- * @class VcfNetwork
- * @extends {PolymerElement}
+ * `<vcf-network>` is a Web Component for visualizing hierarchical networks.
+ *
+ * ```html
+ * <vcf-network></vcf-network>
+ * ```
+ *
+ * ### Creating networks
+ *
+ * The hierarchical network visualization consists of nodes, edges and components.
+ * A component is a grouping of nodes, edges and other components.
+ *
+ * #### Add nodes
+ *
+ * __JS__:
+ * ```javascript
+ * network.addNodes({ label: 'New Node' });
+ * ```
+ *
+ * __GUI__:
+ *
+ * Click the button for the node type you would like to add on the left tool panel.
+ * This will activate the "Add node mode" for this node type. You can then click anywhere
+ * on the middle canvas area to create a node at that position.
+ *
+ * #### Add edges
+ *
+ * __JS__:
+ * ```javascript
+ * network.addEdges({ from: 'nodeId1', to: 'nodeId2' });
+ * ```
+ *
+ * __GUI__:
+ *
+ * To add an edge between two nodes, first click and hold on the node you would like the edge
+ * to begin from. The cursor will change and you will be able to drag an edge to another
+ * node. When you release the mouse button over another node, an edge will be created.
+ *
+ * #### Creating components
+ *
+ * __JS__:
+ * ```javascript
+ * network.createComponent(['nodeId1', 'nodeId2', ...nodeIds]);
+ * ```
+ *
+ * __GUI__:
+ *
+ * In order to create components you must first select the nodes that will be in that component.
+ * You can select a single node by clicking with the left mouse button but to select multiple nodes,
+ * you must click and drag with the **right mouse button**. Once you have selected nodes,
+ * click the Create Component button on the right panel. You can then edit the component's
+ * name and color using the fields also found on the right panel.
+ *
+ * @memberof Vaadin
  * @mixes ElementMixin
  * @mixes ThemableMixin
+ * @demo demo/index.html
  */
 class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   static get template() {
@@ -114,7 +174,14 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
 
   static get properties() {
     return {
+      /**
+       * Data in the current context/hierarchy level.
+       */
       data: Object,
+
+      /**
+       * Data for the entire network.
+       */
       rootData: {
         type: Object,
         value: () => ({
@@ -123,40 +190,82 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
         }),
         notify: true
       },
+
+      /**
+       * Path to JSON document used to load component templates.
+       */
       templateSrc: {
         type: String,
         observer: '_templateSrcChanged'
       },
+
+      /**
+       * Path to JSON document used to load a previously made network.
+       */
       dataSrc: {
         type: String,
         observer: '_dataSrcChanged'
       },
+
+      /**
+       * Stack of objects containing data related to current context/hierarchy level.
+       */
       contextStack: {
         type: Array,
         observer: '_contextChanged'
       },
+
+      /**
+       * Reference to `vis-network-container` element.
+       */
       vis: Object,
+
+      /**
+       * Indicates whether a _node_ is currently being added.
+       */
       addingNode: {
         type: Boolean,
         observer: '_addingNodeChanged'
       },
+
+      /**
+       * Indicates whether a _component_ is currently being added.
+       */
       addingComponent: {
         type: Boolean,
         observer: '_addingComponentChanged'
       },
+
+      /**
+       * List of component templates.
+       */
       components: {
         type: Array,
         observer: () => []
       },
+
+      /**
+       * Current zoom scale of canvas viewport.
+       */
       scale: {
         type: Number,
         observer: '_scaleChanged',
         notify: true
       },
+
+      /**
+       * If enabled, makes the tool panel buttons behave as a toggle.
+       * Multiple nodes may be added without disabling `addingNode` mode.
+       * To stop adding nodes, the button must be clicked again.
+       */
       addNodeToggle: {
         type: Boolean,
         observer: '_addNodeToggleChanged'
       },
+
+      /**
+       * When set to true, collapses both right and left panel.
+       */
       collapsed: {
         type: Boolean,
         observer: '_collapsedChanged'
@@ -172,43 +281,67 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     this._initMultiSelect();
   }
 
+  /**
+   * @returns {Node[]}
+   */
   get nodes() {
     return this.getNodes();
   }
 
+  /**
+   * @returns {String[]}
+   */
   get nodeIds() {
     return this.getNodeIds();
   }
 
+  /**
+   * @returns {Edge[]}
+   */
   get edges() {
     return this.getEdges();
   }
 
+  /**
+   * @returns {String[]}
+   */
   get edgeIds() {
     return this.getEdgeIds();
   }
 
+  /**
+   * @returns {Object | null}
+   */
   get context() {
-    return this.contextStack[this.contextStack.length - 1];
+    return this.contextStack[this.contextStack.length - 1] || null;
   }
 
+  /**
+   * @returns {Object | null}
+   */
   get parentContext() {
+    let parent = null;
     if (this.contextStack.length > 1) {
-      return this.contextStack[this.contextStack.length - 2].data;
-    } else {
-      return {
+      parent = this.contextStack[this.contextStack.length - 2].data;
+    } else if (this.contextStack.length) {
+      parent = {
         nodes: this.nodes,
         edges: this.edges
       };
     }
-  }
-
-  get noMode() {
-    return !this.addingNode && !this.addingComponent && !this.addingCopy;
+    return parent;
   }
 
   /**
-   * @param {{ nodeIds: string[], edgeIds: string[] }} data
+   * Returns true if no mode is active.
+   * @returns {Boolean}
+   */
+  get noModeActive() {
+    return !this.addingNode && !this.addingComponent;
+  }
+
+  /**
+   * @param {{ nodeIds: String[], edgeIds: String[] }} data
    */
   select(data) {
     this._network.setSelection({ nodes: data.nodeIds, edges: data.edgeIds });
@@ -239,14 +372,14 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   /**
-   * @param {string[]} nodeIds
+   * @param {String | String[]} nodeIds
    */
   deleteNodes(nodeIds) {
     this._removeFromDataSet('nodes', nodeIds);
   }
 
   /**
-   * @param {string[]} nodeIds
+   * @param {String | String[]} nodeIds
    */
   confirmDeleteNodes(nodeIds) {
     this._confirmRemoveFromDataSet('nodes', nodeIds);
@@ -263,7 +396,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
    * @param {Node | Node[]} nodes
    */
   confirmUpdateNodes(nodes) {
-    /* Merge client and server node properties */
+    // Merge client and server node properties
     let updatedNode;
     if (Array.isArray(nodes)) {
       updatedNode = [];
@@ -277,7 +410,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       const updateNode = this.nodes.filter(node => node.id === nodes.id)[0];
       updatedNode = Object.assign(updateNode, nodes);
     }
-    /* Add updates to dataset */
+    // Add updates to dataset
     this._confirmUpdateDataSet('nodes', updatedNode);
   }
 
@@ -301,14 +434,14 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   /**
-   * @param {string[]} edgeIds
+   * @param {String | String[]} edgeIds
    */
   deleteEdges(edgeIds) {
     this._removeFromDataSet('edges', edgeIds);
   }
 
   /**
-   * @param {string[]} edgeIds
+   * @param {String | String[]} edgeIds
    */
   confirmDeleteEdges(edgeIds) {
     this._confirmRemoveFromDataSet('edges', edgeIds);
@@ -334,21 +467,30 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   /**
-   * @param {string[]} nodeIds
+   * @param {String[]} nodeIds
    */
   createComponent(nodeIds) {
     this.select(nodeIds);
     this.$.infopanel._createComponent();
   }
 
+  /**
+   * @param {ComponentNode} component
+   */
   confirmAddTemplate(component) {
     this.$.toolpanel.confirmAddTemplate(component);
   }
 
+  /**
+   * @param {ComponentNode} component
+   */
   confirmUpdateTemplate(component) {
     this.$.toolpanel.confirmUpdateTemplate(component);
   }
 
+  /**
+   * @param {String} id
+   */
   confirmDeleteTemplate(id) {
     this.$.toolpanel.confirmDeleteTemplate(id);
   }
@@ -356,6 +498,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   hideEditTemplateButton() {
     this.$.toolpanel.hideEditTemplateButton();
   }
+
   showEditTemplateButton() {
     this.$.toolpanel.showEditTemplateButton();
   }
@@ -363,21 +506,27 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   hideTemplatePanel() {
     this.$.toolpanel.hideTemplatePanel();
   }
+
   showTemplatePanel() {
     this.$.toolpanel.showTemplatePanel();
   }
+
   closeLeftPanel() {
     this.$.toolpanel.closePanel();
   }
+
   openLeftPanel() {
     this.$.toolpanel.openPanel();
   }
+
   closeRightPanel() {
     this.$.infopanel.closePanel();
   }
+
   openRightPanel() {
     this.$.infopanel.openPanel();
   }
+
   /**
    * @param {string} id
    */
@@ -511,7 +660,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     });
 
     this._network.on('hold', opt => {
-      if (this.noMode && opt.nodes.length === 1) {
+      if (this.noModeActive && opt.nodes.length === 1) {
         const startNodeId = opt.nodes[0];
         this._network.addEdgeMode();
         this._canvas.style.cursor = 'grabbing';
@@ -526,7 +675,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     });
 
     this._network.on('select', opt => {
-      if (this.noMode && (opt.nodes.length || opt.edges.length)) {
+      if (this.noModeActive && (opt.nodes.length || opt.edges.length)) {
         this.dispatchEvent(
           new CustomEvent('vcf-network-selection', { detail: { nodes: opt.nodes, edges: opt.edges } })
         );
@@ -724,7 +873,6 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     if (this.addingNode) {
       this._network.addNodeMode();
       this.addingComponent = false;
-      this.addingCopy = false;
       this._canvas.style.cursor = 'crosshair';
     } else {
       this._clearDataManipulation();
@@ -735,17 +883,6 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   _addingComponentChanged() {
     if (this.addingComponent) {
       this.addingNode = false;
-      this.addingCopy = false;
-      this._canvas.style.cursor = 'crosshair';
-    } else {
-      this._canvas.style.cursor = 'default';
-    }
-  }
-
-  _addingCopyChanged() {
-    if (this.addingCopy) {
-      this.addingNode = false;
-      this.addingComponent = false;
       this._canvas.style.cursor = 'crosshair';
     } else {
       this._canvas.style.cursor = 'default';

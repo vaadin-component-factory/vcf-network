@@ -1,8 +1,20 @@
+/**
+ * @license
+ * Copyright (C) 2015 Vaadin Ltd.
+ * This program is available under Commercial Vaadin Add-On License 3.0 (CVALv3).
+ * See the file LICENSE.md distributed with this software for more information about licensing.
+ * See [the website]{@link https://vaadin.com/license/cval-3} for the complete license.
+ */
+
 import { html, PolymerElement } from '@polymer/polymer/polymer-element';
 import { ThemableMixin } from '@vaadin/vaadin-themable-mixin/vaadin-themable-mixin';
 import { Edge } from '../utils/vcf-network-shared';
 import '@vaadin/vaadin-confirm-dialog';
 
+/**
+ * Dialog for selecting an IO node to connect edge to/from if component contains multiple inputs/outputs.
+ * @private
+ */
 class VcfNetworkIODialog extends ThemableMixin(PolymerElement) {
   static get template() {
     return html`

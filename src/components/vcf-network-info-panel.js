@@ -1,13 +1,20 @@
+/**
+ * @license
+ * Copyright (C) 2015 Vaadin Ltd.
+ * This program is available under Commercial Vaadin Add-On License 3.0 (CVALv3).
+ * See the file LICENSE.md distributed with this software for more information about licensing.
+ * See [the website]{@link https://vaadin.com/license/cval-3} for the complete license.
+ */
+
 import { html, PolymerElement } from '@polymer/polymer/polymer-element';
 import { ThemableMixin } from '@vaadin/vaadin-themable-mixin/vaadin-themable-mixin';
 import { colorVars, ComponentNode, IONode } from '../utils/vcf-network-shared';
 import vis from 'vis-network/dist/vis-network.esm';
 
 /**
- * Left side panel of VCF Network.
+ * Right side panel of VCF Network.
  * Contains buttons for CRUD operations and shows info for the currently selected items.
- * @class VcfNetworkInfoPanel
- * @extends {ThemableMixin(PolymerElement)}
+ * @private
  */
 class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
   static get template() {
