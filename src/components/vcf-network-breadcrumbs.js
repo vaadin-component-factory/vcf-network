@@ -56,7 +56,7 @@ class VcfNetworkBreadcrumbs extends ThemableMixin(PolymerElement) {
         <div id="root" class$="[[_rootStyle(context)]]">Root</div>
         <div id="container">
           <template is="dom-repeat" items="[[context]]">
-            <iron-icon icon="hardware:keyboard-arrow-right"></iron-icon>
+            <iron-icon icon="vcf-network:keyboard-arrow-right"></iron-icon>
             <span class$="[[_itemStyle(index, context)]]" data-index="[[index]]">[[item.component.label]]</span>
           </template>
         </div>

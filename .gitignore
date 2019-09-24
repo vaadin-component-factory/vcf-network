@@ -1,5 +1,7 @@
 /node_modules/
 /build/
+/dist/
 package-lock.json
 copy_webc.sh
 analysis.json
+.prettierignore

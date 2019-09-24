@@ -1,11 +1,11 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes" />
     <title>vcf-network demo</title>
-    <script src="../node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
-    <script src="demo.js" type="module"></script>
+    <script replace src="../node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
+    <script replace src="demo.js" type="module"></script>
     <custom-style>
       <style is="custom-style" include="demo-pages-shared-styles">
         main {
@@ -28,6 +28,9 @@
         }
       </style>
     </custom-style>
+    <script>
+      window.addEventListener('WebComponentsReady', () => document.querySelector('main').classList.remove('hidden'));
+    </script>
   </head>
   <body>
     <main class="vertical-section-container hidden">

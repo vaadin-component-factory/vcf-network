@@ -197,19 +197,19 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
         <div class="section">
           <div class="section-header">
             <h6>Default</h6>
-            <iron-icon icon="hardware:keyboard-arrow-down"></iron-icon>
+            <iron-icon icon="vcf-network:keyboard-arrow-down"></iron-icon>
           </div>
           <div class="section-items">
             <div id="add-node" class="section-item">
-              <iron-icon icon="editor:format-shapes" class="blue"></iron-icon>
+              <iron-icon icon="vcf-network:format-shapes" class="blue"></iron-icon>
               <span>Node</span>
             </div>
             <div id="add-input-node" class="section-item">
-              <iron-icon icon="icons:exit-to-app" class="green"></iron-icon>
+              <iron-icon icon="vcf-network:exit-to-app" class="green"></iron-icon>
               <span>Input Node</span>
             </div>
             <div id="add-output-node" class="section-item">
-              <iron-icon icon="icons:exit-to-app" class="red"></iron-icon>
+              <iron-icon icon="vcf-network:exit-to-app" class="red"></iron-icon>
               <span>Output Node</span>
             </div>
           </div>
@@ -217,7 +217,7 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
         <div id="template-panel" class="section edit-hidden">
           <div class="section-header">
             <h6>Template</h6>
-            <iron-icon icon="hardware:keyboard-arrow-down"></iron-icon>
+            <iron-icon icon="vcf-network:keyboard-arrow-down"></iron-icon>
           </div>
           <div class="section-items" id="custom">
             <template is="dom-if" if="[[!components.length]]" on-dom-change="_initToolbar">
@@ -236,7 +236,7 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
                     title="Edit template"
                     on-click="_updateTemplateListener"
                   >
-                    <iron-icon icon="icons:create" slot="prefix"></iron-icon>
+                    <iron-icon icon="vcf-network:create" slot="prefix"></iron-icon>
                   </vaadin-button>
                   <vaadin-button
                     class="delete-template"
@@ -244,14 +244,14 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
                     title="Delete template"
                     on-click="_deleteTemplateListener"
                   >
-                    <iron-icon icon="icons:delete" slot="prefix"></iron-icon>
+                    <iron-icon icon="vcf-network:delete" slot="prefix"></iron-icon>
                   </vaadin-button>
                 </div>
               </template>
             </template>
             <div id="new-template-button" class="template-item">
               <vaadin-button style="flex-grow:1;" title="Add template" on-click="_addTemplateListener">
-                <iron-icon icon="icons:add" slot="prefix"></iron-icon>
+                <iron-icon icon="vcf-network:add" slot="prefix"></iron-icon>
                 New template
               </vaadin-button>
             </div>
@@ -259,7 +259,7 @@ class VcfNetworkToolPanel extends ThemableMixin(PolymerElement) {
         </div>
         <div class="section section-grow"></div>
         <div class="section-footer">
-          <iron-icon icon="hardware:keyboard-arrow-left"></iron-icon>
+          <iron-icon icon="vcf-network:keyboard-arrow-left"></iron-icon>
         </div>
       </div>
     `;

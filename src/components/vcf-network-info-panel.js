@@ -105,19 +105,19 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
         <span id="selection" class="selection">[[selectionText]]</span>
         <div class="button-container">
           <vaadin-button id="create-component-button" theme="tertiary" title="Create component" disabled>
-            <iron-icon icon="icons:cached"></iron-icon>
+            <iron-icon icon="vcf-network:cached"></iron-icon>
           </vaadin-button>
           <vaadin-button id="export-button" theme="tertiary" title="Export component" disabled>
-            <iron-icon icon="icons:swap-vert"></iron-icon>
+            <iron-icon icon="vcf-network:swap-vert"></iron-icon>
           </vaadin-button>
           <vaadin-button id="copy-button" theme="tertiary" title="Copy" disabled>
-            <iron-icon icon="icons:content-copy"></iron-icon>
+            <iron-icon icon="vcf-network:content-copy"></iron-icon>
           </vaadin-button>
           <vaadin-button id="save-button" class="details hidden" theme="tertiary" title="Save">
-            <iron-icon icon="icons:save"></iron-icon>
+            <iron-icon icon="vcf-network:save"></iron-icon>
           </vaadin-button>
           <vaadin-button id="delete-button" theme="tertiary error" title="Delete" disabled>
-            <iron-icon icon="icons:delete"></iron-icon>
+            <iron-icon icon="vcf-network:delete"></iron-icon>
           </vaadin-button>
         </div>
         <div class="details-container">
@@ -158,7 +158,7 @@ class VcfNetworkInfoPanel extends ThemableMixin(PolymerElement) {
           </div>
         </div>
         <div class="section-footer">
-          <iron-icon icon="hardware:keyboard-arrow-right"></iron-icon>
+          <iron-icon icon="vcf-network:keyboard-arrow-right"></iron-icon>
         </div>
       </div>
     `;
