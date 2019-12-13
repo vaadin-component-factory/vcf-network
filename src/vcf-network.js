@@ -266,6 +266,14 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       collapsed: {
         type: Boolean,
         observer: '_collapsedChanged'
+      },
+
+      /**
+       * Change network options.
+       */
+      options: {
+        type: Boolean,
+        observer: '_optionsChanged'
       }
     };
   }
@@ -575,6 +583,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
 
   _initNetwork() {
     this.vis = this.shadowRoot.querySelector('.vis-network-container');
+    this._network = new vis.Network(this.vis, this.rootData);
     this.options = {
       physics: false,
       nodes: {
@@ -633,7 +642,6 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
         hover: true
       }
     };
-    this._network = new vis.Network(this.vis, this.rootData, this.options);
     this.contextStack = [];
     this._manipulation = this._network.manipulation;
     this._canvas = this.shadowRoot.querySelector('canvas');
@@ -651,8 +659,8 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   _initEventListeners() {
     this.vis.addEventListener('mousemove', e => {
       this._cursorPos = this._network.DOMtoCanvas({
-        x: e.clientX - this.vis.offsetLeft + window.scrollX,
-        y: e.clientY - this.vis.offsetTop + window.scrollY
+        x: e.clientX - this.vis.offsetLeft - this.offsetParent.offsetLeft + window.scrollX,
+        y: e.clientY - this.vis.offsetTop - this.offsetParent.offsetTop + window.scrollY
       });
     });
 
@@ -1395,6 +1403,10 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       this.$.toolpanel.openPanel();
       this.$.infopanel.openPanel();
     }
+  }
+
+  _optionsChanged(options) {
+    this._network.setOptions(options);
   }
 }
 
