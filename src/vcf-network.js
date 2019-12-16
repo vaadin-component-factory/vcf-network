@@ -284,6 +284,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     this._initComponents();
     this._initEventListeners();
     this._initMultiSelect();
+    this._getParentOffset();
   }
 
   /**
@@ -659,8 +660,8 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   _initEventListeners() {
     this.vis.addEventListener('mousemove', e => {
       this._cursorPos = this._network.DOMtoCanvas({
-        x: e.clientX - this.vis.offsetLeft - this.offsetParent.offsetLeft + window.scrollX,
-        y: e.clientY - this.vis.offsetTop - this.offsetParent.offsetTop + window.scrollY
+        x: e.clientX - this.vis.offsetLeft - this._offset.left + window.scrollX,
+        y: e.clientY - this.vis.offsetTop - this._offset.top + window.scrollY
       });
     });
 
@@ -1407,6 +1408,17 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
 
   _optionsChanged(options) {
     this._network.setOptions(options);
+  }
+
+  _getParentOffset() {
+    const offset = { top: 0, left: 0 };
+    let parent = this.offsetParent;
+    while (parent) {
+      offset.top += parent.offsetTop;
+      offset.left += parent.offsetLeft;
+      parent = parent.offsetParent;
+    }
+    this._offset = parent;
   }
 }
 
