@@ -1411,14 +1411,13 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   _getParentOffset() {
-    const offset = { top: 0, left: 0 };
+    this._offset = { top: 0, left: 0 };
     let parent = this.offsetParent;
     while (parent) {
-      offset.top += parent.offsetTop;
-      offset.left += parent.offsetLeft;
+      this._offset.top += parent.offsetTop;
+      this._offset.left += parent.offsetLeft;
       parent = parent.offsetParent;
     }
-    this._offset = parent;
   }
 }
 
