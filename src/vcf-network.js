@@ -11,6 +11,7 @@ import { ThemableMixin } from '@vaadin/vaadin-themable-mixin';
 import { ElementMixin } from '@vaadin/vaadin-element-mixin';
 import { Node, Edge, IONode, ComponentNode } from './utils/vcf-network-shared';
 import vis from 'vis-network/dist/vis-network.esm';
+import '@vaadin/vaadin-license-checker/vaadin-license-checker.js';
 
 import './components/vcf-network-breadcrumbs';
 import './components/vcf-network-color-option';
@@ -87,6 +88,18 @@ import '@vaadin/vaadin-radio-button/vaadin-radio-group';
  * @demo demo/index.html
  */
 class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
+  /**
+   * @protected
+   */
+  static _finalizeClass() {
+    super._finalizeClass();
+    const devModeCallback = window.Vaadin.developmentModeCallback;
+    const licenseChecker = devModeCallback && devModeCallback['vaadin-license-checker'];
+    if (typeof licenseChecker === 'function') {
+      licenseChecker(VcfNetwork);
+    }
+  }
+
   static get template() {
     return html`
       <style>
@@ -836,8 +849,8 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     this.vis.addEventListener('mousemove', e => {
       if (this._selectionDrag) {
         restoreDrawingSurface();
-        this._selectionRect.w = e.pageX - this.vis.offsetLeft - this._selectionRect.startX;
-        this._selectionRect.h = e.pageY - this.vis.offsetTop - this._selectionRect.startY;
+        this._selectionRect.w = e.pageX - this.vis.offsetLeft - this._offset.left - this._selectionRect.startX;
+        this._selectionRect.h = e.pageY - this.vis.offsetTop - this._offset.top - this._selectionRect.startY;
         this._ctx.strokeStyle = 'rgb(121, 173, 249)';
         this._ctx.strokeRect(
           this._selectionRect.startX,
@@ -858,8 +871,8 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
     this.vis.addEventListener('mousedown', e => {
       if (e.button == 2) {
         saveDrawingSurface();
-        this._selectionRect.startX = e.pageX - this.vis.offsetLeft;
-        this._selectionRect.startY = e.pageY - this.vis.offsetTop;
+        this._selectionRect.startX = e.pageX - this.vis.offsetLeft - this._offset.left;
+        this._selectionRect.startY = e.pageY - this.vis.offsetTop - this._offset.top;
         this._selectionDrag = true;
         this.vis.style.cursor = 'crosshair';
       }
@@ -1427,7 +1440,3 @@ customElements.define(VcfNetwork.is, VcfNetwork);
  * @namespace Vaadin
  */
 window.Vaadin.VcfNetwork = VcfNetwork;
-
-if (window.Vaadin.runIfDevelopmentMode) {
-  window.Vaadin.runIfDevelopmentMode('vaadin-license-checker', VcfNetwork);
-}
