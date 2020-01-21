@@ -151,6 +151,12 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
           outline: none;
           box-shadow: inset 0px 0px 4px 1px var(--lumo-primary-color-50pct);
         }
+
+        .hidden-html-render {
+          position: fixed;
+          top: 0;
+          left: -2000px;
+        }
       </style>
       <vcf-network-tool-panel id="toolpanel"></vcf-network-tool-panel>
       <vcf-network-io-panel input id="inputs" context-stack="[[contextStack]]"></vcf-network-io-panel>
@@ -586,6 +592,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
    * @param {{nodes: Node[], edges: Edge[]}} data
    */
   setData(data) {
+    this._parseHTML(data);
     this.clearData();
     this.rootData = {
       nodes: new vis.DataSet(data.nodes),
@@ -1431,6 +1438,42 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       this._offset.left += parent.offsetLeft;
       parent = parent.offsetParent;
     }
+  }
+
+  _parseHTML(data) {
+    const createSvgUrl = (html, width, height) => {
+      const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
+          <rect x="0" y="0" width="100%" height="100%" fill="#ffffff"></rect>
+          <foreignObject x="20" y="20" width="100%" height="100%">
+            <div
+              xmlns="http://www.w3.org/1999/xhtml"
+              style="width: 100%; font-family: sans-serif; font-size: 20px; color: #666"
+            >
+              ${html}
+            </div>
+          </foreignObject>
+        </svg>
+      `;
+      return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+    };
+    const isHTML = doc => Array.from(doc.body.childNodes).some(node => node.nodeType === 1);
+    data.nodes.forEach(node => {
+      const doc = new DOMParser().parseFromString(node.label, 'text/html');
+      if (isHTML(doc)) {
+        const div = document.createElement('div');
+        div.classList.add('hidden-html-render');
+        Array.from(doc.head.childNodes).forEach(node => div.appendChild(node));
+        Array.from(doc.body.childNodes).forEach(node => div.appendChild(node));
+        this.root.appendChild(div);
+        const width = div.clientWidth + 150;
+        const height = div.clientHeight + 20;
+        this.root.removeChild(div);
+        node.image = createSvgUrl(node.label, width, height);
+        node.label = '';
+        node.shape = 'image';
+      }
+    });
   }
 }
 
