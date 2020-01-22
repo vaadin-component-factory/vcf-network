@@ -1458,7 +1458,7 @@ class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
       return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
     };
     data.nodes.forEach(node => {
-      if (node.type === 'html') {
+      if (node.labelType === 'html') {
         const doc = new DOMParser().parseFromString(node.label, 'text/html');
         const div = document.createElement('div');
         div.classList.add('hidden-html-render');
