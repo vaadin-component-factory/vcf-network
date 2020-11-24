@@ -11,7 +11,6 @@ import { ThemableMixin } from '@vaadin/vaadin-themable-mixin';
 import { ElementMixin } from '@vaadin/vaadin-element-mixin';
 import { Node, Edge, IONode, ComponentNode } from './utils/vcf-network-shared';
 import vis from 'vis-network/dist/vis-network.esm';
-import '@vaadin/vaadin-license-checker/vaadin-license-checker.js';
 
 import './components/vcf-network-breadcrumbs';
 import './components/vcf-network-color-option';
@@ -88,17 +87,6 @@ import '@vaadin/vaadin-radio-button/vaadin-radio-group';
  * @demo demo/index.html
  */
 class VcfNetwork extends ElementMixin(ThemableMixin(PolymerElement)) {
-  /**
-   * @protected
-   */
-  static _finalizeClass() {
-    super._finalizeClass();
-    const devModeCallback = window.Vaadin.developmentModeCallback;
-    const licenseChecker = devModeCallback && devModeCallback['vaadin-license-checker'];
-    if (typeof licenseChecker === 'function') {
-      licenseChecker(VcfNetwork);
-    }
-  }
 
   static get template() {
     return html`
