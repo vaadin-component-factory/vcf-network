@@ -1,6 +1,5 @@
 # &lt;vcf-network&gt;
 
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/vaadin/web-components?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![npm version](https://badgen.net/npm/v/@vaadin-component-factory/vcf-network)](https://www.npmjs.com/package/@vaadin-component-factory/vcf-network)
 [![Published on Vaadin Directory](https://img.shields.io/badge/Vaadin%20Directory-published-00b4f0.svg)](https://vaadin.com/directory/component/vaadin-component-factoryvcf-network)
 
